@@ -52,23 +52,26 @@ export const loginSchema = z.object({
   password: z.string().min(1, "Password is required"),
 });
 
-export const profileSchema = z.object({
+/** PATCH /api/profile — email and phone are not accepted (read-only on account). */
+export const profileUpdateSchema = z.object({
   fullName: z.string().min(2, "Full name must be at least 2 characters"),
   collegeName: z.string().min(2, "College name is required"),
-  phoneNumber: z
-    .string()
-    .regex(indianPhoneRegex, "Enter a valid Indian phone number")
-    .transform((value) => {
-      const digits = value.replace(/\D/g, "");
-      return digits.length > 10 ? digits.slice(-10) : digits;
-    }),
   bio: z.string().max(280, "Bio must be 280 characters or less").optional().or(z.literal("")),
   city: z.string().max(80, "City is too long").optional().or(z.literal("")),
-  graduationYear: z
-    .union([z.number().int().min(2024).max(2035), z.nan()])
-    .optional()
-    .transform((value) => (typeof value === "number" && !Number.isNaN(value) ? value : undefined)),
+  graduationYear: z.union([z.number().int().min(2020).max(2040), z.null()]).optional(),
+  avatar: z
+    .union([
+      z.literal(""),
+      z
+        .string()
+        .max(8000)
+        .regex(/^(\/|https?:\/\/|data:image\/)/, "Invalid avatar URL"),
+    ])
+    .optional(),
 });
+
+/** @deprecated Use profileUpdateSchema — kept as alias for imports. */
+export const profileSchema = profileUpdateSchema;
 
 export const joinClubSchema = z.object({
   clubId: z.string().cuid(),
@@ -91,15 +94,31 @@ export const postCreateSchema = z.object({
   type: z.string().optional(),
 });
 
+/** Normalizes to last 10 digits; validates Indian mobile (starts 6–9). */
+const clubHeaderPhoneSchema = z
+  .string()
+  .min(1, "Phone number is required")
+  .transform((value) => {
+    const digits = value.replace(/\D/g, "");
+    return digits.length > 10 ? digits.slice(-10) : digits;
+  })
+  .refine((digits) => /^[6-9]\d{9}$/.test(digits), {
+    message: "Enter a valid 10-digit Indian mobile number",
+  });
+
 export const clubHeaderRegisterSchema = z
   .object({
     fullName: z.string().min(2),
     email: z.string().email(),
-    phoneNumber: z.string().min(10),
+    phoneNumber: clubHeaderPhoneSchema,
     collegeName: z.string().min(2),
     clubSlug: z.string().min(2),
-    experience: z.string().min(10),
-    instagramHandle: z.string().optional(),
+    experience: z
+      .string()
+      .trim()
+      .min(3, "Please add a short note about why you want to lead (at least 3 characters).")
+      .max(2000),
+    instagramHandle: z.string().optional().or(z.literal("")),
     password: z.string().min(8),
     confirmPassword: z.string().min(8),
   })
@@ -114,4 +133,5 @@ export const referralValidateSchema = z.object({
 
 export type RegisterInput = z.infer<typeof registerSchema>;
 export type LoginInput = z.infer<typeof loginSchema>;
-export type ProfileInput = z.infer<typeof profileSchema>;
+export type ProfileUpdateInput = z.infer<typeof profileUpdateSchema>;
+export type ProfileInput = ProfileUpdateInput;
