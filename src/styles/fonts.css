@@ -3,7 +3,7 @@
 
 @font-face {
   font-family: "Homoarak";
-  src: url("/fonts/HOMOARAK.TTF") format("truetype");
+  src: url("/fonts/HOMOARAK.ttf") format("truetype");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
