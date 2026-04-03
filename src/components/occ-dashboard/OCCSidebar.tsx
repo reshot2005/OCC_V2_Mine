@@ -6,7 +6,6 @@ import {
   Sparkle, 
   Shapes,
   Menu,
-  Infinity,
   LogOut
 } from "lucide-react";
 import Link from "next/link";
@@ -43,9 +42,13 @@ export function OCCSidebar({ activePath }: { activePath: string }) {
         {/* Brand Identity Section */}
         <div className="pt-10 px-6 pb-12 h-24 flex items-center">
           <Link href="/dashboard" className="flex items-center gap-4 group">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#5227FF] via-[#2B4BFF] to-[#D4AF37] text-white shadow-[0_0_30px_rgba(82,39,255,0.3)] transition-transform group-hover:scale-110 group-hover:rotate-12">
-              <Infinity className="h-7 w-7 text-white" strokeWidth={3} />
-            </div>
+            <img
+              src="/file_00000000c25c720ba27a68ebfd16e397.png"
+              alt="OCC"
+              className="h-12 w-12 shrink-0 rounded-2xl object-cover shadow-[0_0_30px_rgba(82,39,255,0.2)] transition-transform group-hover:scale-105"
+              width={48}
+              height={48}
+            />
             <AnimatePresence>
               {isHovered && (
                 <motion.span 

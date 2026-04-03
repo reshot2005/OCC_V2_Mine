@@ -82,8 +82,14 @@ export function ClubHeaderShell({ children, user }: ClubHeaderShellProps) {
         >
           {/* Logo Section */}
           <div className="flex items-center gap-4 px-2 py-8 group cursor-pointer mb-4">
-            <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-tr from-[#5227FF] via-[#2B4BFF] to-[#8C6DFD] text-white shadow-[0_0_25px_rgba(82,39,255,0.5)] group-hover:shadow-[0_0_35px_rgba(82,39,255,0.7)] transition-shadow duration-500 text-2xl flex-shrink-0">
-              {user.clubIcon}
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl shadow-[0_0_25px_rgba(82,39,255,0.5)] group-hover:shadow-[0_0_35px_rgba(82,39,255,0.7)] transition-shadow duration-500">
+              <img
+                src="/file_00000000c25c720ba27a68ebfd16e397.png"
+                alt="OCC"
+                className="h-full w-full object-cover"
+                width={48}
+                height={48}
+              />
             </div>
             <div className="flex flex-col">
               <span className="text-lg tracking-tight text-white font-semibold truncate max-w-[180px]">

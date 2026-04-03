@@ -22,7 +22,8 @@ export const metadata: Metadata = {
   title: "OCC — Off Campus Clubs for Gen Z",
   description: "Off Campus Clubs connects students across colleges through clubs, gigs, events, and premium scroll-driven experiences.",
   icons: {
-    icon: "/favicon.svg",
+    icon: "/file_00000000c25c720ba27a68ebfd16e397.png",
+    apple: "/file_00000000c25c720ba27a68ebfd16e397.png",
   },
 };
 
