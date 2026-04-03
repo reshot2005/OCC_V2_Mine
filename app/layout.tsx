@@ -21,6 +21,9 @@ const cormorant = Cormorant_Garamond({
 export const metadata: Metadata = {
   title: "OCC — Off Campus Clubs for Gen Z",
   description: "Off Campus Clubs connects students across colleges through clubs, gigs, events, and premium scroll-driven experiences.",
+  icons: {
+    icon: "/favicon.svg",
+  },
 };
 
 export default function RootLayout({

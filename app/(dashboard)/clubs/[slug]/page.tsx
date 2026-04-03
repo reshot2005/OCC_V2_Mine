@@ -62,8 +62,8 @@ export default async function ClubDetailPage({
   return (
     <div className="space-y-8 pb-10">
       {["bikers", "sports", "photography", "fashion"].includes(club.slug) ? (
-        <div className="overflow-hidden rounded-[32px] border border-white/8">
-          <ClubExperience slug={club.slug} />
+        <div className="overflow-hidden rounded-[32px] border border-white/8 bg-[#050505]">
+          <ClubExperience slug={club.slug} embedded />
         </div>
       ) : null}
 

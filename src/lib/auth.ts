@@ -51,7 +51,7 @@ export async function getSessionUser() {
 export async function requireUser() {
   const user = await getSessionUser();
   if (!user) {
-    redirect("/login");
+    redirect("/login?reauth=1");
   }
   return user;
 }
@@ -60,7 +60,7 @@ export async function requireUser() {
 export async function requireAdmin() {
   const user = await getSessionUser();
   if (!user) {
-    redirect(staffGateHref());
+    redirect(`${staffGateHref()}?reauth=1`);
   }
   if (user.role !== "ADMIN") {
     redirect("/dashboard");

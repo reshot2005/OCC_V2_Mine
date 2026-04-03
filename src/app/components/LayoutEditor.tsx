@@ -106,7 +106,7 @@ export function LayoutEditorProvider({
           <button
             type="button"
             onClick={() => setEditorMode(true)}
-            className="rounded-full bg-slate-900 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-slate-900/25 transition hover:bg-slate-800"
+            className="hidden sm:block rounded-full bg-slate-900 px-4 py-2.5 text-sm font-medium text-white shadow-lg shadow-slate-900/25 transition hover:bg-slate-800"
           >
             Visual layout edit
           </button>

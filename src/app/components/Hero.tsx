@@ -84,8 +84,8 @@ export function Hero() {
               transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
               className="text-center"
             >
-              <h1 className="font-homoarak text-[1.65rem] leading-[1.12] sm:text-[2rem] md:text-[2.75rem] md:leading-[1.1] lg:text-[3.2rem] font-normal text-white tracking-tight drop-shadow-sm">
-                Your crew lives off campus
+              <h1 className="font-sans font-bold text-[2rem] leading-[1.05] sm:text-[3rem] md:text-[4.5rem] lg:text-[5.5rem] text-white tracking-tighter drop-shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
+                YOUR CREW LIVES<br />OFF CAMPUS
               </h1>
             </motion.div>
           </MovableBlock>

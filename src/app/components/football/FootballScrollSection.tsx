@@ -18,9 +18,10 @@ const HERO_FADE_END = 0.1;
 interface Props {
   frames: HTMLImageElement[];
   loaded?: boolean;
+  embedded?: boolean;
 }
 
-export function FootballScrollSection({ frames, loaded = true }: Props) {
+export function FootballScrollSection({ frames, loaded = true, embedded = false }: Props) {
   const containerRef = useRef<HTMLElement>(null);
 
   const playhead = useFootballPhysics(containerRef, FOOTBALL_TOTAL_FRAMES);
@@ -58,7 +59,7 @@ export function FootballScrollSection({ frames, loaded = true }: Props) {
       ref={containerRef}
       id="football-section"
       className="relative"
-      style={{ height: `${FOOTBALL_SCROLL_HEIGHT_VH}vh`, background: "#060606" }}
+      style={{ height: `${embedded ? 260 : FOOTBALL_SCROLL_HEIGHT_VH}vh`, background: "#060606" }}
     >
       <div
         className="sticky top-0 relative isolate h-[100dvh] w-full overflow-hidden"

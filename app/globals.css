@@ -105,9 +105,9 @@ a {
   animation: slow-glow 4s infinite ease-in-out;
 }
 
-/* ENFORCE 90% ZOOM ON DESKTOP AS 100% PREFERENCE */
-@media screen and (min-width: 1200px) {
-  html {
+/* Premium Visual Utilities - Dashboard Specific Zoom */
+.dashboard-page-zoom {
+  @media screen and (min-width: 1200px) {
     zoom: 0.9;
   }
 }

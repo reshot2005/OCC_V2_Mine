@@ -14,25 +14,38 @@ export function Header() {
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.6, ease: "easeOut" }}
-      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 py-6 md:px-12 pointer-events-none"
+      className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 py-4 xs:px-6 xs:py-6 md:px-12 pointer-events-none"
     >
       <MovableBlock
         id="header-logo"
-        className="pointer-events-auto select-none text-2xl font-medium tracking-widest text-white drop-shadow-sm"
+        className="pointer-events-auto select-none text-xl xs:text-2xl font-black tracking-widest text-white drop-shadow-sm font-sans"
       >
         OCC
       </MovableBlock>
 
-      <div className="flex items-center gap-3 pointer-events-auto">
-        <MovableBlock id="header-activity-btn">
+      <div className="flex items-center gap-2 sm:gap-3 pointer-events-auto">
+        <MovableBlock id="header-activity-btn" className="hidden xs:flex">
           <button
             type="button"
-            className="flex h-10 w-10 items-center justify-center rounded-full bg-slate-200/50 backdrop-blur-md transition-colors hover:bg-slate-200"
+            className="flex h-9 w-9 items-center justify-center rounded-full bg-slate-200/50 backdrop-blur-md transition-colors hover:bg-slate-200"
           >
-            <Activity size={18} className="text-slate-800" />
+            <Activity size={16} className="text-slate-800" />
           </button>
         </MovableBlock>
-        <MovableBlock id="header-join-club-btn">
+        
+        {/* Mobile-only compact Join button */}
+        <MovableBlock id="header-mobile-join-btn" className="flex sm:hidden">
+          <button
+            type="button"
+            onClick={() => navigateForAuth(navigate, "/dashboard/explore", "/login")}
+            className="flex items-center justify-center rounded-full bg-slate-800 px-4 py-2 text-[10px] font-bold tracking-wider text-white backdrop-blur-md"
+          >
+            JOIN
+          </button>
+        </MovableBlock>
+
+        {/* Desktop-only full buttons */}
+        <MovableBlock id="header-join-club-btn" className="hidden sm:flex">
           <button
             type="button"
             onClick={() =>
@@ -44,7 +57,7 @@ export function Header() {
             <span className="ml-2 inline-block h-1 w-1 rounded-full bg-white/70" />
           </button>
         </MovableBlock>
-        <MovableBlock id="header-clubs-btn">
+        <MovableBlock id="header-clubs-btn" className="hidden sm:flex">
           <button
             type="button"
             onClick={() => scrollToOccClubsSection()}

@@ -16,6 +16,7 @@ async function main() {
       approvalStatus: "APPROVED",
     },
     create: {
+      id: "seed-admin-occ-staff",
       fullName: "OCC Staff",
       collegeName: "OCC HQ",
       phoneNumber: "0000000001",
@@ -76,6 +77,7 @@ async function main() {
   await prisma.gig.createMany({
     data: [
       {
+        id: "seed-gig-photo-reel-cut",
         title: "Event Photography Reel Cut",
         description: "Edit a 30-second vertical reel from the latest club drop.",
         payMin: 2500,
@@ -83,6 +85,7 @@ async function main() {
         deadline: new Date(Date.now() + 1000 * 60 * 60 * 24 * 9),
       },
       {
+        id: "seed-gig-ride-poster-pack",
         title: "Weekend Ride Poster Pack",
         description: "Design social posters and ticket teasers for a city ride.",
         payMin: 1800,

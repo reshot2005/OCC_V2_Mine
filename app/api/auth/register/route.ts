@@ -180,6 +180,7 @@ export async function POST(req: NextRequest) {
     });
     const response = NextResponse.json({ success: true, user }, { status: 201 });
     response.cookies.set("occ-token", token, authCookieOptions);
+    return response;
   } catch (error) {
     console.error("[auth/register] error:", error);
 

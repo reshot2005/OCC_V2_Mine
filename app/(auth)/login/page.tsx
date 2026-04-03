@@ -11,6 +11,7 @@ function LoginPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/dashboard";
+  const reauth = searchParams.get("reauth") === "1";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -110,6 +111,12 @@ function LoginPageInner() {
           <h2 className="text-5xl md:text-6xl font-black text-gray-900 mb-2">Hi there!</h2>
           <p className="text-gray-600">Welcome to OCC. Community Dashboard</p>
         </motion.div>
+
+        {reauth ? (
+          <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+            Your session expired or became invalid. Please log in again.
+          </div>
+        ) : null}
 
         {/* Form */}
         <motion.form

@@ -16,7 +16,7 @@ const rateMap = (globalThis as any).__occOtpRateMap ?? ((globalThis as any).__oc
 export async function POST(req: NextRequest) {
   try {
     if (!process.env.DATABASE_URL) {
-      throw new Error("DATABASE_URL is not configured");
+      return NextResponse.json({ error: "Database is not configured" }, { status: 503 });
     }
 
     const { email } = sendOtpSchema.parse(await req.json());
@@ -71,7 +71,15 @@ export async function POST(req: NextRequest) {
       );
     }
     console.error("[register/send-otp]", error);
-    return NextResponse.json({ error: "OTP send failed" }, { status: 500 });
+    return NextResponse.json(
+      {
+        error:
+          error instanceof Error
+            ? error.message
+            : "OTP send failed",
+      },
+      { status: 500 },
+    );
   }
 }
 

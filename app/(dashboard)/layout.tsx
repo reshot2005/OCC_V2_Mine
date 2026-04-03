@@ -13,7 +13,7 @@ export default async function DashboardLayout({
   const path = (await headers()).get("next-url") ?? "/dashboard";
 
   return (
-    <div className="flex min-h-screen bg-[#F6F7FA] font-sans tracking-tight text-black overflow-hidden select-none">
+    <div className="dashboard-page-zoom flex min-h-screen bg-[#F6F7FA] font-sans tracking-tight text-black overflow-hidden select-none">
       {/* Unified Navigation - Handles Sidebar & Bottom Nav */}
       <OCCSidebar activePath={path} />
       

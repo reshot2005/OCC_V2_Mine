@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { Loader2, Crown, LogIn, Sparkles } from "lucide-react";
 import Link from "next/link";
 
 export default function ClubHeaderLoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const reauth = searchParams.get("reauth") === "1";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -99,6 +101,12 @@ export default function ClubHeaderLoginPage() {
             </h2>
             <p className="text-white/50">Sign in to manage your club and community.</p>
           </motion.div>
+
+          {reauth ? (
+            <div className="mb-6 rounded-xl border border-amber-500/20 bg-amber-500/10 p-3 text-sm text-amber-200">
+              Your session expired or became invalid. Please log in again.
+            </div>
+          ) : null}
 
           {/* Form */}
           <motion.form

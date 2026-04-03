@@ -6,12 +6,23 @@ const PROTECTED_PATHS = ["/dashboard", "/clubs", "/events", "/gigs", "/profile",
 const AUTH_PATHS = ["/login", "/register", "/club-header/login", "/club-header/register"];
 
 function isStaffGatePath(pathname: string) {
-  return pathname === `${STAFF_PUBLIC_PREFIX}/gate` || pathname.startsWith(`${STAFF_PUBLIC_PREFIX}/gate/`);
+  const publicGate = `${STAFF_PUBLIC_PREFIX}/gate`;
+  return (
+    pathname === publicGate || 
+    pathname.startsWith(`${publicGate}/`) ||
+    pathname === "/staff-gate-internal" ||
+    pathname.startsWith("/staff-gate-internal/")
+  );
 }
 
 function isStaffPanelPath(pathname: string) {
   if (isStaffGatePath(pathname)) return false;
-  return pathname === STAFF_PUBLIC_PREFIX || pathname.startsWith(`${STAFF_PUBLIC_PREFIX}/`);
+  return (
+    pathname === STAFF_PUBLIC_PREFIX || 
+    pathname.startsWith(`${STAFF_PUBLIC_PREFIX}/`) ||
+    pathname === "/staff-panel-internal" ||
+    pathname.startsWith("/staff-panel-internal/")
+  );
 }
 
 function isLegacyAdminPath(pathname: string) {
@@ -28,6 +39,7 @@ function isInternalStaffPath(pathname: string) {
 export async function middleware(req: NextRequest) {
   const token = req.cookies.get("occ-token")?.value;
   const { pathname, search } = req.nextUrl;
+  const reauthRequested = req.nextUrl.searchParams.get("reauth") === "1";
 
   if (isLegacyAdminPath(pathname) || isInternalStaffPath(pathname)) {
     return new NextResponse(null, { status: 404 });
@@ -104,6 +116,12 @@ export async function middleware(req: NextRequest) {
       response.cookies.delete("occ-token");
       return response;
     }
+  }
+
+  if (isAuthPath && reauthRequested) {
+    const response = NextResponse.next();
+    response.cookies.delete("occ-token");
+    return response;
   }
 
   if (isAuthPath && token) {

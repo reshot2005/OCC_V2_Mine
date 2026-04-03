@@ -19,11 +19,13 @@ export default function RegisterPage() {
   const [sendingOtp, setSendingOtp] = useState(false);
   const [otpHint, setOtpHint] = useState<string | null>(null);
   const [error, setError] = useState("");
+  const [success, setSuccess] = useState("");
   const [referralCode, setReferralCode] = useState("");
   const [referralMeta, setReferralMeta] = useState<{ valid: boolean; club?: { name: string }; headerName?: string } | null>(null);
 
   const sendVerificationCode = async () => {
     setError("");
+    setSuccess("");
     setOtpHint(null);
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
       setError("Enter a valid email before requesting a code.");
@@ -51,6 +53,7 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    setSuccess("");
 
     if (password !== confirmPassword) {
       setError("Passwords do not match");
@@ -102,8 +105,11 @@ export default function RegisterPage() {
         return;
       }
 
-      router.push("/dashboard");
-      router.refresh();
+      setSuccess("Registration successful. Redirecting to dashboard...");
+      window.setTimeout(() => {
+        router.replace("/dashboard");
+        router.refresh();
+      }, 600);
     } catch {
       setError("Registration failed. Please try again.");
     } finally {
@@ -309,6 +315,16 @@ export default function RegisterPage() {
               className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-600 text-sm"
             >
               {error}
+            </motion.div>
+          )}
+
+          {success && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="p-3 bg-emerald-50 border border-emerald-200 rounded-lg text-emerald-700 text-sm"
+            >
+              {success}
             </motion.div>
           )}
 

@@ -3,6 +3,7 @@ import type { PrismaClient } from "@prisma/client";
 /** Canonical OCC clubs — kept in sync with `prisma/seed.ts` for production self-heal. */
 export const OCC_DEFAULT_CLUBS = [
   {
+    id: "club-bikers",
     slug: "bikers",
     name: "Bikers",
     icon: "🏍",
@@ -10,6 +11,7 @@ export const OCC_DEFAULT_CLUBS = [
     theme: "amber",
   },
   {
+    id: "club-music",
     slug: "music",
     name: "Music",
     icon: "🎵",
@@ -17,6 +19,7 @@ export const OCC_DEFAULT_CLUBS = [
     theme: "purple",
   },
   {
+    id: "club-sports",
     slug: "sports",
     name: "Sports Football",
     icon: "⚽",
@@ -24,6 +27,7 @@ export const OCC_DEFAULT_CLUBS = [
     theme: "green",
   },
   {
+    id: "club-photography",
     slug: "photography",
     name: "Photography",
     icon: "📷",
@@ -31,6 +35,7 @@ export const OCC_DEFAULT_CLUBS = [
     theme: "blue",
   },
   {
+    id: "club-fitness",
     slug: "fitness",
     name: "Fitness",
     icon: "💪",
@@ -38,6 +43,7 @@ export const OCC_DEFAULT_CLUBS = [
     theme: "charcoal",
   },
   {
+    id: "club-fashion",
     slug: "fashion",
     name: "Fashion",
     icon: "👗",
