@@ -76,7 +76,7 @@ export function Hero() {
         <div className="relative z-10 flex min-h-0 flex-1 flex-col items-center justify-center gap-5 py-2">
           <MovableBlock
             id="hero-title"
-            className="mx-auto w-full max-w-[42rem] shrink-0"
+            className="mx-auto w-full max-w-[56rem] shrink-0 px-4"
           >
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -84,7 +84,10 @@ export function Hero() {
               transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
               className="text-center"
             >
-              <h1 className="font-sans font-bold text-[2rem] leading-[1.05] sm:text-[3rem] md:text-[4.5rem] lg:text-[5.5rem] text-white tracking-tighter drop-shadow-[0_8px_30px_rgb(0,0,0,0.12)]">
+              <h1
+                className="font-bold text-[2.5rem] leading-[0.95] sm:text-[3.5rem] md:text-[5.5rem] lg:text-[7rem] xl:text-[8rem] text-white tracking-[-0.04em] drop-shadow-[0_8px_30px_rgb(0,0,0,0.12)] uppercase"
+                style={{ fontFamily: '"Homoarak", sans-serif' }}
+              >
                 YOUR CREW LIVES<br />OFF CAMPUS
               </h1>
             </motion.div>

@@ -1,10 +1,9 @@
 @import url("https://api.fontshare.com/v2/css?f[]=general-sans@400,500,600,700&display=swap");
 @import url("https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,400&family=DM+Mono:wght@400;500&family=Oswald:wght@400;500;600&family=Playfair+Display:ital,wght@0,400;0,700;1,400;1,700&display=swap");
 
-/* Place your file at public/fonts/HOMOARAK.ttf (same name/casing as in src). */
 @font-face {
   font-family: "Homoarak";
-  src: url("/fonts/HOMOARAK.ttf") format("truetype");
+  src: url("/fonts/HOMOARAK.TTF") format("truetype");
   font-weight: 100 900;
   font-style: normal;
   font-display: swap;
