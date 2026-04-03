@@ -1,12 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { Loader2, Crown, LogIn, Sparkles } from "lucide-react";
 import Link from "next/link";
 
-export default function ClubHeaderLoginPage() {
+function ClubHeaderLoginPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const reauth = searchParams.get("reauth") === "1";
@@ -259,5 +259,13 @@ export default function ClubHeaderLoginPage() {
         </div>
       </motion.div>
     </div>
+  );
+}
+
+export default function ClubHeaderLoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#070914]" />}>
+      <ClubHeaderLoginPageInner />
+    </Suspense>
   );
 }
