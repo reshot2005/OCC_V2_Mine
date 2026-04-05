@@ -12,7 +12,8 @@ export function LogoutButton() {
       className="inline-flex items-center gap-2 text-xs uppercase tracking-[0.24em] text-[#8A8478] transition hover:text-[#F5F0E8]"
       onClick={async () => {
         await fetch("/api/auth/logout", { method: "POST" });
-        router.push("/login");
+        const currentPath = window.location.pathname + window.location.search;
+        router.push(`/login?redirect=${encodeURIComponent(currentPath)}`);
         router.refresh();
       }}
     >

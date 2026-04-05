@@ -17,7 +17,7 @@ export default async function DashboardLayout({
   children: React.ReactNode;
 }>) {
   const user = await requireUser();
-  const path = (await headers()).get("next-url") ?? "/dashboard";
+  const path = headers().get("next-url") ?? "/dashboard";
 
   return (
     <div className="dashboard-page-zoom flex min-h-screen bg-[#F6F7FA] font-sans tracking-normal text-black overflow-hidden select-none antialiased [font-family:system-ui,-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif]">
@@ -28,8 +28,8 @@ export default async function DashboardLayout({
       <div className="relative flex h-screen min-w-0 flex-1 flex-col overflow-hidden">
         <OCCHeader user={user} />
 
-        <main className="flex-1 overflow-y-auto overflow-x-hidden px-0 sm:px-4 lg:px-5 xl:px-7 pb-24 lg:pb-10 pt-2 sm:pt-6 bg-[#F6F7FA] text-[15px] font-normal leading-normal">
-          <div className="mx-auto w-full max-w-[min(100%,1240px)]">
+        <main className="flex-1 overflow-y-auto overflow-x-hidden px-4 sm:px-6 lg:px-8 xl:px-10 pb-24 lg:pb-12 pt-4 bg-[#F6F7FA]">
+          <div className="mx-auto w-full max-w-[1400px]">
             <DashboardPageTransition>{children}</DashboardPageTransition>
           </div>
         </main>

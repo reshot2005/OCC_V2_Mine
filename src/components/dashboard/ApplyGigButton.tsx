@@ -17,7 +17,7 @@ export function ApplyGigButton({
     <button
       type="button"
       disabled={applied || loading}
-      className="w-full rounded-md border border-[#C9A96E]/40 px-4 py-3 text-[11px] uppercase tracking-[0.24em] text-[#C9A96E] transition hover:bg-[#C9A96E]/10 disabled:cursor-not-allowed disabled:opacity-60"
+      className="w-full rounded-2xl bg-[#5227FF] px-6 py-4 text-[12px] font-black uppercase tracking-[0.2em] text-white transition-all hover:bg-[#401ED9] hover:shadow-lg hover:shadow-[#5227FF]/20 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
       onClick={async () => {
         setLoading(true);
         const response = await fetch("/api/gigs", {

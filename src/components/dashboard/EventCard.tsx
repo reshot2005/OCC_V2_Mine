@@ -20,45 +20,60 @@ export function EventCard({
   const date = typeof event.date === "string" ? new Date(event.date) : event.date;
 
   return (
-    <GlassCard className="overflow-hidden rounded-[24px] p-0">
+    <div className="overflow-hidden rounded-[32px] bg-white border border-black/5 shadow-[0_4px_24px_rgb(0,0,0,0.04)] transition-all hover:shadow-[0_12px_40px_rgb(0,0,0,0.08)] group">
       <div
-        className="h-44 bg-cover bg-center"
+        className="h-64 bg-cover bg-center transition-transform duration-700 group-hover:scale-105"
         style={{
-          backgroundImage: `linear-gradient(180deg, rgba(12,12,10,0.08), rgba(12,12,10,0.75)), url(${event.imageUrl ?? "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80"})`,
+          backgroundImage: `linear-gradient(to bottom, rgba(0,0,0,0) 0%, rgba(0,0,0,0.2) 60%, rgba(0,0,0,0.6) 100%), url(${event.imageUrl || "https://images.unsplash.com/photo-1511578314322-379afb476865?auto=format&fit=crop&w=1200&q=80"})`,
         }}
       />
-      <div className="space-y-4 p-5">
-        <div className="flex items-start justify-between gap-3">
-          <div>
+      <div className="space-y-5 p-6 lg:p-8">
+        <div className="flex items-start justify-between gap-4">
+          <div className="space-y-2">
             {event.club ? (
-              <span className="rounded-full border border-white/8 bg-white/5 px-3 py-1 text-[11px] uppercase tracking-[0.24em] text-[#C9A96E]">
-                {event.club.icon} {event.club.name}
+              <span className="inline-flex items-center gap-2 rounded-full border border-[#5227FF]/10 bg-[#5227FF]/5 px-3 py-1 text-[9px] font-black uppercase tracking-[0.2em] text-[#5227FF]">
+                 {event.club.name}
               </span>
             ) : null}
-            <h3 className="mt-3 font-headline text-2xl text-[#F5F0E8]">{event.title}</h3>
+            <h3 className="text-2xl font-black text-slate-900 tracking-tight leading-tight">{event.title}</h3>
           </div>
-          <span className="rounded-full bg-[#C9A96E]/12 px-3 py-1 text-[11px] uppercase tracking-[0.24em] text-[#C9A96E]">
-            {format(date, "dd MMM")}
-          </span>
+          <div className="flex flex-col items-end">
+            <span className="text-2xl font-black text-[#5227FF] tracking-tighter">
+              {format(date, "dd")}
+            </span>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+              {format(date, "MMM")}
+            </span>
+          </div>
         </div>
-        <p className="text-sm leading-6 text-[#A9A294]">{event.description}</p>
-        <div className="space-y-2 text-xs uppercase tracking-[0.24em] text-[#8A8478]">
-          <p className="inline-flex items-center gap-2">
-            <MapPin className="h-3.5 w-3.5" />
+        
+        <p className="text-[14px] leading-relaxed text-slate-500 font-medium line-clamp-2">
+          {event.description}
+        </p>
+
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-3 pt-2 text-[11px] font-bold uppercase tracking-[0.15em] text-slate-400 border-t border-black/5 pt-6">
+          <p className="inline-flex items-center gap-2.5">
+            <MapPin className="h-4 w-4 text-[#5227FF]" />
             {event.venue}
           </p>
-          <p className="inline-flex items-center gap-2">
-            <CalendarDays className="h-3.5 w-3.5" />
-            {format(date, "EEE, do MMM · h:mm a")}
+          <p className="inline-flex items-center gap-2.5">
+            <CalendarDays className="h-4 w-4 text-[#5227FF]" />
+            {format(date, "h:mm a")}
           </p>
         </div>
-        <div className="flex items-center justify-between gap-3">
-          <span className="text-sm text-[#F5F0E8]">
-            {typeof event.price === "number" ? `₹${event.price}` : "Free"}
-          </span>
-          {action}
+
+        <div className="flex items-center justify-between gap-4 pt-4">
+          <div className="flex flex-col">
+            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Entry Fee</span>
+            <span className="text-lg font-black text-slate-900">
+              {typeof event.price === "number" ? `₹${event.price}` : "Free Entry"}
+            </span>
+          </div>
+          <div className="transition-transform hover:scale-105 active:scale-95">
+            {action}
+          </div>
         </div>
       </div>
-    </GlassCard>
+    </div>
   );
 }

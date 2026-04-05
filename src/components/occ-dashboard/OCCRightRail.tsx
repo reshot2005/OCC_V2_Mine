@@ -21,6 +21,7 @@ export type OCCClubItem = {
   name: string;
   members: string;
   imageUrl: string;
+  joined?: boolean;
 };
 
 export type OCCOpportunity = {
@@ -86,8 +87,11 @@ export function OCCRightRail({ events, trending, opportunities }: OCCRightRailPr
     try {
       const res = await fetch(`/api/clubs/${slug}/join`, { method: "POST" });
       const data = await res.json();
-      if (data.success) {
-        toast.success(`Welcome to ${slug}!`);
+      if (data.success || data.error === "Already a member") {
+        if (data.success) toast.success(`Welcome to ${slug}!`);
+        setLocalTrending(prev => prev.map(c => c.id === id ? { ...c, joined: true } : c));
+      } else {
+        toast.error("Cluster access denied.");
       }
     } catch (e) {
       toast.error("Cluster access denied.");
@@ -178,10 +182,12 @@ export function OCCRightRail({ events, trending, opportunities }: OCCRightRailPr
               </div>
               <button 
                 onClick={() => handleJoin(club.id, club.slug)}
-                disabled={joiningId === club.id}
-                className="text-[11px] font-semibold text-[#5227FF] h-9 px-4 rounded-xl bg-[#5227FF]/5 hover:bg-[#5227FF] hover:text-white transition-all duration-300 border border-[#5227FF]/10 disabled:opacity-50"
+                disabled={joiningId === club.id || club.joined}
+                className={club.joined 
+                  ? "text-[11px] font-semibold text-[#5227FF] h-9 px-4 rounded-xl bg-[#5227FF]/5 transition-all duration-300 border border-[#5227FF]/10 cursor-default opacity-80" 
+                  : "text-[11px] font-semibold text-[#5227FF] h-9 px-4 rounded-xl bg-[#5227FF]/5 hover:bg-[#5227FF] hover:text-white transition-all duration-300 border border-[#5227FF]/10 disabled:opacity-50"}
               >
-                {joiningId === club.id ? '...' : 'Join'}
+                {club.joined ? 'Joined ✓' : joiningId === club.id ? '...' : 'Join'}
               </button>
             </motion.div>
           ))}

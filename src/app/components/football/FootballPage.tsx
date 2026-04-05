@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect } from "react";
-import { Link } from "react-router";
+import { Link } from "@/lib/router-compat";
 import { motion, AnimatePresence } from "motion/react";
 import { useFootballFrames } from "../../../hooks/useFootballFrames";
 import { FOOTBALL_TOTAL_FRAMES, FOOTBALL_FRAMES_PATH, FC } from "./footballConstants";
@@ -206,28 +206,28 @@ function StadiumSection() {
 function LatestNewsSection() {
   const news = [
     {
-      image: "https://images.unsplash.com/photo-1431324155629-1a6deb1dec8d?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
+      image: "/football/news1.png",
       title: "AMERICAN FOOTBALL CLUB TEAM",
-      desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean c.",
+      desc: "Experience the intensity of the gridiron with OCC's elite squad. Training sessions starting this spring.",
       link: "LEARN MORE",
     },
     {
-      image: "https://images.unsplash.com/photo-1574629810360-7efbbe195018?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-      title: "AMERICAN FOOTBALL CLUB TEAM",
-      desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean cBecome a member of our online community and get tickets to upcoming",
-      link: "LEARN MORE",
+      image: "/football/news2.png",
+      title: "STADIUM SESSIONS REVEALED",
+      desc: "Our new night practice schedule at the central turf is now live. Join the lights under the Bangalore sky.",
+      link: "JOIN TRAINING",
     },
     {
-      image: "https://images.unsplash.com/photo-1508098682722-e99c43a406b2?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-      title: "AMERICAN FOOTBALL CLUB TEAM",
-      desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean c.",
-      link: "LEARN MORE",
+      image: "/football/news1.png",
+      title: "TACTICAL BRIEFING: SEASON 5",
+      desc: "Master the playbook with coached sessions every weekend. From beginner to pro athletes.",
+      link: "READ MORE",
     },
     {
-      image: "https://images.unsplash.com/photo-1553778263-73a83bab9b0c?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&q=80",
-      title: "AMERICAN FOOTBALL CLUB TEAM",
-      desc: "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean cBecome a member of our online community and get tickets to upcoming",
-      link: "LEARN MORE",
+      image: "/football/news2.png",
+      title: "EQUIPMENT DROP: FALL '26",
+      desc: "The new OCC Football kits are here. Pre-order your custom jersey today through the dashboard.",
+      link: "VIEW GEAR",
     },
   ];
 

@@ -1,17 +1,19 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { Suspense, useState } from "react";
 import { useRouter } from "next/navigation";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import Link from "next/link";
-import { Loader2, Mail } from "lucide-react";
+import { Loader2, Mail, CheckCircle2, ShieldCheck, Sparkles } from "lucide-react";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/app/components/ui/input-otp";
+import { Interactive3DModel } from "@/app/components/auth/Interactive3DModel";
 
-export default function RegisterPage() {
+function RegisterPageInner() {
   const router = useRouter();
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [otp, setOtp] = useState("");
@@ -55,6 +57,11 @@ export default function RegisterPage() {
     setError("");
     setSuccess("");
 
+    if (!/^[6-9]\d{9}$/.test(phone.trim())) {
+      setError("Enter a valid 10-digit Indian mobile number starting with 6-9.");
+      return;
+    }
+
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
@@ -92,6 +99,7 @@ export default function RegisterPage() {
         body: JSON.stringify({
           fullName: name.trim(),
           email: email.trim(),
+          phoneNumber: phone.trim(),
           password,
           confirmPassword,
           otp,
@@ -146,7 +154,18 @@ export default function RegisterPage() {
       >
         {/* Logo */}
         <div className="mb-12">
-          <h1 className="text-3xl font-black tracking-tight text-gray-900">OCC.</h1>
+          <h1 className="text-4xl font-black tracking-tight text-gray-900 flex items-center">
+            occ
+            <motion.span
+              animate={{ y: [0, -8, 0] }}
+              transition={{
+                duration: 1,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+              className="ml-1.5 h-3 w-3 rounded-full bg-[#3B5BFF]"
+            />
+          </h1>
           <p className="text-sm text-gray-500 mt-1">Off Campus Clubs</p>
         </div>
 
@@ -216,7 +235,7 @@ export default function RegisterPage() {
               value={name}
               onChange={(e) => setName(e.target.value)}
               required
-              className="w-full px-4 py-3.5 bg-white border border-gray-300 rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
+              className="w-full px-5 py-4 bg-white border-2 border-gray-400 rounded-2xl text-sm font-bold text-gray-900 placeholder:text-gray-500 focus:outline-none focus:border-gray-900 focus:ring-4 focus:ring-gray-900/5 transition-all"
             />
           </div>
 
@@ -228,7 +247,7 @@ export default function RegisterPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-4 py-3.5 bg-white border border-gray-300 rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
+              className="w-full px-5 py-4 bg-white border-2 border-gray-400 rounded-2xl text-sm font-bold text-gray-900 placeholder:text-gray-500 focus:outline-none focus:border-gray-900 focus:ring-4 focus:ring-gray-900/5 transition-all"
             />
             <button
               type="button"
@@ -246,20 +265,22 @@ export default function RegisterPage() {
             {otpHint ? <p className="text-xs text-green-700">{otpHint}</p> : null}
           </div>
 
-          <div className="space-y-2">
-            <label className="text-xs font-semibold text-gray-600">Email verification code</label>
-            <InputOTP
-              maxLength={6}
-              value={otp}
-              onChange={(v) => setOtp(v.replace(/\D/g, ""))}
-              containerClassName="justify-center gap-2"
-            >
-              <InputOTPGroup>
-                {Array.from({ length: 6 }, (_, i) => (
-                  <InputOTPSlot key={i} index={i} className="h-11 w-10 rounded-lg border border-gray-300 text-gray-900" />
-                ))}
-              </InputOTPGroup>
-            </InputOTP>
+          <div className="space-y-4">
+            <label className="text-xs font-black ml-1 uppercase tracking-widest text-[12px] text-gray-900">Verification Code</label>
+            <div className="flex justify-center">
+              <InputOTP
+                maxLength={6}
+                value={otp}
+                onChange={(v) => setOtp(v.replace(/\D/g, ""))}
+                containerClassName="gap-2"
+              >
+                <InputOTPGroup className="gap-2">
+                  {Array.from({ length: 6 }, (_, i) => (
+                    <InputOTPSlot key={i} index={i} className="h-16 w-14 rounded-2xl border-2 border-gray-400 bg-white text-lg font-black text-gray-900 shadow-sm transition-all focus:ring-4 focus:ring-gray-900/5 focus:border-gray-900" />
+                  ))}
+                </InputOTPGroup>
+              </InputOTP>
+            </div>
           </div>
 
           <div>
@@ -269,19 +290,37 @@ export default function RegisterPage() {
               value={referralCode}
               onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
               onBlur={validateReferral}
-              className={`w-full px-4 py-3.5 bg-white border rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:border-transparent transition-all ${
-                referralMeta?.valid ? "border-green-500 focus:ring-green-500" : "border-gray-300 focus:ring-gray-900"
-              }`}
+              required
+              className={`w-full px-5 py-4 bg-white border-2 rounded-2xl text-sm font-bold text-gray-900 placeholder:text-gray-500 placeholder:uppercase placeholder:font-black placeholder:tracking-widest focus:outline-none focus:border-gray-900 focus:ring-4 transition-all ${referralMeta?.valid ? "border-emerald-500 focus:ring-emerald-500/5 focus:border-emerald-500" : "border-gray-400 focus:ring-gray-900/5"
+                }`}
             />
-            <p className="mt-1 text-xs text-gray-500">Ask your Club Leader for their code</p>
+            <p className="mt-2 text-[10px] font-black uppercase tracking-widest text-gray-400 ml-1">Ask your Club Leader for their code</p>
             {referralMeta?.valid ? (
-              <div className="mt-2 rounded-lg border border-green-200 bg-green-50 p-2 text-sm text-green-700">
-                ✓ {referralMeta.club?.name} Club — Led by {referralMeta.headerName}
+              <div className="mt-3 flex items-start gap-2.5 rounded-2xl bg-emerald-50 p-4 border border-emerald-100">
+                <CheckCircle2 className="h-4 w-4 text-emerald-600 mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-[10px] font-black uppercase tracking-[0.2em] text-emerald-800">Verified: {referralMeta.club?.name}</p>
+                  <p className="text-xs text-emerald-600/80 font-medium pt-0.5">Joining as a member under {referralMeta.headerName}</p>
+                </div>
               </div>
             ) : referralCode && referralMeta && !referralMeta.valid ? (
-              <p className="mt-1 text-xs text-red-500">Invalid referral code</p>
+              <p className="mt-1 text-xs text-red-500 font-bold ml-1">Invalid referral code</p>
             ) : null}
           </div>
+
+          {/* Phone Input */}
+          <div className="md:col-span-2">
+            <input
+              type="tel"
+              placeholder="MOBILE NUMBER"
+              value={phone}
+              onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
+              required
+              className="w-full px-5 py-4 bg-white border-2 border-gray-400 rounded-2xl text-sm font-bold text-gray-900 placeholder:text-gray-500 placeholder:uppercase placeholder:font-black placeholder:tracking-widest focus:outline-none focus:border-gray-900 focus:ring-4 focus:ring-gray-900/5 transition-all"
+            />
+          </div>
+
+
 
           {/* Password Input */}
           <div>
@@ -291,7 +330,7 @@ export default function RegisterPage() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="w-full px-4 py-3.5 bg-white border border-gray-300 rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
+              className="w-full px-5 py-4 bg-white border-2 border-gray-400 rounded-2xl text-sm font-bold text-gray-900 placeholder:text-gray-500 focus:outline-none focus:border-gray-900 focus:ring-4 focus:ring-gray-900/5 transition-all"
             />
           </div>
 
@@ -303,7 +342,7 @@ export default function RegisterPage() {
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
               required
-              className="w-full px-4 py-3.5 bg-white border border-gray-300 rounded-xl text-gray-900 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-900 focus:border-transparent transition-all"
+              className="w-full px-5 py-4 bg-white border-2 border-gray-400 rounded-2xl text-sm font-bold text-gray-900 placeholder:text-gray-500 focus:outline-none focus:border-gray-900 focus:ring-4 focus:ring-gray-900/5 transition-all"
             />
           </div>
 
@@ -354,72 +393,93 @@ export default function RegisterPage() {
         </motion.form>
       </motion.div>
 
-      {/* Right Side - Illustration */}
+      {/* Right Side - Premium 3D Visual */}
       <motion.div
-        initial={{ opacity: 0, x: 50 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.6 }}
-        className="hidden lg:flex w-1/2 bg-gradient-to-br from-[#090908] via-[#C9A96E]/15 to-[#090908] relative overflow-hidden"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1.2 }}
+        className="hidden lg:flex w-1/2 bg-[#0C0C0A] relative overflow-hidden flex-col items-center justify-center p-12"
       >
-        {/* Particle Background */}
+        {/* Subtle Background Mesh */}
+        <div className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_50%_50%,_rgba(82,39,255,0.08),_transparent_70%)]" />
+
+        {/* Cinematic Particles */}
         <div className="absolute inset-0">
-          {[...Array(50)].map((_, i) => (
+          {[...Array(60)].map((_, i) => (
             <motion.div
               key={i}
-              className="absolute w-1 h-1 bg-white rounded-full"
+              className="absolute w-[1.5px] h-[1.5px] bg-white rounded-full"
               style={{
                 left: `${Math.random() * 100}%`,
                 top: `${Math.random() * 100}%`,
               }}
               animate={{
-                opacity: [0.2, 0.8, 0.2],
-                scale: [1, 1.5, 1],
+                opacity: [0, 0.4, 0],
+                scale: [0.5, 1, 0.5],
               }}
               transition={{
-                duration: 2 + Math.random() * 2,
+                duration: 4 + Math.random() * 3,
                 repeat: Infinity,
-                delay: Math.random() * 2,
+                delay: Math.random() * 5,
               }}
             />
           ))}
         </div>
 
-        {/* Main Illustration */}
-        <div className="relative w-full h-full flex items-center justify-center p-12">
-          <motion.div
-            animate={{
-              y: [0, -20, 0],
-              rotate: [0, 5, 0, -5, 0],
-            }}
-            transition={{
-              duration: 6,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-            className="relative"
-          >
-            <img
-              src="https://images.unsplash.com/photo-1655543274920-06de452d0d02?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx1bml2ZXJzaXR5JTIwY2FtcHVzJTIwYWVyaWFsJTIwdmlld3xlbnwxfHx8fDE3NzUxMTMwNDh8MA&ixlib=rb-4.1.0&q=80&w=1080"
-              alt="Campus"
-              className="w-full h-auto max-w-lg rounded-3xl shadow-2xl"
-            />
-          </motion.div>
+        {/* Interactive 3D Mesh */}
+        <div className="relative w-full h-full max-w-2xl z-10 flex items-center justify-center">
+          <Interactive3DModel />
         </div>
 
-        {/* Bottom Text */}
-        <div className="absolute bottom-12 left-12 right-12 z-10">
+        {/* Premium Floating Badge */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.2 }}
+          className="absolute top-12 right-12 flex items-center gap-4 bg-white/5 backdrop-blur-3xl px-6 py-4 rounded-[28px] border border-white/10"
+        >
+          <div className="h-10 w-10 rounded-2xl bg-gradient-to-br from-[#3B5BFF] to-[#5227FF] flex items-center justify-center shadow-lg shadow-[#3B5BFF]/20">
+            <ShieldCheck className="text-white h-5 w-5" />
+          </div>
+          <div>
+            <p className="text-[10px] font-black uppercase tracking-[0.25em] text-white">OFF-CampusClub</p>
+            <p className="text-xs text-white/50 font-medium">Student ecosystem</p>
+          </div>
+        </motion.div>
+
+        {/* Bottom Editorial Text */}
+        <div className="absolute bottom-12 left-16 right-16 z-20">
           <motion.h3
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.6 }}
-            className="text-4xl font-bold text-white leading-tight"
+            transition={{ delay: 1.4, duration: 0.8, ease: "easeOut" }}
+            className="text-5xl font-black text-white leading-[1.05] tracking-tight"
           >
-            Join thousands of students
-            <br />
-            in campus communities!
+            A world built <br />
+            <span className="text-[#3B5BFF]">for enthusiasts.</span>
           </motion.h3>
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.6 }}
+            transition={{ delay: 1.8 }}
+            className="mt-4 text-[10px] font-black uppercase tracking-[0.5em] text-white/60"
+          >
+            OFF-CampusClub 2026
+          </motion.p>
         </div>
+
+        {/* Corner Accents */}
+        <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#3B5BFF]/5 blur-[120px] -mr-64 -mt-64" />
+        <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-[#5227FF]/5 blur-[120px] -ml-64 -mb-64" />
       </motion.div>
     </div>
+  );
+}
+
+export default function RegisterPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#0C0C0A]" aria-hidden />}>
+      <RegisterPageInner />
+    </Suspense>
   );
 }

@@ -6,6 +6,7 @@ import { motion } from "motion/react";
 import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { STAFF_PUBLIC_PREFIX } from "@/lib/staff-paths";
+import { Interactive3DModel } from "@/app/components/auth/Interactive3DModel";
 
 function LoginPageInner() {
   const router = useRouter();
@@ -76,7 +77,18 @@ function LoginPageInner() {
       >
         {/* Logo */}
         <div className="mb-12">
-          <h1 className="text-3xl font-black tracking-tight text-gray-900">OCC.</h1>
+          <h1 className="text-4xl font-black tracking-tight text-gray-900 flex items-center">
+            occ
+            <motion.span
+              animate={{ y: [0, -8, 0] }}
+              transition={{
+                duration: 1,
+                repeat: Infinity,
+                ease: "easeInOut"
+              }}
+              className="ml-1.5 h-3 w-3 rounded-full bg-[#3B5BFF]"
+            />
+          </h1>
           <p className="text-sm text-gray-500 mt-1">Off Campus Clubs</p>
         </div>
 
@@ -274,12 +286,7 @@ function LoginPageInner() {
 
         {/* Top Right Buttons */}
         <div className="absolute top-8 right-8 flex items-center gap-3 z-10">
-          <button className="px-5 py-2 text-white text-sm font-medium hover:text-gray-300 transition-colors">
-            Sign Up
-          </button>
-          <button className="px-5 py-2 bg-white text-gray-900 rounded-full text-sm font-medium hover:bg-gray-100 transition-colors">
-            Join Us
-          </button>
+
         </div>
 
         {/* Community Badge */}
@@ -300,30 +307,14 @@ function LoginPageInner() {
             </svg>
           </div>
           <div>
-            <p className="text-white font-semibold text-sm">Largest Space</p>
+            <p className="text-white font-semibold text-sm">OFF-Campus Space</p>
             <p className="text-white/70 text-xs">Community</p>
           </div>
         </div>
 
         {/* Main Illustration */}
-        <div className="relative w-full h-full flex items-center justify-center p-12">
-          <motion.div
-            animate={{
-              y: [0, -20, 0],
-            }}
-            transition={{
-              duration: 4,
-              repeat: Infinity,
-              ease: "easeInOut",
-            }}
-            className="relative"
-          >
-            <img
-              src="https://images.unsplash.com/photo-1639823933284-3dba80c84a96?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxhc3Ryb25hdXQlMjBjb2xvcmZ1bCUyMHNwYWNlJTIwdmliZXMlMjBuZW9ufGVufDF8fHx8MTc3NTExNTcxN3ww&ixlib=rb-4.1.0&q=80&w=1080"
-              alt="Astronaut"
-              className="w-full h-auto max-w-lg rounded-3xl"
-            />
-          </motion.div>
+        <div className="relative w-full h-[600px] flex items-center justify-center p-12">
+          <Interactive3DModel />
         </div>
 
         {/* Bottom Text */}
@@ -334,9 +325,9 @@ function LoginPageInner() {
             transition={{ delay: 0.8, duration: 0.6 }}
             className="text-4xl font-bold text-white leading-tight"
           >
-            Go anywhere you want in a
+            Join anywhere you want in a
             <br />
-            Galaxy full of wonders!
+            Clubs full of wonders!
           </motion.h3>
         </div>
 
@@ -377,6 +368,8 @@ function LoginPageInner() {
     </div>
   );
 }
+
+
 
 export default function LoginPage() {
   return (

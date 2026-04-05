@@ -3,6 +3,7 @@ import "./globals.css";
 import { Inter, Cormorant_Garamond } from "next/font/google"; // ADDED: High-end editorial serif
 import { Toaster } from "sonner";
 import { PerformanceProvider } from "@/components/PerformanceProvider";
+import { OCC_BRAND_ICON } from "@/lib/brand";
 
 // Added professional weights for Inter
 const inter = Inter({ 
@@ -22,9 +23,24 @@ const cormorant = Cormorant_Garamond({
 export const metadata: Metadata = {
   title: "OCC — Off Campus Clubs for Gen Z",
   description: "Off Campus Clubs connects students across colleges through clubs, gigs, events, and premium scroll-driven experiences.",
+  metadataBase: new URL("https://www.offcampusclub.com"), // Setting this helps with absolute image paths
   icons: {
-    icon: "/file_00000000c25c720ba27a68ebfd16e397.png",
-    apple: "/file_00000000c25c720ba27a68ebfd16e397.png",
+    icon: [{ url: OCC_BRAND_ICON, type: "image/png" }],
+    shortcut: OCC_BRAND_ICON,
+    apple: [{ url: OCC_BRAND_ICON, type: "image/png" }],
+  },
+  openGraph: {
+    title: "OCC — Off Campus Clubs for Gen Z",
+    description: "The ultimate platform for college student clubs. Join clubs, host events, and build your network.",
+    images: [{ url: OCC_BRAND_ICON, width: 1200, height: 630, alt: "OCC Logo" }],
+    type: "website",
+    url: "https://www.offcampusclub.com",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "OCC — Off Campus Clubs for Gen Z",
+    description: "The ultimate platform for college student clubs.",
+    images: [OCC_BRAND_ICON],
   },
 };
 

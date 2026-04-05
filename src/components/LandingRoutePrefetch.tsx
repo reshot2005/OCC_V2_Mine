@@ -14,6 +14,9 @@ export function LandingRoutePrefetch() {
     router.prefetch("/login");
     router.prefetch("/register");
     router.prefetch("/explore");
+    for (const path of ["/bikers", "/football", "/fashion", "/photography", "/music", "/fitness"]) {
+      router.prefetch(path);
+    }
   }, [router]);
 
   return null;

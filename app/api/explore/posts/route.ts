@@ -52,10 +52,10 @@ export async function GET(req: NextRequest) {
       sharesCount: true,
       createdAt: true,
       user: {
-        select: { id: true, fullName: true, avatar: true },
+        select: { id: true, fullName: true, avatar: true, role: true },
       },
       club: {
-        select: { id: true, name: true, slug: true },
+        select: { id: true, name: true, slug: true, icon: true, coverImage: true },
       },
     },
   });
@@ -79,9 +79,10 @@ export async function GET(req: NextRequest) {
         id: p.user.id,
         fullName: p.user.fullName,
         avatar: p.user.avatar,
+        role: p.user.role,
       },
       club: p.club
-        ? { id: p.club.id, name: p.club.name, slug: p.club.slug }
+        ? { id: p.club.id, name: p.club.name, slug: p.club.slug, icon: p.club.icon, coverImage: p.club.coverImage }
         : null,
     })),
     nextCursor,

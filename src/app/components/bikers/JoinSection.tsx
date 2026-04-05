@@ -1,6 +1,6 @@
 import React from "react";
 import { motion } from "motion/react";
-import { Link } from "react-router";
+import { Link } from "@/lib/router-compat";
 import { P } from "../shared/premiumTokens";
 
 export function JoinSection() {

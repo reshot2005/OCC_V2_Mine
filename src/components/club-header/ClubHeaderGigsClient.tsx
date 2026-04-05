@@ -3,8 +3,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { format } from "date-fns";
-import { ChevronDown, Loader2, Check, X, Plus, Pencil, Trash2 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { Check, ChevronDown, Loader2, Pencil, Plus, Trash2, X } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import { pusherClient } from "@/lib/pusher";
 
 type AppRow = {
   id: string;
@@ -63,6 +64,20 @@ export function ClubHeaderGigsClient({ initialGigs }: { initialGigs: HeaderGigRo
   useEffect(() => {
     setGigs(initialGigs);
   }, [initialGigs]);
+
+  useEffect(() => {
+    if (!pusherClient) return;
+    const channel = pusherClient.subscribe("e-clubs");
+    channel.bind("e-clubs-event", (data: any) => {
+      if (data.type === "gig-application") {
+        router.refresh();
+      }
+    });
+    return () => {
+      channel.unbind("e-clubs-event");
+      pusherClient?.unsubscribe("e-clubs");
+    };
+  }, [router]);
 
   const resetForm = () => {
     setTitle("");

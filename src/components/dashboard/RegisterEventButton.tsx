@@ -17,7 +17,7 @@ export function RegisterEventButton({
     <button
       type="button"
       disabled={registered || loading}
-      className="rounded-full border border-[#C9A96E]/40 px-3 py-1 text-[11px] uppercase tracking-[0.24em] text-[#C9A96E] transition hover:bg-[#C9A96E]/10 disabled:cursor-not-allowed disabled:opacity-60"
+      className="rounded-xl bg-[#5227FF] px-4 py-2.5 text-[11px] font-black uppercase tracking-[0.24em] text-white transition-all hover:bg-[#401ED9] hover:shadow-lg hover:shadow-[#5227FF]/20 active:scale-95 disabled:cursor-not-allowed disabled:opacity-40"
       onClick={async () => {
         setLoading(true);
         const response = await fetch("/api/events", {

@@ -4,6 +4,7 @@ import { gigWhereNotLegacyDummy } from "@/lib/legacyDummyGigs";
 import {
   OCC_PREMIUM_CLUB_IMAGES,
   resolvePostImageUrlForFeed,
+  resolveClubAvatar,
 } from "@/lib/postImageUrl";
 import { displayClubMembers, displayPostLikes, formatSocialCount } from "@/lib/socialDisplay";
 import { OCCTrendingClubs } from "@/components/occ-dashboard/OCCStoriesRow";
@@ -27,7 +28,7 @@ function getTimeAgo(date: Date): string {
 export default async function DashboardPage() {
   const user = await requireUser();
 
-  const [clubs, events, posts, gigs] = await Promise.all([
+  const [clubs, events, posts, gigs, memberships] = await Promise.all([
     prisma.club.findMany({ take: 8, orderBy: { createdAt: "asc" } }),
     prisma.event.findMany({ take: 3, include: { club: true }, orderBy: { date: "asc" } }),
     // FILTER: Only show posts from users who are CLUB_HEADER or have a valid imageUrl
@@ -47,21 +48,22 @@ export default async function DashboardPage() {
       take: 3,
       orderBy: { createdAt: "desc" },
     }),
+    prisma.clubMembership.findMany({
+      where: { userId: user.id },
+      select: { clubId: true },
+    }),
   ]);
 
-  const trendingClubs = (clubs.length ? clubs : []).map(c => {
-    let clubImg = resolvePostImageUrlForFeed(c.coverImage, c.name);
-    if (c.name.includes("Biker")) clubImg = OCC_PREMIUM_CLUB_IMAGES.bikers;
-    if (c.name.includes("Music")) clubImg = OCC_PREMIUM_CLUB_IMAGES.music;
-    if (c.name.includes("Football")) clubImg = OCC_PREMIUM_CLUB_IMAGES.football;
-    if (c.name.includes("Photography")) clubImg = OCC_PREMIUM_CLUB_IMAGES.photography;
+  const joinedClubIds = new Set(memberships.map(m => m.clubId));
 
+  const trendingClubs = (clubs.length ? clubs : []).map(c => {
     return {
       id: c.id,
       slug: c.slug,
       label: c.name,
-      imageUrl: clubImg,
+      imageUrl: resolvePostImageUrlForFeed(c.coverImage, c.name),
       memberCount: formatSocialCount(displayClubMembers(c.id, c.memberCount || 0)),
+      joined: joinedClubIds.has(c.id),
     };
   });
 
@@ -70,10 +72,11 @@ export default async function DashboardPage() {
         const ago = getTimeAgo(p.createdAt);
         let postImg = resolvePostImageUrlForFeed(p.imageUrl, p.club?.name || "");
 
+        const avatar = resolveClubAvatar(p.user.avatar, p.club?.name || "OCC");
         return {
           id: p.id,
           username: p.user.fullName,
-          userAvatarUrl: p.user.avatar || "https://i.pravatar.cc/150?u=" + p.user.id,
+          userAvatarUrl: avatar,
           timestamp: ago,
           caption: p.caption || p.content || "",
           imageUrl: postImg,
@@ -126,16 +129,12 @@ export default async function DashboardPage() {
       <div className="hidden lg:block w-[min(260px,24vw)] xl:w-[280px] 2xl:w-[300px] shrink-0 space-y-8 xl:space-y-10 min-w-0">
         <OCCRightRail 
           events={events.map(e => {
-             let evtImg = resolvePostImageUrlForFeed(e.imageUrl, e.club.name);
-             const ecName = (e.club.name || "").toLowerCase();
-             if (ecName.includes("biker")) evtImg = OCC_PREMIUM_CLUB_IMAGES.bikers;
-             if (ecName.includes("photography")) evtImg = OCC_PREMIUM_CLUB_IMAGES.photography;
              return {
               id: e.id,
               title: e.title,
               when: new Date(e.date).toLocaleString(undefined, { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" }),
               club: e.club.name,
-              imageUrl: evtImg || "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=200&q=80",
+              imageUrl: resolvePostImageUrlForFeed(e.imageUrl, e.club.name),
              };
           })}
           trending={trendingClubs.map(c => ({
@@ -144,6 +143,7 @@ export default async function DashboardPage() {
             name: c.label,
             members: c.memberCount,
             imageUrl: c.imageUrl,
+            joined: c.joined,
           }))}
           opportunities={gigs.map(g => ({
             id: g.id,

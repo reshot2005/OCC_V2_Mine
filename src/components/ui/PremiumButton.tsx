@@ -20,7 +20,7 @@ export function PremiumButton({
   return (
     <button
       className={cn(
-        "inline-flex h-14 w-full items-center justify-center gap-3 rounded-md border border-[#DCC07E]/60 bg-[#C9A96E] px-5 text-[13px] font-medium tracking-[0.3em] text-[#0C0C0A] transition duration-300 hover:shadow-[0_0_30px_rgba(201,169,110,0.28)] disabled:cursor-not-allowed disabled:opacity-60",
+        "inline-flex h-14 w-full items-center justify-center gap-3 rounded-2xl bg-[#5227FF] px-5 text-[13px] font-bold tracking-[0.2em] text-white transition duration-300 hover:bg-[#4318FF] hover:shadow-[0_8px_30px_rgba(82,39,255,0.25)] disabled:cursor-not-allowed disabled:opacity-60 shadow-lg shadow-[#5227FF]/10",
         className,
       )}
       disabled={disabled || loading}

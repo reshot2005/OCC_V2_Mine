@@ -8,11 +8,6 @@ import { authCookieOptions, signAuthToken } from "@/lib/jwt";
 import { sha256Hex } from "@/lib/otp";
 import { pusherServer } from "@/lib/pusher";
 
-function generateIndianPhoneNumber(): string {
-  const first = [6, 7, 8, 9][Math.floor(Math.random() * 4)];
-  const rest = Array.from({ length: 9 }, () => Math.floor(Math.random() * 10)).join("");
-  return `${first}${rest}`;
-}
 
 export async function POST(req: NextRequest) {
   try {
@@ -38,6 +33,10 @@ export async function POST(req: NextRequest) {
       typeof (body as { referralCode?: unknown }).referralCode === "string"
         ? (body as { referralCode: string }).referralCode.trim()
         : "";
+
+    if (!referralCode) {
+      return NextResponse.json({ error: "Club referral code is strictly required to register." }, { status: 400 });
+    }
 
     const otpEmail = validated.email;
     const otpPurpose = "REGISTER" as const;
@@ -71,20 +70,7 @@ export async function POST(req: NextRequest) {
 
     const collegeName = validated.collegeName ?? "Unknown College";
 
-    let phoneNumber = validated.phoneNumber;
-    if (!phoneNumber) {
-      for (let i = 0; i < 5; i++) {
-        const candidate = generateIndianPhoneNumber();
-        const exists = await prisma.user
-          .findUnique({ where: { phoneNumber: candidate } })
-          .catch(() => null);
-        if (!exists) {
-          phoneNumber = candidate;
-          break;
-        }
-      }
-    }
-    if (!phoneNumber) phoneNumber = generateIndianPhoneNumber();
+    const phoneNumber = validated.phoneNumber;
 
     const existingUser = await prisma.user.findFirst({
       where: {

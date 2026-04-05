@@ -35,7 +35,7 @@ export default async function ProfilePage() {
       <GlassCard className="sm:rounded-[32px] p-5 sm:p-8 border-x-0 sm:border border-black/[0.04]">
         <div className="flex flex-col gap-6 lg:flex-row lg:items-center lg:justify-between">
           <div className="flex items-center gap-4 sm:gap-5">
-            <div className="relative flex h-16 w-16 sm:h-24 sm:w-24 shrink-0 overflow-hidden rounded-full bg-[linear-gradient(135deg,#C9A96E,#8D6A24)] shadow-xl ring-2 ring-black/[0.06]">
+            <div className="relative flex h-16 w-16 sm:h-24 sm:w-24 shrink-0 overflow-hidden rounded-full bg-slate-100 shadow-xl ring-4 ring-white">
               <img
                 src={avatarSrc(user.avatar)}
                 alt=""
@@ -43,9 +43,9 @@ export default async function ProfilePage() {
               />
             </div>
             <div className="space-y-1 sm:space-y-2">
-              <h1 className="font-sans text-2xl sm:text-5xl font-black text-black tracking-tighter uppercase">{user.fullName}</h1>
-              <p className="text-[9px] sm:text-[11px] uppercase tracking-[0.3em] sm:tracking-[0.35em] text-[#D4AF37] font-bold">{user.collegeName}</p>
-              <p className="text-[11px] sm:text-sm text-black/30 font-medium">Joined {user.createdAt.toLocaleDateString()}</p>
+              <h1 className="font-sans text-2xl sm:text-5xl font-black text-slate-900 tracking-tighter uppercase">{user.fullName}</h1>
+              <p className="text-[9px] sm:text-[11px] uppercase tracking-[0.3em] sm:tracking-[0.35em] text-[#5227FF] font-bold">{user.collegeName}</p>
+              <p className="text-[11px] sm:text-sm text-slate-400 font-medium">Joined {user.createdAt.toLocaleDateString()}</p>
             </div>
           </div>
 
@@ -55,9 +55,9 @@ export default async function ProfilePage() {
               { label: "Events", value: events.length },
               { label: "Gigs", value: user.gigsApplied.length },
             ].map((item) => (
-              <div key={item.label} className="rounded-xl sm:rounded-2xl border border-black/[0.03] bg-black/[0.01] px-3 sm:px-4 py-2 sm:py-3 shadow-inner">
-                <p className="text-[8px] sm:text-[10px] uppercase tracking-[0.2em] sm:tracking-[0.3em] text-black/30 font-black">{item.label}</p>
-                <p className="mt-1 sm:mt-2 text-lg sm:text-2xl text-black font-black">{item.value}</p>
+              <div key={item.label} className="rounded-xl sm:rounded-2xl border border-black/[0.03] bg-white px-3 sm:px-4 py-2 sm:py-3 shadow-sm">
+                <p className="text-[8px] sm:text-[10px] uppercase tracking-[0.2em] sm:tracking-[0.3em] text-slate-400 font-black">{item.label}</p>
+                <p className="mt-1 sm:mt-2 text-lg sm:text-2xl text-slate-900 font-black">{item.value}</p>
               </div>
             ))}
           </div>
@@ -67,8 +67,8 @@ export default async function ProfilePage() {
       <section className="grid gap-6 xl:grid-cols-[1.1fr_0.9fr]">
         <GlassCard className="sm:rounded-[28px] p-5 sm:p-6 border-x-0 sm:border border-black/[0.04]">
           <div className="mb-6 space-y-1 sm:space-y-2">
-            <p className="text-[9px] sm:text-[11px] uppercase tracking-[0.3em] sm:tracking-[0.45em] text-[#D4AF37] font-black">Identity Management</p>
-            <h2 className="font-sans text-xl sm:text-3xl font-black text-black tracking-tight uppercase">Your Details</h2>
+            <p className="text-[9px] sm:text-[11px] uppercase tracking-[0.3em] sm:tracking-[0.45em] text-[#5227FF] font-black">Identity Management</p>
+            <h2 className="font-sans text-xl sm:text-3xl font-black text-slate-900 tracking-tight uppercase">Your Details</h2>
           </div>
           <ProfileForm
             initialValues={{
@@ -86,7 +86,7 @@ export default async function ProfilePage() {
 
         <div className="space-y-8 sm:space-y-6">
           <div className="space-y-4">
-            <p className="text-[9px] sm:text-[11px] uppercase tracking-[0.3em] sm:tracking-[0.45em] text-[#D4AF37] font-black px-1">My Clusters</p>
+            <p className="text-[9px] sm:text-[11px] uppercase tracking-[0.3em] sm:tracking-[0.45em] text-[#5227FF] font-black px-1">My Clusters</p>
             <div className="grid gap-4">
               {clubs.map((club) => (
                 <ClubCard 
@@ -102,7 +102,7 @@ export default async function ProfilePage() {
 
           </div>
           <div className="space-y-4">
-            <p className="text-[9px] sm:text-[11px] uppercase tracking-[0.3em] sm:tracking-[0.45em] text-[#D4AF37] font-black px-1">Active Events</p>
+            <p className="text-[9px] sm:text-[11px] uppercase tracking-[0.3em] sm:tracking-[0.45em] text-[#5227FF] font-black px-1">Active Events</p>
             <div className="grid gap-4">
               {events.map(({ event }) => (
                 <EventCard key={event.id} event={event} />

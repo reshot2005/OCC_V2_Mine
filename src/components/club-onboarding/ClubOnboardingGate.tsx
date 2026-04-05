@@ -12,12 +12,15 @@ export function ClubOnboardingGate({
   totalFrames,
   Experience,
   userId,
+  /** Skip JPEG frame preload (music / fitness — lightweight dive-in). */
+  skipFramePreload = false,
 }: {
   clubSlug: ClubOnboardingSlug;
   framesPath: string;
   totalFrames: number;
-  Experience: ComponentType;
+  Experience: ComponentType<any>;
   userId?: string | null;
+  skipFramePreload?: boolean;
 }) {
   const onboarding = useClubOnboarding({ clubSlug, userId });
   const [framesReady, setFramesReady] = useState(false);
@@ -26,9 +29,22 @@ export function ClubOnboardingGate({
   const [revealed, setRevealed] = useState(false);
 
   useEffect(() => {
+    if (skipFramePreload) {
+      setFramesReady(true);
+      setExperienceMounted(true);
+      return;
+    }
+
     let active = true;
 
-    void loadFrameSequence(framesPath, totalFrames, () => {}).then(() => {
+    void loadFrameSequence(framesPath, totalFrames, (p) => {
+      if (!active) return;
+      // Start mounting early at 45% for speed responsiveness
+      if (p >= 0.45) {
+        setFramesReady(true);
+        setExperienceMounted(true);
+      }
+    }).then(() => {
       if (!active) return;
       setFramesReady(true);
       setExperienceMounted(true);
@@ -37,7 +53,7 @@ export function ClubOnboardingGate({
     return () => {
       active = false;
     };
-  }, [framesPath, totalFrames]);
+  }, [framesPath, totalFrames, skipFramePreload]);
 
   useEffect(() => {
     if (!framesReady || !experienceMounted || !onboarding.isComplete || revealing || revealed) {

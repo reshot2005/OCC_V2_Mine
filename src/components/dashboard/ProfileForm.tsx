@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Building2, Camera, GraduationCap, Loader2, Mail, MapPin, User } from "lucide-react";
+import { Building2, Camera, GraduationCap, Loader2, Mail, MapPin, Phone, User } from "lucide-react";
 import * as React from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useRouter } from "next/navigation";
@@ -21,12 +21,13 @@ export function ProfileForm({ initialValues }: { initialValues: ProfileFormIniti
   const [uploading, setUploading] = React.useState(false);
   const fileRef = React.useRef<HTMLInputElement>(null);
 
-  const { email, phoneNumber, ...formDefaults } = initialValues;
+  const { email, ...formDefaults } = initialValues;
 
   const form = useForm<ProfileUpdateInput>({
     resolver: zodResolver(profileUpdateSchema),
     defaultValues: {
       ...formDefaults,
+      phoneNumber: initialValues.phoneNumber ?? "",
       bio: formDefaults.bio ?? "",
       city: formDefaults.city ?? "",
       avatar: formDefaults.avatar ?? "",
@@ -109,12 +110,9 @@ export function ProfileForm({ initialValues }: { initialValues: ProfileFormIniti
           />
         </div>
         <div className="flex flex-col gap-2">
-          <p className="text-[10px] font-black uppercase tracking-[0.35em] text-[#D4AF37]">Profile photo</p>
+          <p className="text-[10px] font-black uppercase tracking-[0.35em] text-[#5227FF]">Profile photo</p>
           <p className="text-xs text-black/45 max-w-sm">
-            JPG, PNG, WebP or GIF — max 5MB.             Production: set{" "}
-            <code className="rounded bg-black/[0.05] px-1 text-[11px]">CLOUDINARY_*</code> (or{" "}
-            <code className="rounded bg-black/[0.05] px-1 text-[11px]">BLOB_READ_WRITE_TOKEN</code>) for cloud
-            storage.
+            JPG, PNG, WebP or GIF — max 8MB. If an upload fails, wait a moment and try again.
           </p>
           <div className="flex flex-wrap gap-2">
             <button
@@ -146,23 +144,13 @@ export function ProfileForm({ initialValues }: { initialValues: ProfileFormIniti
       {/* Read-only account */}
       <div className="grid gap-4 rounded-2xl border border-black/[0.06] bg-black/[0.02] p-4 sm:p-5">
         <p className="text-[10px] font-black uppercase tracking-[0.35em] text-black/35">Account (read-only)</p>
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.25em] text-black/35">
-              <Mail className="h-3.5 w-3.5" strokeWidth={2.5} />
-              Email
-            </div>
-            <p className="text-sm font-semibold text-black/80 break-all">{email}</p>
-            <p className="text-[11px] text-black/40">Email can’t be changed here.</p>
+        <div className="space-y-1">
+          <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.25em] text-black/35">
+            <Mail className="h-3.5 w-3.5" strokeWidth={2.5} />
+            Email
           </div>
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.25em] text-black/35">
-              <User className="h-3.5 w-3.5" strokeWidth={2.5} />
-              Phone
-            </div>
-            <p className="text-sm font-semibold text-black/80">{phoneNumber}</p>
-            <p className="text-[11px] text-black/40">Phone can’t be changed here.</p>
-          </div>
+          <p className="text-sm font-semibold text-black/80 break-all">{email}</p>
+          <p className="text-[11px] text-black/40">Email can’t be changed here.</p>
         </div>
       </div>
 
@@ -173,6 +161,13 @@ export function ProfileForm({ initialValues }: { initialValues: ProfileFormIniti
           placeholder="Your name"
           error={form.formState.errors.fullName?.message}
           {...form.register("fullName")}
+        />
+        <PremiumInput
+          label="Phone Number"
+          icon={Phone}
+          placeholder="e.g. 9876543210"
+          error={form.formState.errors.phoneNumber?.message}
+          {...form.register("phoneNumber")}
         />
         <PremiumInput
           label="College Name"
@@ -189,15 +184,15 @@ export function ProfileForm({ initialValues }: { initialValues: ProfileFormIniti
           {...form.register("city")}
         />
         <div className="space-y-2">
-          <label className="text-[10px] uppercase tracking-[0.4em] text-[#8A8478]">Graduation year (optional)</label>
-          <div className="relative mt-1 flex h-14 items-center rounded-md border border-[rgba(255,248,235,0.1)] bg-[rgba(255,248,235,0.04)] px-12 transition-all focus-within:border-[#C9A96E]">
-            <GraduationCap className="pointer-events-none absolute left-4 h-5 w-5 text-[#4A4840]" strokeWidth={1.5} />
+          <label className="text-[10px] uppercase tracking-[0.4em] text-slate-400 font-bold">Graduation year (optional)</label>
+          <div className="relative mt-2 flex h-14 items-center rounded-2xl border border-slate-200 bg-white/50 px-12 transition-all focus-within:border-[#5227FF] focus-within:ring-4 focus-within:ring-[#5227FF]/5 shadow-sm">
+            <GraduationCap className="pointer-events-none absolute left-4 h-5 w-5 text-slate-400" strokeWidth={1.5} />
             <input
               type="number"
               min={2020}
               max={2040}
               placeholder="e.g. 2027"
-              className="h-full w-full bg-transparent text-[15px] text-[#F5F0E8] outline-none placeholder:text-[#5F594F]"
+              className="h-full w-full bg-transparent text-[15px] text-slate-900 font-medium outline-none placeholder:text-slate-400"
               {...form.register("graduationYear", {
                 setValueAs: (v) =>
                   v === "" || v === undefined || Number.isNaN(Number(v)) ? null : Number(v),
@@ -205,20 +200,20 @@ export function ProfileForm({ initialValues }: { initialValues: ProfileFormIniti
             />
           </div>
           {form.formState.errors.graduationYear ? (
-            <p className="text-xs text-[#FF4D4D]">{form.formState.errors.graduationYear.message}</p>
+            <p className="text-xs text-red-500">{form.formState.errors.graduationYear.message}</p>
           ) : null}
         </div>
 
         <div className="space-y-2">
-          <label className="text-[10px] uppercase tracking-[0.4em] text-[#8A8478]">Bio</label>
+          <label className="text-[10px] uppercase tracking-[0.4em] text-slate-400 font-bold">Bio</label>
           <textarea
             rows={4}
-            className="mt-1 min-h-28 w-full rounded-md border border-[rgba(255,248,235,0.1)] bg-[rgba(255,248,235,0.04)] px-4 py-3 text-sm text-[#F5F0E8] outline-none focus:border-[#C9A96E] placeholder:text-[#5F594F]"
+            className="mt-2 min-h-28 w-full rounded-2xl border border-slate-200 bg-white/50 px-4 py-4 text-sm text-slate-900 font-medium outline-none focus:border-[#5227FF] focus:ring-4 focus:ring-[#5227FF]/5 placeholder:text-slate-400 shadow-sm transition-all"
             placeholder="Tell your community what you're into."
             {...form.register("bio")}
           />
           {form.formState.errors.bio ? (
-            <p className="text-xs text-[#FF4D4D]">{form.formState.errors.bio.message}</p>
+            <p className="text-xs text-red-500">{form.formState.errors.bio.message}</p>
           ) : null}
         </div>
       </div>

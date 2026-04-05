@@ -18,21 +18,37 @@ export function GigCard({
   const deadline = gig.deadline ? new Date(gig.deadline) : null;
 
   return (
-    <GlassCard className="rounded-[24px] p-5">
-      <div className="space-y-4">
-        <div className="space-y-2">
-          <p className="text-[11px] uppercase tracking-[0.3em] text-[#C9A96E]">Gig Opportunity</p>
-          <h3 className="font-headline text-2xl text-[#F5F0E8]">{gig.title}</h3>
-          <p className="text-sm leading-6 text-[#A9A294]">{gig.description}</p>
-        </div>
-        <div className="space-y-1">
-          <p className="text-lg text-[#C9A96E]">₹{gig.payMin.toLocaleString()} - ₹{gig.payMax.toLocaleString()}</p>
-          <p className="text-xs uppercase tracking-[0.24em] text-[#8A8478]">
-            {deadline ? `Deadline · ${format(deadline, "dd MMM yyyy")}` : "Open application"}
+    <div className="rounded-[32px] bg-white border border-black/5 p-6 lg:p-8 shadow-[0_4px_24px_rgb(0,0,0,0.04)] transition-all hover:shadow-[0_12px_40px_rgb(0,0,0,0.08)] group">
+      <div className="flex flex-col h-full space-y-6">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+             <span className="inline-flex items-center gap-2 rounded-full border border-[#5227FF]/10 bg-[#5227FF]/5 px-3 py-1 text-[9px] font-black uppercase tracking-[0.2em] text-[#5227FF]">
+                Gig Opportunity
+             </span>
+             <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+               {deadline ? `Ends ${format(deadline, "dd MMM")}` : "Ongoing"}
+             </span>
+          </div>
+          <h3 className="text-2xl font-black text-slate-900 tracking-tight leading-tight">{gig.title}</h3>
+          <p className="text-[14px] leading-relaxed text-slate-500 font-medium line-clamp-3 leading-relaxed">
+            {gig.description}
           </p>
         </div>
-        {action}
+
+        <div className="mt-auto space-y-6 pt-6 border-t border-black/5">
+          <div className="flex items-center justify-between">
+            <div className="flex flex-col">
+               <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Stipend / Pay</span>
+               <p className="text-xl font-black text-[#5227FF] tracking-tight">
+                 ₹{gig.payMin.toLocaleString()} - ₹{gig.payMax.toLocaleString()}
+               </p>
+            </div>
+            <div className="w-40 transition-transform hover:scale-105 active:scale-95">
+              {action}
+            </div>
+          </div>
+        </div>
       </div>
-    </GlassCard>
+    </div>
   );
 }

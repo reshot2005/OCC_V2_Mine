@@ -35,6 +35,9 @@ const nextConfig = {
       { source: `${staffPrefix}/gate/`, destination: "/staff-gate-internal" },
       { source: `${staffPrefix}/:path+`, destination: "/staff-panel-internal/:path+" },
       { source: `${staffPrefix}`, destination: "/staff-panel-internal" },
+      // Admin Control Panel rewrites
+      { source: "/k9xm2p7qv4nw8-admin-control-panel/:path+", destination: "/admin-control-panel-internal/:path+" },
+      { source: "/k9xm2p7qv4nw8-admin-control-panel", destination: "/admin-control-panel-internal" },
     ];
   },
 

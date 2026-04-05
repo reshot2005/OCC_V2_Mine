@@ -1,11 +1,12 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, Plus, Sparkles, Users } from "lucide-react";
-import { motion, useScroll, useTransform } from "framer-motion";
-import { useRef, useState, useEffect } from "react";
+import { ChevronLeft, ChevronRight, Plus, Sparkles } from "lucide-react";
+import { motion } from "framer-motion";
+import { useState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { pusherClient } from "@/lib/pusher";
 import { displayClubMembers, formatSocialCount } from "@/lib/socialDisplay";
+import { cn } from "@/app/components/ui/utils";
 
 export type OCCTrendingClub = {
   id: string;
@@ -13,6 +14,7 @@ export type OCCTrendingClub = {
   label: string;
   imageUrl: string;
   memberCount?: string;
+  joined?: boolean;
 };
 
 export function OCCTrendingClubs({ clubs }: { clubs: OCCTrendingClub[] }) {
@@ -22,37 +24,22 @@ export function OCCTrendingClubs({ clubs }: { clubs: OCCTrendingClub[] }) {
   const [joiningId, setJoiningId] = useState<string | null>(null);
   const [localClubs, setLocalClubs] = useState(clubs);
 
-  // Sync initial clubs
   useEffect(() => {
     setLocalClubs(clubs);
   }, [clubs]);
 
-  // REALTIME REALTIME REALTIME
   useEffect(() => {
     if (!pusherClient) return;
-
-    // Listen to each club's channel for member updates
     localClubs.forEach(club => {
       const channel = pusherClient?.subscribe(`club-${club.id}`);
       if (channel) {
-        channel.bind(
-          "member-joined",
-          (data: { clubId: string; memberCount: number; displayMemberCount?: number }) => {
-            const display =
-              data.displayMemberCount ?? displayClubMembers(data.clubId, data.memberCount);
-            setLocalClubs((prev) =>
-              prev.map((c) =>
-                c.id === data.clubId ? { ...c, memberCount: formatSocialCount(display) } : c,
-              ),
-            );
-          },
-        );
+        channel.bind("member-joined", (data: any) => {
+          const display = data.displayMemberCount ?? displayClubMembers(data.clubId, data.memberCount);
+          setLocalClubs((prev) => prev.map((c) => c.id === data.clubId ? { ...c, memberCount: formatSocialCount(display) } : c));
+        });
       }
     });
-
-    return () => {
-      localClubs.forEach(club => pusherClient?.unsubscribe(`club-${club.id}`));
-    };
+    return () => localClubs.forEach(club => pusherClient?.unsubscribe(`club-${club.id}`));
   }, [localClubs.length]);
 
   const checkScroll = () => {
@@ -63,19 +50,10 @@ export function OCCTrendingClubs({ clubs }: { clubs: OCCTrendingClub[] }) {
     }
   };
 
-  useEffect(() => {
-    const el = scrollRef.current;
-    if (el) {
-      el.addEventListener('scroll', checkScroll);
-      checkScroll();
-      return () => el.removeEventListener('scroll', checkScroll);
-    }
-  }, []);
-
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {
       const { clientWidth } = scrollRef.current;
-      const scrollAmount = direction === 'left' ? -clientWidth * 0.4 : clientWidth * 0.4;
+      const scrollAmount = direction === 'left' ? -clientWidth * 0.7 : clientWidth * 0.7;
       scrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
     }
   };
@@ -85,111 +63,122 @@ export function OCCTrendingClubs({ clubs }: { clubs: OCCTrendingClub[] }) {
     try {
       const res = await fetch(`/api/clubs/${slug}/join`, { method: "POST" });
       const data = await res.json();
-      if (data.success) {
-        toast.success("Joined the Elite Cluster!");
+      if (data.success || data.error === "Already a member") {
+        if (data.success) toast.success("Joined Cluster!");
+        setLocalClubs(prev => prev.map(c => c.id === id ? { ...c, joined: true } : c));
       }
     } catch (e) {
-      toast.error("Failed to join.");
+      toast.error("Error joining.");
     } finally {
       setJoiningId(null);
     }
   };
 
+  // Single-line staggered dimensions for masonry-style wavering
+  const cardStyles = [
+    "w-[280px] h-[340px]",
+    "w-[360px] h-[300px]",
+    "w-[300px] h-[380px]",
+    "w-[340px] h-[320px]",
+    "w-[420px] h-[280px]",
+    "w-[260px] h-[360px]",
+  ];
+
   return (
-    <div className="flex flex-col gap-4 sm:gap-6 mb-8 sm:mb-12 relative group/row">
-      <div className="flex items-center justify-between px-4 sm:px-2">
-        <div className="flex items-center gap-2 sm:gap-3">
-          <div className="p-2 sm:p-2.5 rounded-xl bg-[#5227FF]/10 text-[#5227FF]">
-            <Sparkles className="h-4 w-4 sm:h-5 sm:w-5" fill="currentColor" />
+    <div className="flex flex-col gap-5 mb-12 relative w-full group/row overflow-hidden">
+      <div className="flex items-center justify-between px-2">
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 rounded-2xl bg-[#5227FF]/10 text-[#5227FF]">
+            <Sparkles className="h-5 w-5" fill="currentColor" />
           </div>
-          <h2 className="text-[17px] sm:text-[20px] font-semibold text-black tracking-tight font-sans">Trending Clubs</h2>
+          <h2 className="text-[18px] sm:text-[20px] font-black text-slate-900 tracking-tight leading-none uppercase">Trending Hubs</h2>
         </div>
 
-        <button className="flex items-center gap-2 text-[10px] sm:text-[11px] font-medium uppercase tracking-[0.25em] sm:tracking-[0.35em] text-black/30 hover:text-black transition-all group font-sans">
-          View all
-          <ChevronRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" strokeWidth={3} />
-        </button>
+        <div className="flex items-center gap-2">
+           <button 
+             onClick={() => scroll('left')}
+             className={cn(
+               "p-2.5 rounded-full border border-black/5 bg-white shadow-sm transition-all hover:bg-black hover:text-white disabled:opacity-0",
+               !showLeft && "pointer-events-none opacity-0"
+             )}
+           >
+             <ChevronLeft className="h-4 w-4" strokeWidth={3} />
+           </button>
+           <button 
+             onClick={() => scroll('right')}
+             className={cn(
+               "p-2.5 rounded-full border border-black/5 bg-white shadow-sm transition-all hover:bg-black hover:text-white disabled:opacity-0",
+               !showRight && "pointer-events-none opacity-0"
+             )}
+           >
+             <ChevronRight className="h-4 w-4" strokeWidth={3} />
+           </button>
+        </div>
       </div>
 
-      <div className="relative group/scroll">
-        {/* Navigation Contols - Only visible on desktop/hover */}
-        <div className="absolute top-1/2 -left-4 -translate-y-1/2 z-20 hidden lg:group-hover/scroll:flex">
-          <button 
-            onClick={() => scroll('left')}
-            disabled={!showLeft}
-            className={`h-12 w-12 rounded-full bg-white shadow-2xl border border-black/5 flex items-center justify-center transition-all ${showLeft ? 'opacity-100 scale-100 hover:bg-black hover:text-white' : 'opacity-0 scale-90 pointer-events-none'}`}
-          >
-            <ChevronLeft className="h-6 w-6" strokeWidth={3} />
-          </button>
-        </div>
-        
-        <div className="absolute top-1/2 -right-4 -translate-y-1/2 z-20 hidden lg:group-hover/scroll:flex">
-          <button 
-            onClick={() => scroll('right')}
-            disabled={!showRight}
-            className={`h-12 w-12 rounded-full bg-white shadow-2xl border border-black/5 flex items-center justify-center transition-all ${showRight ? 'opacity-100 scale-100 hover:bg-black hover:text-white' : 'opacity-0 scale-90 pointer-events-none'}`}
-          >
-            <ChevronRight className="h-6 w-6" strokeWidth={3} />
-          </button>
-        </div>
-
-        <motion.div 
-          ref={scrollRef}
-          drag="x"
-          dragConstraints={scrollRef}
-          onScroll={checkScroll}
-          className="flex items-center gap-4 sm:gap-6 overflow-x-auto pb-4 sm:pb-8 scrollbar-hide -mx-0 px-2 sm:px-0 snap-x snap-mandatory lg:snap-none scroll-smooth cursor-grab active:cursor-grabbing"
-        >
-          {localClubs.map((club) => (
+      <div 
+        ref={scrollRef}
+        onScroll={checkScroll}
+        className="flex items-center overflow-x-auto scrollbar-hide py-5 -mx-2 px-2 scroll-smooth"
+      >
+        <div className="flex items-center gap-4 min-w-max pr-40">
+          {localClubs.map((club, idx) => (
             <motion.div 
-              key={club.id} 
-              whileHover={{ y: -8 }}
-              className="group flex w-[220px] sm:w-[260px] xl:w-[280px] shrink-0 flex-col bg-white rounded-[2rem] sm:rounded-[2.5rem] border border-black/[0.04] overflow-hidden transition-all duration-700 shadow-sm hover:shadow-[0_30px_60px_-12px_rgba(0,0,0,0.12)] snap-start"
+              key={club.id}
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.6, delay: idx * 0.05 }}
+              className={cn(
+                "relative flex-shrink-0 group rounded-[2.5rem] sm:rounded-[3rem] overflow-hidden bg-slate-50 cursor-pointer shadow-[0_10px_40px_rgb(0,0,0,0.05)] hover:shadow-[0_40px_80px_rgb(0,0,0,0.15)] transition-all duration-700",
+                cardStyles[idx % cardStyles.length]
+              )}
+              onClick={() => window.location.href = `/clubs/${club.slug}`}
             >
-              <div className="relative h-[140px] sm:h-[180px] w-full overflow-hidden bg-black">
-                <img
-                  alt={club.label}
-                  src={club.imageUrl}
-                  className="h-full w-full object-cover transition-transform duration-[1.5s] group-hover:scale-110 opacity-90 group-hover:opacity-100"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                <div className="absolute bottom-3 left-4 sm:bottom-4 sm:left-6 flex items-center gap-2">
-                   <div className="h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-[#00E87A] animate-pulse shadow-[0_0_10px_#00E87A]" />
-                   <span className="text-[9px] sm:text-[10px] font-medium uppercase tracking-[0.2em] sm:tracking-[0.3em] text-white">Live Now</span>
-                </div>
-              </div>
-
-              <div className="p-5 sm:p-8 flex flex-col gap-4 sm:gap-6">
-                <div className="flex flex-col gap-1">
-                  <h3 className="line-clamp-1 text-[15px] sm:text-[17px] font-semibold text-black tracking-tight group-hover:text-[#5227FF] transition-colors font-sans uppercase">
+              <img
+                src={club.imageUrl}
+                alt={club.label}
+                className="h-full w-full object-cover transition-transform duration-[3s] group-hover:scale-110"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity duration-700" />
+              
+              <div className="absolute bottom-0 left-0 right-0 p-8 flex items-end justify-between gap-4">
+                <div className="flex flex-col">
+                  <h3 className="text-[19px] sm:text-[23px] font-black text-white tracking-tight leading-tight mb-1">
                     {club.label}
                   </h3>
-                  <div className="flex items-center gap-2 text-black/30">
-                    <Users className="h-3 w-3 sm:h-3.5 sm:w-3.5" />
-                    <span className="text-[10px] sm:text-[11px] font-medium uppercase tracking-wider font-sans">
-                      {club.memberCount || "2.4k"} Elite
-                    </span>
-                  </div>
+                  <p className="text-[10px] font-bold uppercase tracking-[0.25em] text-white/50 group-hover:text-white transition-colors duration-500">
+                    {club.memberCount || "1.2K"} Members
+                  </p>
                 </div>
-                
+
                 <button 
-                  onClick={() => handleJoin(club.slug, club.id)}
-                  disabled={joiningId === club.id}
-                  className="w-full flex items-center justify-center gap-2 py-3 sm:py-4 bg-black !text-white rounded-xl sm:rounded-2xl text-[9px] sm:text-[11px] font-semibold uppercase tracking-[0.2em] sm:tracking-[0.3em] transition-all hover:bg-[#5227FF] hover:shadow-xl active:scale-95 font-sans disabled:opacity-50"
+                   onClick={(e) => {
+                     e.stopPropagation();
+                     handleJoin(club.slug, club.id);
+                   }}
+                   disabled={joiningId === club.id || club.joined}
+                   className={cn(
+                     "flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-2xl transform transition-all duration-500",
+                     club.joined
+                      ? "bg-white/10 backdrop-blur-xl text-white border border-white/20"
+                      : "bg-[#5227FF] text-white shadow-2xl hover:scale-110 hover:bg-[#401ED9]"
+                   )}
                 >
-                  {joiningId === club.id ? (
-                    <div className="h-3 w-3 sm:h-4 sm:w-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                  {club.joined ? (
+                    <Sparkles className="h-5 w-5 sm:h-6 sm:w-6" fill="currentColor" />
+                  ) : joiningId === club.id ? (
+                    <div className="h-4 w-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
                   ) : (
-                    <Plus className="h-3.5 w-3.5 sm:h-4 sm:w-4" strokeWidth={4} />
+                    <Plus className="h-5 w-5 sm:h-6 sm:w-6" strokeWidth={3} />
                   )}
-                  <span>{joiningId === club.id ? 'Joining...' : 'Join Cluster'}</span>
                 </button>
               </div>
+
+              <div className="absolute inset-0 pointer-events-none bg-gradient-to-tr from-white/0 via-white/5 to-white/0 opacity-0 group-hover:opacity-100 group-hover:animate-shine" />
             </motion.div>
           ))}
-        </motion.div>
+        </div>
       </div>
     </div>
-
   );
 }

@@ -21,7 +21,7 @@ export const OCC_DEFAULT_CLUBS = [
   {
     id: "club-sports",
     slug: "sports",
-    name: "Sports Football",
+    name: "Sports & Football",
     icon: "⚽",
     description: "Tournaments, turf bookings, weekly matches.",
     theme: "green",

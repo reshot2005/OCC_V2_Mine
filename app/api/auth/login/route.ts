@@ -65,12 +65,19 @@ export async function POST(req: NextRequest) {
     response.cookies.set("occ-token", token, authCookieOptions);
 
     return response;
-  } catch (error) {
+  } catch (error: any) {
+    // TEMPORARY DEBUG: Log to a file we can read
+    try {
+      const fs = require('fs');
+      const errLog = `[auth/login] ${new Date().toISOString()} error: ${error?.message}\nStack: ${error?.stack}\n\n`;
+      fs.appendFileSync('tmp_login_error.log', errLog);
+    } catch {}
+
     console.error("[auth/login] error:", error);
     if (error instanceof ZodError) {
       return NextResponse.json({ error: error.issues[0]?.message ?? "Invalid form data" }, { status: 400 });
     }
 
-    return NextResponse.json({ error: "Login failed" }, { status: 500 });
+    return NextResponse.json({ error: "Login failed: " + (error?.message ?? "unknown") }, { status: 500 });
   }
 }

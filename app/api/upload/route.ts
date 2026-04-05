@@ -43,6 +43,16 @@ export async function POST(req: NextRequest) {
         ? "occ/posts"
         : `occ/${purpose.replace(/[^a-z0-9/_-]/gi, "_").slice(0, 32) || "uploads"}`;
 
+  async function tryVercelBlob(): Promise<string | null> {
+    if (!process.env.BLOB_READ_WRITE_TOKEN) return null;
+    const fileName = `uploads/${user.id}/${randomUUID()}.${ext}`;
+    const blob = await put(fileName, file, {
+      access: "public",
+      contentType: file.type || "image/jpeg",
+    });
+    return blob.url;
+  }
+
   // 1) Cloudinary (recommended for production)
   if (isCloudinaryConfigured()) {
     try {
@@ -55,11 +65,19 @@ export async function POST(req: NextRequest) {
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       console.error("[upload] Cloudinary failed:", e);
+      try {
+        const blobUrl = await tryVercelBlob();
+        if (blobUrl) {
+          console.warn("[upload] Used Vercel Blob after Cloudinary error");
+          return NextResponse.json({ success: true, url: blobUrl });
+        }
+      } catch (blobErr) {
+        console.error("[upload] Blob fallback after Cloudinary failed:", blobErr);
+      }
       if (isDev) {
         try {
           const url = await saveToLocalDisk(user.id, ext, bytes);
           console.warn("[upload] Dev fallback: saved to disk. Cloudinary error:", msg);
-          // No `warning` in dev — avoids toast spam; fix CLOUDINARY_* or rely on local /uploads.
           return NextResponse.json({ success: true, url });
         } catch (localErr) {
           console.error("[upload] Local fallback failed:", localErr);
@@ -67,7 +85,7 @@ export async function POST(req: NextRequest) {
       }
       return NextResponse.json(
         {
-          error: "Image upload failed (Cloudinary). Check CLOUDINARY_CLOUD_NAME, API key, and secret.",
+          error: "We couldn’t upload that image. Please try again in a moment.",
           detail: isDev ? msg : undefined,
         },
         { status: 500 },
@@ -78,12 +96,8 @@ export async function POST(req: NextRequest) {
   // 2) Vercel Blob
   if (process.env.BLOB_READ_WRITE_TOKEN) {
     try {
-      const fileName = `uploads/${user.id}/${randomUUID()}.${ext}`;
-      const blob = await put(fileName, file, {
-        access: "public",
-        contentType: file.type || "image/jpeg",
-      });
-      return NextResponse.json({ success: true, url: blob.url });
+      const url = await tryVercelBlob();
+      if (url) return NextResponse.json({ success: true, url });
     } catch (e) {
       console.error("[upload] Blob failed:", e);
       if (isDev) {
@@ -92,13 +106,16 @@ export async function POST(req: NextRequest) {
           return NextResponse.json({
             success: true,
             url,
-            warning: "Uploaded locally (Vercel Blob failed).",
+            warning: "Uploaded locally (cloud storage failed).",
           });
         } catch {
           /* fall through */
         }
       }
-      return NextResponse.json({ error: "Image upload failed (Blob)." }, { status: 500 });
+      return NextResponse.json(
+        { error: "We couldn’t upload that image. Please try again in a moment." },
+        { status: 500 },
+      );
     }
   }
 
@@ -118,8 +135,7 @@ export async function POST(req: NextRequest) {
 
   return NextResponse.json(
     {
-      error:
-        "Image uploads are not configured. Set CLOUDINARY_CLOUD_NAME, CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET, or BLOB_READ_WRITE_TOKEN.",
+      error: "Photo uploads aren’t available right now. Please try again later.",
     },
     { status: 503 },
   );

@@ -5,6 +5,8 @@ import type { ClubOnboardingConfig } from "@/config/clubOnboardingQuestions";
 
 type ClubOnboardingPhase = "questions" | "holding" | "revealing";
 
+const optionSpring = { type: "spring" as const, stiffness: 420, damping: 28 };
+
 export function ClubOnboardingFlow({
   config,
   activeIndex,
@@ -24,7 +26,7 @@ export function ClubOnboardingFlow({
   phase: ClubOnboardingPhase;
   onChooseOption: (option: string) => void;
 }) {
-  const currentQuestion = config.questions[activeIndex];
+  const currentQuestion = config.questions[activeIndex] ?? config.questions[0];
 
   return (
     <motion.div
@@ -51,23 +53,35 @@ export function ClubOnboardingFlow({
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
-          aria-hidden
-          className="absolute -right-16 bottom-12 h-80 w-80 rounded-full bg-[#D4AF37]/12 blur-[130px]"
-          animate={{ x: [0, -18, 0], y: [0, 22, 0], opacity: [0.2, 0.38, 0.2] }}
-          transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
-        />
+           aria-hidden
+           className="absolute -right-16 bottom-12 h-80 w-80 rounded-full blur-[130px]"
+           style={{ background: config.slug === "music" ? "#8B5CF6" : "#D4AF37", opacity: 0.12 }}
+           animate={{ x: [0, -18, 0], y: [0, 22, 0], opacity: [0.15, 0.35, 0.15] }}
+           transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
+         />
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(255,255,255,0.05),transparent_32%),linear-gradient(180deg,rgba(255,255,255,0.02),transparent_25%,rgba(255,255,255,0.01))]" />
       </div>
 
       <div className="relative flex min-h-screen flex-col px-5 pb-10 pt-8 sm:px-8 md:px-12">
-        <div className="mx-auto flex w-full max-w-5xl items-center justify-between">
-          <div>
-            <p className="font-mono text-[11px] uppercase tracking-[0.38em] text-[#C9A96E]">
-              OCC · {config.clubIcon} · {config.clubName}
-            </p>
-            <p className="mt-2 text-[11px] text-white/40">
-              Personal questions first. The cinematic drops right after.
-            </p>
+        <div className="mx-auto flex w-full max-w-5xl items-center justify-between gap-4">
+          <div className="flex min-w-0 items-start gap-4">
+            <motion.div
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-[#C9A96E] via-[#F4D88A] to-[#8C6DFD] p-[2.5px] shadow-[0_0_24px_rgba(201,169,110,0.25)]"
+              animate={{ scale: phase === "questions" ? [1, 1.05, 1] : 1 }}
+              transition={{ duration: 2.4, repeat: phase === "questions" ? Infinity : 0, ease: "easeInOut" }}
+            >
+              <span className="flex h-full w-full items-center justify-center rounded-full bg-[#0a0a0c] font-mono text-[10px] font-bold uppercase tracking-[0.15em]" style={{ color: config.slug === "music" ? "#8B5CF6" : "#E8DCC8" }}>
+                 {config.clubIcon}
+               </span>
+            </motion.div>
+            <div className="min-w-0">
+               <p className="font-mono text-[11px] uppercase tracking-[0.38em]" style={{ color: config.slug === "music" ? "#8B5CF6" : "#C9A96E" }}>
+                 OCC · {config.clubName}
+               </p>
+              <p className="mt-2 text-[11px] text-white/40">
+                Quick vibe check — then your full club experience unlocks.
+              </p>
+            </div>
           </div>
           <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-white/35">
             {Math.min(activeIndex + 1, 5)} / 5
@@ -81,7 +95,8 @@ export function ClubOnboardingFlow({
               className="h-1.5 flex-1 overflow-hidden rounded-full bg-white/8"
             >
               <motion.div
-                className="h-full rounded-full bg-gradient-to-r from-[#C9A96E] to-[#F4D88A]"
+                className="h-full rounded-full"
+                style={{ background: config.slug === "music" ? "linear-gradient(90deg, #7C3AED, #A78BFA)" : "linear-gradient(90deg, #C9A96E, #F4D88A)" }}
                 animate={{
                   width:
                     index < activeIndex
@@ -106,6 +121,7 @@ export function ClubOnboardingFlow({
                 exit={{ opacity: 0, y: -18 }}
                 transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
                 className="w-full max-w-3xl rounded-[2rem] border border-white/10 bg-white/[0.04] px-5 py-8 shadow-[0_35px_120px_rgba(0,0,0,0.35)] backdrop-blur-2xl sm:px-8 sm:py-10 md:px-10"
+                style={{ boxShadow: "0 25px 80px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.06)" }}
               >
                 <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-white/35">
                   Step {activeIndex + 1}
@@ -122,24 +138,30 @@ export function ClubOnboardingFlow({
                     const isSelected = selectedOption === option;
 
                     return (
-                      <button
+                      <motion.button
                         key={option}
                         type="button"
+                        layout
                         onClick={() => onChooseOption(option)}
                         disabled={isAdvancing}
-                        className={`group rounded-[1.5rem] border px-4 py-5 text-left transition-all duration-300 ${
+                        whileHover={{ y: -2 }}
+                        whileTap={{ scale: 0.98 }}
+                        transition={optionSpring}
+                        className={`group rounded-[1.5rem] border px-4 py-5 text-left transition-all ${
                           isSelected
-                            ? "border-[#D4AF37]/80 bg-[#D4AF37]/18 shadow-[0_0_30px_rgba(212,175,55,0.16)]"
-                            : "border-white/10 bg-white/[0.03] hover:-translate-y-0.5 hover:border-[#D4AF37]/45 hover:bg-white/[0.06]"
+                            ? config.slug === "music"
+                              ? "border-[#8B5CF6]/80 bg-[#8B5CF6]/18 shadow-[0_0_30px_rgba(139,92,246,0.16)]"
+                              : "border-[#D4AF37]/80 bg-[#D4AF37]/18 shadow-[0_0_30px_rgba(212,175,55,0.16)]"
+                            : "border-white/10 bg-white/[0.03] hover:border-white/20"
                         }`}
                       >
                         <span className="block text-[15px] font-medium text-[#F7F4EF] sm:text-[16px]">
                           {option}
                         </span>
                         <span className="mt-2 block text-[11px] uppercase tracking-[0.24em] text-white/28">
-                          Select
+                          Tap to choose
                         </span>
-                      </button>
+                      </motion.button>
                     );
                   })}
                 </div>
@@ -154,7 +176,11 @@ export function ClubOnboardingFlow({
                 className="flex w-full max-w-xl flex-col items-center rounded-[2rem] border border-white/10 bg-white/[0.04] px-8 py-12 text-center shadow-[0_35px_120px_rgba(0,0,0,0.35)] backdrop-blur-2xl"
               >
                 <motion.div
-                  className="mb-6 flex h-16 w-16 items-center justify-center rounded-full border border-[#D4AF37]/25 bg-[#D4AF37]/10 font-mono text-sm uppercase tracking-[0.25em] text-[#F4D88A]"
+                  className="mb-6 flex h-16 w-16 items-center justify-center rounded-full border bg-white/[0.06] font-mono text-sm uppercase tracking-[0.25em]"
+                  style={{ 
+                    borderColor: config.slug === "music" ? "#8B5CF6" : "#D4AF37", 
+                    color: config.slug === "music" ? "#8B5CF6" : "#F4D88A" 
+                  }}
                   animate={{ scale: [1, 1.05, 1], rotate: [0, 6, 0] }}
                   transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
                 >

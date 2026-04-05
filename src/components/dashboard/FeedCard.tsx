@@ -1,9 +1,12 @@
-import { Heart, MessageCircle, Share2, MoreHorizontal, Bookmark, Sparkles, CheckCircle2 } from "lucide-react";
-import { GlassCard } from "@/components/ui/GlassCard";
+"use client";
 
-export function FeedCard({
-  post,
-}: {
+import * as React from "react";
+import { Heart, MessageCircle, Share2, MoreHorizontal, Bookmark } from "lucide-react";
+import { resolveClubAvatar } from "@/lib/postImageUrl";
+import { formatSocialCount } from "@/lib/socialDisplay";
+import { cn } from "@/app/components/ui/utils";
+
+type FeedCardProps = {
   post: {
     imageUrl: string;
     caption?: string | null;
@@ -12,113 +15,121 @@ export function FeedCard({
     user: { fullName: string; avatar?: string };
     createdAt?: string;
   };
-}) {
+};
+
+export function FeedCard({ post }: FeedCardProps) {
+  const [liked, setLiked] = React.useState(false);
+  const displayLikes = (post.likes || 1240) + (liked ? 1 : 0);
+  
   return (
-    <GlassCard className="group relative overflow-hidden rounded-[3.5rem] border-0 bg-white shadow-[0_40px_100px_-20px_rgba(0,0,0,0.15)] transition-all duration-700 hover:shadow-[0_60px_120px_-30px_rgba(0,0,0,0.25)]">
-      {/* 
-        Creative Split Layout Architecture 
-        Left: Media Core
-        Right: Intel Core 
-      */}
-      <div className="grid lg:grid-cols-[1.3fr_1fr] h-full min-h-[650px]">
+    <div className="mx-auto w-full max-w-[850px] overflow-hidden rounded-[32px] bg-white border border-black/5 shadow-[0_10px_40px_rgb(0,0,0,0.04)] transition-all hover:shadow-[0_20px_60px_rgb(0,0,0,0.07)] group mb-10">
+      <div className="flex flex-col md:flex-row min-h-[460px]">
         
-        {/* Left Side: Immersive Visual Media */}
-        <div className="relative overflow-hidden bg-black">
-          <img 
-            src={post.imageUrl} 
-            alt={post.caption || "Elite Post"} 
-            className="h-full w-full object-cover transition-transform duration-[2s] group-hover:scale-110 opacity-90 brightness-[0.85] contrast-[1.1]"
+        {/* Left: Media Column */}
+        <div className="w-full md:w-[55%] relative aspect-square md:aspect-auto overflow-hidden bg-slate-100">
+           <img
+            src={post.imageUrl || "https://images.unsplash.com/photo-1549490349-86ecf13d8650?w=800&q=80"}
+            className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+            alt="Club Post"
           />
-          {/* Subtle Creative Overlays */}
-          <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black via-black/20 to-transparent opacity-60" />
-          <div className="absolute inset-0 bg-[#5227FF]/5 mix-blend-overlay" />
-          
-          <div className="absolute left-10 bottom-10 z-20 flex items-center gap-4">
-             <div className="h-16 w-16 overflow-hidden rounded-full ring-4 ring-white/20 backdrop-blur-3xl shadow-2xl">
-               <img src={post.user.avatar || post.imageUrl} className="h-full w-full object-cover" />
-             </div>
-             <div className="flex flex-col">
-               <div className="flex items-center gap-2">
-                 <span className="text-[18px] font-black text-white tracking-tight">{post.user.fullName}</span>
-                 <CheckCircle2 className="h-4 w-4 text-[#D4AF37]" />
-               </div>
-               <span className="text-[12px] font-black uppercase tracking-[0.3em] text-[#D4AF37]">Premium Member</span>
-             </div>
-          </div>
+          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
         </div>
 
-        {/* Right Side: High-End Details Panel */}
-        <div className="flex flex-col h-full bg-[#fcfcfc] p-12 lg:p-14 relative">
-          {/* Context Header */}
-          <div className="flex items-center justify-between mb-10 pb-10 border-b border-black/5">
-            <div className="flex items-center gap-3">
-              <div className="h-10 w-10 flex items-center justify-center rounded-xl bg-black/5 text-xl">{post.club.icon}</div>
-              <div className="flex flex-col">
-                <span className="text-[14px] font-black uppercase tracking-[0.2em] text-black/90">{post.club.name}</span>
-                <span className="text-[11px] font-bold text-black/20">{post.createdAt || "2h ago"} • Private Feed</span>
+        {/* Right: Content & Engagement Column */}
+        <div className="w-full md:w-[45%] flex flex-col p-6 lg:p-8">
+          
+          {/* Top: Header */}
+          <div className="flex items-center justify-between pb-6 mb-6 border-b border-black/5">
+            <div className="flex items-center gap-4">
+              <div className="h-11 w-11 overflow-hidden rounded-2xl ring-2 ring-[#5227FF]/10 ring-offset-2 transition-transform hover:scale-110">
+                <img 
+                  src={resolveClubAvatar(post.user.avatar || post.club.icon, post.club.name)} 
+                  className="h-full w-full object-cover" 
+                  alt={post.club.name}
+                />
+              </div>
+              <div>
+                <p className="text-[14px] font-black text-slate-900 tracking-tight leading-none mb-1">
+                  {post.user.fullName}
+                  {post.club.name.toLowerCase().includes("fashion") && <span className="ml-1 text-[#5227FF]">●</span>}
+                </p>
+                <div className="flex items-center gap-2">
+                   <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400">
+                     {post.club.name}
+                   </p>
+                   <span className="text-[10px] text-slate-300">•</span>
+                   <p className="text-[10px] font-medium text-slate-400 capitalize">1h ago</p>
+                </div>
               </div>
             </div>
-            <button className="h-12 px-8 rounded-full border-2 border-black/5 text-[11px] font-black uppercase tracking-[0.3em] text-black hover:bg-black hover:text-white hover:border-black transition-all">
-              Follow
+            <button className="p-2 text-slate-400 hover:text-slate-900 transition-colors">
+              <MoreHorizontal className="h-4 w-4" />
             </button>
           </div>
 
-          {/* Description - Editorial Style */}
-          <div className="flex-1 space-y-8 overflow-y-auto scrollbar-hide py-4">
-            <div className="space-y-4">
-              <h4 className="font-serif italic text-4xl text-black leading-tight">
-                {post.caption ? post.caption.split('.')[0] + '.' : "A defining moment."}
-              </h4>
-              <p className="text-[18px] font-medium leading-relaxed text-black/50">
-                {post.caption || "Experience the pinnacle of student networking. This is more than a post, it's a statement of ambition and style."}
-              </p>
-            </div>
-
-            {/* Elite Tags as Pills */}
-            <div className="flex flex-wrap gap-2 pt-4">
-              {['Elite', 'Ambition', 'Networking', 'Exclusive'].map(tag => (
-                <span key={tag} className="px-5 py-2 rounded-full border border-black/[0.03] bg-black/[0.01] text-[10px] font-black uppercase tracking-[0.2em] text-black/30">
-                  #{tag}
-                </span>
-              ))}
-            </div>
+          {/* Middle: Caption Area */}
+          <div className="flex-1 space-y-4">
+            <p className="text-[15px] font-medium text-slate-800 leading-[1.7]">
+              {post.caption || "Discover the essence of our community through this exclusive showcase."}
+            </p>
+            
+            {post.club.name.toLowerCase().includes("fashion") && (
+              <div className="flex flex-wrap gap-2 pt-2">
+                {["#ELITE", "#DIRECT", "#FASHION"].map(tag => (
+                  <span key={tag} className="px-2.5 py-1 rounded-lg bg-indigo-50 text-[10px] font-bold text-[#5227FF] tracking-wider uppercase">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            )}
+            
+            <button className="text-[13px] font-bold text-slate-300 hover:text-[#5227FF] transition-colors pt-4">
+              Read more
+            </button>
           </div>
 
-          {/* Bottom Action Hub - Premium Interaction */}
-          <div className="mt-auto pt-10 border-t border-black/5">
-            <div className="flex items-center justify-between mb-8">
+          {/* Bottom: Actions & Stats */}
+          <div className="mt-auto pt-8 border-t border-black/5">
+            <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-6">
-                <button className="flex items-center gap-2 group">
-                  <Heart className="h-6 w-6 text-black/20 group-hover:text-[#FF3040] group-hover:scale-125 transition-all" />
-                  <span className="text-[14px] font-black text-black/80">{post.likes}</span>
+                <button 
+                  onClick={() => setLiked(!liked)}
+                  className="flex items-center gap-2 group active:scale-95 transition-transform"
+                >
+                  <Heart 
+                    className={cn(
+                      "h-6 w-6 transition-colors stroke-[2px]",
+                      liked ? "fill-[#FF3040] text-[#FF3040]" : "text-slate-400 group-hover:text-[#FF3040]"
+                    )} 
+                  />
+                  <span className={cn("text-[14px] font-black tracking-tight", liked ? "text-[#FF3040]" : "text-slate-900")}>
+                    {formatSocialCount(displayLikes)}
+                  </span>
                 </button>
-                <button className="flex items-center gap-2 group">
-                  <MessageCircle className="h-6 w-6 text-black/20 group-hover:text-[#5227FF] group-hover:scale-125 transition-all" />
-                  <span className="text-[14px] font-black text-black/80">32</span>
-                </button>
-              </div>
-              <div className="flex items-center gap-2">
-                <button className="p-3 rounded-xl hover:bg-black/5 transition-all">
-                  <Share2 className="h-5 w-5 text-black/20" />
-                </button>
-                <button className="p-3 rounded-xl hover:bg-black/5 transition-all">
-                  <Bookmark className="h-5 w-5 text-black/20" />
-                </button>
-              </div>
-            </div>
 
-            {/* Exclusive Comment Input */}
-            <div className="relative group/input">
-              <div className="absolute inset-0 bg-[#5227FF] blur-xl opacity-0 group-focus-within/input:opacity-5 transition-all" />
-              <input 
-                type="text" 
-                placeholder="Share your elite perspective..."
-                className="w-full h-16 rounded-2xl bg-black/[0.02] border border-black/5 px-8 text-[14px] font-bold text-black outline-none placeholder:text-black/20 transition-all focus:bg-white focus:shadow-xl"
-              />
+                <div className="flex items-center gap-2 group cursor-pointer">
+                  <MessageCircle className="h-6 w-6 text-slate-400 group-hover:text-[#5227FF] transition-colors stroke-[2px]" />
+                  <span className="text-[14px] font-black text-slate-900 tracking-tight">0</span>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-3">
+                 <button className="p-2 hover:bg-slate-50 rounded-full transition-colors group">
+                    <Share2 className="h-5 w-5 text-slate-400 group-hover:text-[#5227FF] transition-colors stroke-[2px]" />
+                 </button>
+                 <button className="p-2 hover:bg-slate-50 rounded-full transition-colors group">
+                    <Bookmark className="h-5 w-5 text-slate-400 group-hover:text-amber-500 transition-colors stroke-[2px]" />
+                 </button>
+              </div>
             </div>
+            
+            <button className="mt-2 text-[11px] font-bold text-slate-400 hover:text-slate-600 transition-colors uppercase tracking-widest">
+               View all 12 comments
+            </button>
           </div>
+
         </div>
       </div>
-    </GlassCard>
+    </div>
   );
 }

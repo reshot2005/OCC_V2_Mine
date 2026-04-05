@@ -13,6 +13,11 @@ public/bikers-frames/
 public/photography-frames/
 public/fashion-frames/
 public/football-frames/
+public/fitness-frames/
+public/music-frames/
+public/club-frames/
+**/frames/
+**/videos/
 
 # Local user uploads (dev only; production uses Vercel Blob when configured)
 public/uploads/
@@ -21,3 +26,12 @@ public/uploads/
 *.mp4
 *.zip
 *.log
+*.bak
+.env
+.env.*
+!.env.example
+node_modules
+.next
+dist
+tmp
+*.tsbuildinfo

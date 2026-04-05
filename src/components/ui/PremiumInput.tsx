@@ -47,7 +47,7 @@ export const PremiumInput = React.forwardRef<HTMLInputElement, PremiumInputProps
           <label
             className={cn(
               "absolute left-0 top-0 text-[10px] uppercase tracking-[0.4em] transition-colors",
-              focused ? "text-[#C9A96E]" : "text-[#8A8478]",
+              focused ? "text-[#5227FF]" : "text-slate-400",
             )}
           >
             {label}
@@ -55,28 +55,28 @@ export const PremiumInput = React.forwardRef<HTMLInputElement, PremiumInputProps
 
           <div
             className={cn(
-              "relative mt-4 flex h-14 items-center rounded-md border bg-[rgba(255,248,235,0.04)] transition-all",
+              "relative mt-5 flex h-14 items-center rounded-2xl border bg-white/50 transition-all shadow-sm",
               prefix ? "pl-16" : "pl-12",
               rightSlot || isValid ? "pr-12" : "pr-4",
               error
-                ? "border-[#FF4D4D] shadow-[0_0_0_3px_rgba(255,77,77,0.1)]"
+                ? "border-red-500 shadow-[0_0_0_3px_rgba(239,68,68,0.1)]"
                 : focused
-                  ? "border-[#C9A96E] bg-[rgba(255,248,235,0.06)] shadow-[0_0_0_3px_rgba(201,169,110,0.1)]"
+                  ? "border-[#5227FF] bg-white shadow-[0_0_0_3px_rgba(82,39,255,0.06)]"
                   : isValid
-                    ? "border-[#00E87A]"
-                    : "border-[rgba(255,248,235,0.1)]",
+                    ? "border-emerald-500"
+                    : "border-slate-200",
             )}
           >
             <Icon
               className={cn(
                 "pointer-events-none absolute left-4 h-5 w-5 transition-colors",
-                focused ? "text-[#C9A96E]" : "text-[#4A4840]",
+                focused ? "text-[#5227FF]" : "text-slate-400",
               )}
               strokeWidth={1.5}
             />
 
             {prefix ? (
-              <span className="pointer-events-none absolute left-12 text-sm text-[#C9A96E]">
+              <span className="pointer-events-none absolute left-12 text-sm text-[#5227FF] font-bold">
                 {prefix}
               </span>
             ) : null}
@@ -84,7 +84,7 @@ export const PremiumInput = React.forwardRef<HTMLInputElement, PremiumInputProps
             <input
               ref={ref}
               className={cn(
-                "h-full w-full bg-transparent text-[15px] text-[#F5F0E8] outline-none placeholder:text-[#5F594F]",
+                "h-full w-full bg-transparent text-[15px] text-slate-900 font-medium outline-none placeholder:text-slate-400",
                 className,
               )}
               value={value}

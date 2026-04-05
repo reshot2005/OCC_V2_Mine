@@ -16,10 +16,12 @@ import {
   Bell,
   Copy,
   LogOut,
+  User,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useLogout } from "@/hooks/useLogout";
+import { OCC_BRAND_ICON } from "@/lib/brand";
 
 type NavItem = {
   path: string;
@@ -35,6 +37,7 @@ const nav: NavItem[] = [
   { path: "/referral", label: "Referral", icon: Link2 },
   { path: "/analytics", label: "Analytics", icon: TrendingUp },
   { path: "/events", label: "Events", icon: CalendarDays },
+  { path: "/profile", label: "Profile", icon: User },
 ];
 
 const navWithHref = nav.map((item) => ({
@@ -54,7 +57,7 @@ interface ClubHeaderShellProps {
 }
 
 export function ClubHeaderShell({ children, user }: ClubHeaderShellProps) {
-  const pathname = usePathname();
+  const pathname = usePathname() || "";
   const logout = useLogout();
   const [mounted, setMounted] = useState(false);
   const [codeCopied, setCodeCopied] = useState(false);
@@ -89,7 +92,7 @@ export function ClubHeaderShell({ children, user }: ClubHeaderShellProps) {
           <div className="flex items-center gap-4 px-2 py-8 group cursor-pointer mb-4">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl shadow-[0_0_25px_rgba(82,39,255,0.5)] group-hover:shadow-[0_0_35px_rgba(82,39,255,0.7)] transition-shadow duration-500">
               <img
-                src="/file_00000000c25c720ba27a68ebfd16e397.png"
+                src={OCC_BRAND_ICON}
                 alt="OCC"
                 className="h-full w-full object-cover"
                 width={48}

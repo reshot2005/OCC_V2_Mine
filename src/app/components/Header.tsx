@@ -11,6 +11,7 @@ import {
   storeRedirectIntent,
 } from "@/lib/client-auth-redirect";
 import { scrollToOccClubsSection } from "@/lib/landingNav";
+import { OCC_BRAND_ICON } from "@/lib/brand";
 
 const JOIN_HREF = authEntryHref(LANDING_POST_AUTH_PATH, "/login");
 
@@ -82,9 +83,20 @@ export function Header() {
     >
       <MovableBlock
         id="header-logo"
-        className={`pointer-events-auto select-none text-xl xs:text-2xl font-black tracking-widest font-sans transition-colors duration-300 ${logoClass}`}
+        className={`pointer-events-auto flex items-center select-none transition-opacity duration-300 hover:opacity-80 ${logoClass}`}
       >
-        OCC
+        <span className="text-3xl font-black tracking-widest font-sans flex items-center">
+          occ
+          <motion.span
+            animate={{ y: [0, -8, 0] }}
+            transition={{ 
+              duration: 1, 
+              repeat: Infinity, 
+              ease: "easeInOut" 
+            }}
+            className="ml-1.5 h-3 w-3 rounded-full bg-[#3B5BFF]"
+          />
+        </span>
       </MovableBlock>
 
       <div className="flex items-center gap-2 sm:gap-3 pointer-events-auto">

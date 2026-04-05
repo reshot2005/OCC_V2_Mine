@@ -8,12 +8,12 @@ export const registerSchema = z
     collegeName: z.string().min(2, "College name must be at least 2 characters").optional(),
     phoneNumber: z
       .string()
-      .regex(indianPhoneRegex, "Enter a valid Indian phone number")
+      .min(10, "Phone number is required")
+      .regex(indianPhoneRegex, "Enter a valid 10-digit Indian mobile number")
       .transform((value) => {
         const digits = value.replace(/\D/g, "");
         return digits.length > 10 ? digits.slice(-10) : digits;
-      })
-      .optional(),
+      }),
     email: z.string().email("Enter a valid email"),
     password: z
       .string()
@@ -55,6 +55,14 @@ export const loginSchema = z.object({
 /** PATCH /api/profile — email and phone are not accepted (read-only on account). */
 export const profileUpdateSchema = z.object({
   fullName: z.string().min(2, "Full name must be at least 2 characters"),
+  phoneNumber: z
+    .string()
+    .min(10, "Phone number is required")
+    .regex(indianPhoneRegex, "Enter a valid 10-digit Indian mobile number")
+    .transform((value) => {
+      const digits = value.replace(/\D/g, "");
+      return digits.length > 10 ? digits.slice(-10) : digits;
+    }),
   collegeName: z.string().min(2, "College name is required"),
   bio: z.string().max(280, "Bio must be 280 characters or less").optional().or(z.literal("")),
   city: z.string().max(80, "City is too long").optional().or(z.literal("")),

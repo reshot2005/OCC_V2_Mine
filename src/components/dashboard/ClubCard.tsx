@@ -22,6 +22,14 @@ const themeColors: Record<string, string> = {
   rose: "#FF6B6B",
 };
 
+const CUSTOM_ROUTES: Record<string, string> = {
+  music: "/music",
+  bikers: "/bikers",
+  photography: "/photography",
+  sports: "/sports",
+  fitness: "/fitness",
+};
+
 export function ClubCard({
   club,
   joined = false,
@@ -80,7 +88,7 @@ export function ClubCard({
 
           <div className="flex items-center justify-between pt-1 sm:pt-2">
             <Link
-              href={`/clubs/${club.slug}`}
+              href={CUSTOM_ROUTES[club.slug] || `/clubs/${club.slug}`}
               className="group/link flex items-center gap-2 text-[10px] sm:text-[12px] font-black uppercase tracking-[0.3em] sm:tracking-[0.4em] text-white/60 transition-all hover:text-white"
             >
               <span className="border-b border-white/20 group-hover:border-white transition-all">Dive In</span>

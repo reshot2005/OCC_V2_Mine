@@ -99,7 +99,7 @@ export function HeaderPostsManager() {
         <div>
           <p className="text-[10px] font-semibold uppercase tracking-[0.25em] text-white/40">Library</p>
           <h2 className="mt-1 text-xl font-semibold text-white">Your published posts</h2>
-          <p className="mt-1 text-sm text-white/45">Edit copy or image URL, or delete. New uploads use R2 from the composer above.</p>
+          <p className="mt-1 text-sm text-white/45">Edit copy or image URL, or delete. New images upload from the composer above.</p>
         </div>
         <button
           type="button"

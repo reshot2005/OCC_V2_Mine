@@ -20,7 +20,7 @@ function generateIndianPhoneNumber(): string {
 }
 
 function postLoginDestination(
-  user: { role: string; approvalStatus: string },
+  user: { role: string; approvalStatus: string; onboardingComplete?: boolean },
   redirectCookie: string | undefined,
 ): string {
   const raw = redirectCookie?.trim() || "/dashboard";
@@ -31,6 +31,9 @@ function postLoginDestination(
     return safe;
   }
 
+  if (user.role === "STUDENT" && user.onboardingComplete === false) {
+    return "/onboarding";
+  }
   if (user.role === "ADMIN") {
     return STAFF_PUBLIC_PREFIX;
   }
@@ -175,7 +178,7 @@ export async function GET(req: NextRequest) {
   });
 
   const destination = postLoginDestination(
-    { role: user.role, approvalStatus: user.approvalStatus },
+    { role: user.role, approvalStatus: user.approvalStatus, onboardingComplete: "onboardingComplete" in user ? (user as any).onboardingComplete : false },
     redirectCookie,
   );
 

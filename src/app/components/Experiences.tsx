@@ -1,27 +1,23 @@
-import React from "react";
+"use client";
+
+import React, { useRef } from "react";
 import { motion } from "motion/react";
 import { MovableBlock } from "./LayoutEditor";
+import { ScrollTube } from "./Approach";
 
 export function Experiences() {
+  const sectionRef = useRef<HTMLElement>(null);
+
   return (
-    <section className="relative w-full max-w-[100vw] overflow-x-hidden bg-[#F6F7FA] px-4 py-24 sm:px-6 md:px-12 md:py-32">
+    <section
+      ref={sectionRef}
+      className="relative isolate w-full max-w-[100vw] overflow-visible bg-[#F6F7FA] px-4 py-24 sm:px-6 md:px-12 md:py-32"
+    >
       <MovableBlock
         id="experiences-bg-stroke"
-        className="pointer-events-none absolute right-0 top-0 h-full w-full"
+        className="pointer-events-none absolute inset-0 z-[1] overflow-visible"
       >
-        <svg
-          viewBox="0 0 1000 1000"
-          className="absolute -top-[10%] right-0 h-[120%] w-[120%] opacity-60"
-          preserveAspectRatio="xMidYMid slice"
-        >
-          <path
-            d="M 1000 200 C 600 -100 200 400 300 800 C 400 1200 800 1000 1000 600"
-            fill="none"
-            stroke="#67E8F9"
-            strokeWidth="60"
-            strokeLinecap="round"
-          />
-        </svg>
+        <ScrollTube containerRef={sectionRef} mirror />
       </MovableBlock>
 
       <div className="relative z-10 mx-auto mb-16 mt-8 w-full max-w-[90rem] md:mb-24 md:mt-10 lg:mb-28">
@@ -47,7 +43,7 @@ export function Experiences() {
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 1 }}
-            className="relative aspect-[4/3] w-full overflow-hidden rounded-[2rem] bg-black shadow-2xl shadow-cyan-900/10"
+            className="relative aspect-[4/3] w-full overflow-hidden rounded-[2rem] bg-black shadow-2xl shadow-blue-900/10"
           >
             <div className="pointer-events-none absolute inset-0 z-20 rounded-[2rem] border-[12px] border-black shadow-inner md:border-[20px] lg:border-[24px]" />
             <img

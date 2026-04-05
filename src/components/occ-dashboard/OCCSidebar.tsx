@@ -16,6 +16,7 @@ import { usePathname } from "next/navigation";
 import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useState } from "react";
 import { useLogout } from "@/hooks/useLogout";
+import { OCC_BRAND_ICON } from "@/lib/brand";
 
 /** Standard Lucide set — readable names, consistent stroke, dashboard-grade semantics. */
 const navItems: { icon: LucideIcon; label: string; href: string }[] = [
@@ -54,7 +55,7 @@ export function OCCSidebar({ activePath: _activePath }: { activePath: string }) 
         <div className="flex h-[52px] shrink-0 items-center px-3 pt-5 pb-2">
           <Link href="/dashboard" className="flex min-w-0 items-center gap-2.5 rounded-xl group">
             <img
-              src="/file_00000000c25c720ba27a68ebfd16e397.png"
+              src={OCC_BRAND_ICON}
               alt="OCC"
               className="h-9 w-9 shrink-0 rounded-xl object-cover shadow-[0_0_24px_rgba(82,39,255,0.18)] transition-transform duration-300 ease-out group-hover:scale-[1.03]"
               width={36}
@@ -62,15 +63,20 @@ export function OCCSidebar({ activePath: _activePath }: { activePath: string }) 
             />
             <AnimatePresence>
               {isHovered && (
-                <motion.span
-                  initial={{ opacity: 0, x: -6 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -6 }}
-                  transition={{ duration: 0.16, ease: [0.25, 0.1, 0.25, 1] }}
-                  className="truncate text-[15px] font-semibold tracking-tight text-white"
-                >
-                  OCC
-                </motion.span>
+                  <motion.span
+                    initial={{ opacity: 0, x: -6 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -6 }}
+                    transition={{ duration: 0.16, ease: [0.25, 0.1, 0.25, 1] }}
+                    className="truncate text-[15px] font-semibold tracking-tight text-white flex items-center"
+                  >
+                    OCC
+                    <motion.span
+                      animate={{ y: [0, -4, 0] }}
+                      transition={{ duration: 1, repeat: Infinity, ease: "easeInOut" }}
+                      className="ml-0.5 h-1.5 w-1.5 rounded-full bg-[#3B5BFF]"
+                    />
+                  </motion.span>
               )}
             </AnimatePresence>
           </Link>

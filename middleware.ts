@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAuthToken } from "@/lib/jwt";
-import { staffGateHref, STAFF_PUBLIC_PREFIX } from "@/lib/staff-paths";
+import { staffGateHref, STAFF_PUBLIC_PREFIX, ADMIN_CP_PREFIX } from "@/lib/staff-paths";
 
 const PROTECTED_PATHS = [
   "/dashboard",
@@ -41,7 +41,17 @@ function isLegacyAdminPath(pathname: string) {
 function isInternalStaffPath(pathname: string) {
   return (
     pathname.startsWith("/staff-panel-internal") ||
-    pathname.startsWith("/staff-gate-internal")
+    pathname.startsWith("/staff-gate-internal") ||
+    pathname.startsWith("/admin-control-panel-internal")
+  );
+}
+
+function isAdminCPPath(pathname: string) {
+  return (
+    pathname === ADMIN_CP_PREFIX ||
+    pathname.startsWith(`${ADMIN_CP_PREFIX}/`) ||
+    pathname === "/admin-control-panel-internal" ||
+    pathname.startsWith("/admin-control-panel-internal/")
   );
 }
 
@@ -57,10 +67,11 @@ export async function middleware(req: NextRequest) {
   const isProtected = PROTECTED_PATHS.some((path) => pathname.startsWith(path));
   const isAuthPath = AUTH_PATHS.some((path) => pathname.startsWith(path));
   const isStaffPanel = isStaffPanelPath(pathname);
+  const isAdminCP = isAdminCPPath(pathname);
   const isStaffGate = isStaffGatePath(pathname);
   const isHeaderPath = pathname.startsWith("/header");
   const isPendingPath = pathname.startsWith("/pending");
-  const requiresAuth = isProtected || isStaffPanel || isHeaderPath || isPendingPath;
+  const requiresAuth = isProtected || isStaffPanel || isAdminCP || isHeaderPath || isPendingPath;
 
   if (isStaffGate && token) {
     try {
@@ -75,12 +86,13 @@ export async function middleware(req: NextRequest) {
 
   if (requiresAuth) {
     if (!token) {
-      if (isStaffPanel) {
+      if (isStaffPanel || isAdminCP) {
         const gate = new URL(staffGateHref(), req.url);
         gate.searchParams.set("next", pathname + (search || ""));
         return NextResponse.redirect(gate);
       }
       const loginUrl = new URL("/login", req.url);
+      loginUrl.searchParams.set("redirect", pathname + (search || ""));
       return NextResponse.redirect(loginUrl);
     }
 
@@ -96,7 +108,7 @@ export async function middleware(req: NextRequest) {
         return response;
       }
 
-      if (isStaffPanel && role !== "ADMIN") {
+      if ((isStaffPanel || isAdminCP) && role !== "ADMIN") {
         return NextResponse.redirect(new URL("/dashboard", req.url));
       }
 
@@ -138,6 +150,12 @@ export async function middleware(req: NextRequest) {
       const payload = await verifyAuthToken(token);
       const role = payload.role;
       const approval = payload.approvalStatus;
+      
+      const requestedRedirect = req.nextUrl.searchParams.get("redirect");
+      if (requestedRedirect && requestedRedirect.startsWith("/")) {
+        return NextResponse.redirect(new URL(requestedRedirect, req.url));
+      }
+
       if (role === "ADMIN") {
         return NextResponse.redirect(new URL(STAFF_PUBLIC_PREFIX, req.url));
       }
@@ -176,6 +194,10 @@ export const config = {
     // Must match default NEXT_PUBLIC_OCC_STAFF_PREFIX; update both if you change the env prefix.
     "/k9xm2p7qv4nw8-stf",
     "/k9xm2p7qv4nw8-stf/:path*",
+    "/k9xm2p7qv4nw8-admin-control-panel",
+    "/k9xm2p7qv4nw8-admin-control-panel/:path*",
+    "/admin-control-panel-internal",
+    "/admin-control-panel-internal/:path*",
     "/staff-gate-internal",
     "/staff-gate-internal/:path*",
     "/staff-panel-internal",

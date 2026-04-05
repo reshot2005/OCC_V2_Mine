@@ -3,8 +3,12 @@ import { setFrameImageSrc } from "./frameImage";
 function normalizeBase(basePath: string) {
   const b = basePath.trim();
   if (!b) return "/";
-  return b.endsWith("/") ? b : `${b}/`;
+  let path = b.startsWith("/") ? b : `/${b}`;
+  if (!path.endsWith("/")) path += "/";
+  return path;
 }
+
+const EASE = 0.02; // Drastically lower for ultra-long coasting
 
 /**
  * Loads numbered frames (0001.jpg …) for scroll-cinema. Handles cached images.
@@ -14,8 +18,11 @@ export async function loadFrameSequence(
   basePath: string,
   totalFrames: number,
   onProgress: (p: number) => void,
+  prefix: string = "",
 ): Promise<HTMLImageElement[]> {
-  const base = normalizeBase(basePath);
+  const cdnBase = (process.env.NEXT_PUBLIC_FRAMES_CDN_BASE || process.env.VITE_FRAMES_CDN_BASE || "").replace(/\/$/, "");
+  const normalizedBase = normalizeBase(basePath);
+  const base = normalizedBase.startsWith("http") ? normalizedBase : `${cdnBase}${normalizedBase}`;
   const imgs: HTMLImageElement[] = new Array(totalFrames);
   let completed = 0;
 
@@ -38,29 +45,53 @@ export async function loadFrameSequence(
       };
 
       const tryExt = (ext: ".jpg" | ".webp") => {
-        const img = new Image();
-        const src = `${base}${padded}${ext}`;
-        img.onload = () => finish(true, img);
-        img.onerror = () => {
-          if (ext === ".jpg") tryExt(".webp");
-          else finish(false, null);
+        const potentialSrcs = [
+          `${base}${prefix}${padded}${ext}`,
+          `${base}${padded}${ext}`,
+          `${base}frame_${padded}${ext}`,
+          `/fitness-frames/${prefix}${padded}${ext}`, // local fallback
+        ];
+
+        let attemptIdx = 0;
+
+        const attempt = () => {
+          if (attemptIdx >= potentialSrcs.length) {
+            if (ext === ".jpg") tryExt(".webp");
+            else finish(false, null);
+            return;
+          }
+
+          const currentSrc = potentialSrcs[attemptIdx];
+          const img = new Image();
+          img.onload = () => finish(true, img);
+          img.onerror = () => {
+            attemptIdx++;
+            attempt();
+          };
+          setFrameImageSrc(img, currentSrc);
+          if (img.complete && img.naturalWidth > 0) {
+            finish(true, img);
+          }
         };
-        setFrameImageSrc(img, src);
-        if (img.complete && img.naturalWidth > 0) {
-          finish(true, img);
-        }
+
+        attempt();
       };
 
       tryExt(".jpg");
     });
 
-  const BATCH = 40;
-  for (let start = 0; start < totalFrames; start += BATCH) {
-    const end = Math.min(start + BATCH, totalFrames);
-    const batch: Promise<void>[] = [];
-    for (let i = start; i < end; i++) batch.push(loadIndex(i));
-    await Promise.all(batch);
+  // Aggressive parallel loading with concurrency limit
+  const CONCURRENCY = 100;
+  const pool = new Set<Promise<void>>();
+  
+  for (let i = 0; i < totalFrames; i++) {
+    const task = loadIndex(i).then(() => { pool.delete(task); });
+    pool.add(task);
+    if (pool.size >= CONCURRENCY) {
+      await Promise.race(pool);
+    }
   }
+  await Promise.all(pool);
 
   return imgs;
 }

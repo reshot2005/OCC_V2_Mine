@@ -49,7 +49,7 @@ export function LoginPage() {
 
         {/* Language Selector - Top Right on Desktop */}
         <div className="absolute top-8 right-8 hidden lg:flex items-center gap-2 text-sm text-gray-600">
-          <img 
+          <img
             src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 60 30'%3E%3Crect width='60' height='30' fill='%23012169'/%3E%3Cpath d='M0,0 L60,30 M60,0 L0,30' stroke='%23fff' stroke-width='6'/%3E%3Cpath d='M0,0 L60,30 M60,0 L0,30' stroke='%23C8102E' stroke-width='4'/%3E%3Cpath d='M30,0 v30 M0,15 h60' stroke='%23fff' stroke-width='10'/%3E%3Cpath d='M30,0 v30 M0,15 h60' stroke='%23C8102E' stroke-width='6'/%3E%3C/svg%3E"
             alt="UK Flag"
             className="w-5 h-3"
@@ -223,23 +223,13 @@ export function LoginPage() {
           ))}
         </div>
 
-        {/* Top Right Buttons */}
-        <div className="absolute top-8 right-8 flex items-center gap-3 z-10">
-          <button className="px-5 py-2 text-white text-sm font-medium hover:text-gray-300 transition-colors">
-            Sign Up
-          </button>
-          <button className="px-5 py-2 bg-white text-gray-900 rounded-full text-sm font-medium hover:bg-gray-100 transition-colors">
-            Join Us
-          </button>
-        </div>
-
         {/* Community Badge */}
         <div className="absolute top-24 right-8 flex items-center gap-3 bg-white/10 backdrop-blur-xl rounded-2xl px-4 py-3 border border-white/20 z-10">
           <div className="w-10 h-10 bg-white rounded-full flex items-center justify-center">
             <Users className="w-5 h-5 text-gray-900" />
           </div>
           <div>
-            <p className="text-white font-semibold text-sm">Largest Space</p>
+            <p className="text-white font-semibold text-sm">OFF-Campus Space</p>
             <p className="text-white/70 text-xs">Community</p>
           </div>
         </div>

@@ -8,6 +8,9 @@ type Member = {
   student: {
     fullName: string;
     collegeName: string;
+    bio: string | null;
+    city: string | null;
+    graduationYear: number | null;
     createdAt: string;
   };
   registeredAt: string;
@@ -26,7 +29,8 @@ export function MembersTable({ members }: { members: Member[] }) {
           <tr className="border-b border-white/[0.06]">
             <th className="px-6 py-5 text-[10px] uppercase tracking-widest text-white/40 font-semibold">#</th>
             <th className="px-6 py-5 text-[10px] uppercase tracking-widest text-white/40 font-semibold">Name</th>
-            <th className="px-6 py-5 text-[10px] uppercase tracking-widest text-white/40 font-semibold">College</th>
+            <th className="px-6 py-5 text-[10px] uppercase tracking-widest text-white/40 font-semibold">College / Grad</th>
+            <th className="px-6 py-5 text-[10px] uppercase tracking-widest text-white/40 font-semibold">Bio & Location</th>
             <th className="px-6 py-5 text-[10px] uppercase tracking-widest text-white/40 font-semibold">Joined</th>
           </tr>
         </thead>
@@ -52,8 +56,21 @@ export function MembersTable({ members }: { members: Member[] }) {
                   <span className="font-medium text-white/90">{m.student.fullName}</span>
                 </div>
               </td>
-              <td className="px-6 py-4 text-white/60">{m.student.collegeName}</td>
-              <td className="px-6 py-4 text-white/40 text-xs">
+              <td className="px-6 py-4">
+                <div className="flex flex-col gap-0.5">
+                  <span className="text-white/80">{m.student.collegeName}</span>
+                  <span className="text-[10px] font-black uppercase tracking-widest text-white/20">Class of {m.student.graduationYear || '—'}</span>
+                </div>
+              </td>
+              <td className="px-6 py-4 max-w-xs">
+                <div className="flex flex-col gap-1">
+                  <p className="line-clamp-2 text-xs text-white/50 italic leading-relaxed">
+                    {m.student.bio || "No bio updated."}
+                  </p>
+                  <span className="text-[10px] uppercase tracking-tighter text-[#8C6DFD] font-bold">{m.student.city || 'Not specified'}</span>
+                </div>
+              </td>
+              <td className="px-6 py-4 text-white/30 text-xs">
                 {formatDistanceToNow(new Date(m.registeredAt), { addSuffix: true })}
               </td>
             </motion.tr>

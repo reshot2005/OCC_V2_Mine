@@ -7,8 +7,9 @@ import { FeedCard } from "@/components/dashboard/FeedCard";
 import { GigCard } from "@/components/dashboard/GigCard";
 import { RegisterEventButton } from "@/components/dashboard/RegisterEventButton";
 import { cn } from "@/app/components/ui/utils";
+import { motion } from "framer-motion";
 
-const tabs = ["Feed", "Events", "Members", "Gigs"] as const;
+const tabs = ["Feed", "Events", "Gigs"] as const;
 type TabKey = (typeof tabs)[number];
 
 type ClubTabsProps = {
@@ -31,12 +32,6 @@ type ClubTabsProps = {
     price?: number;
     registered?: boolean;
   }>;
-  members: Array<{
-    id: string;
-    fullName: string;
-    collegeName: string;
-    avatar?: string | null;
-  }>;
   gigs: Array<{
     id: string;
     title: string;
@@ -48,86 +43,69 @@ type ClubTabsProps = {
   }>;
 };
 
-export function ClubTabs({ posts, events, members, gigs }: ClubTabsProps) {
+export function ClubTabs({ posts, events, gigs }: ClubTabsProps) {
   const [active, setActive] = React.useState<TabKey>("Feed");
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap gap-6 border-b border-white/8 pb-3">
+      <div className="flex flex-wrap gap-8 border-b border-black/5 pb-0">
         {tabs.map((tab) => (
           <button
             key={tab}
             type="button"
             onClick={() => setActive(tab)}
             className={cn(
-              "pb-3 text-[12px] uppercase tracking-[0.3em] text-[#8A8478] transition",
-              active === tab && "border-b border-[#C9A96E] text-[#F5F0E8]",
+              "pb-4 text-[12px] font-black uppercase tracking-[0.3em] transition-all relative",
+              active === tab 
+                ? "text-[#5227FF]" 
+                : "text-slate-400 hover:text-slate-600"
             )}
           >
             {tab}
+            {active === tab && (
+              <motion.div 
+                layoutId="club-nav-underline"
+                className="absolute bottom-0 left-0 right-0 h-[3px] bg-[#5227FF] rounded-t-full"
+              />
+            )}
           </button>
         ))}
       </div>
 
-      {active === "Feed" ? (
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-          {posts.map((post) => (
-            <FeedCard key={post.id} post={post} />
-          ))}
-        </div>
-      ) : null}
+      <div className="pt-8">
+        {active === "Feed" ? (
+          <div className="flex flex-col gap-8 max-w-4xl mx-auto">
+            {posts.map((post) => (
+              <FeedCard key={post.id} post={post} />
+            ))}
+          </div>
+        ) : null}
 
-      {active === "Events" ? (
-        <div className="grid gap-4 lg:grid-cols-2">
-          {events.map((event) => (
-            <EventCard
-              key={event.id}
-              event={event}
-              action={<RegisterEventButton eventId={event.id} registered={!!event.registered} />}
-            />
-          ))}
-        </div>
-      ) : null}
-
-      {active === "Members" ? (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {members.map((member) => {
-            const initials = member.fullName
-              .split(" ")
-              .slice(0, 2)
-              .map((part) => part[0])
-              .join("")
-              .toUpperCase();
-            return (
-              <div key={member.id} className="rounded-[24px] border border-white/8 bg-white/[0.03] p-5">
-                <div className="flex items-center gap-4">
-                  <div className="flex h-14 w-14 items-center justify-center rounded-full bg-[#C9A96E]/15 text-sm text-[#C9A96E]">
-                    {initials}
-                  </div>
-                  <div>
-                    <p className="text-lg text-[#F5F0E8]">{member.fullName}</p>
-                    <p className="text-xs uppercase tracking-[0.24em] text-[#8A8478]">
-                      {member.collegeName}
-                    </p>
-                  </div>
-                </div>
+        {active === "Events" ? (
+          <div className="grid gap-6 lg:grid-cols-2">
+            {events.map((event) => (
+              <div key={event.id} className="relative group">
+                <EventCard
+                  event={event}
+                  action={<RegisterEventButton eventId={event.id} registered={!!event.registered} />}
+                />
               </div>
-            );
-          })}
-        </div>
-      ) : null}
+            ))}
+          </div>
+        ) : null}
 
-      {active === "Gigs" ? (
-        <div className="grid gap-4 lg:grid-cols-2">
-          {gigs.map((gig) => (
-            <GigCard
-              key={gig.id}
-              gig={gig}
-              action={<ApplyGigButton gigId={gig.id} applied={!!gig.applied} />}
-            />
-          ))}
-        </div>
-      ) : null}
+        {active === "Gigs" ? (
+          <div className="grid gap-6 lg:grid-cols-2">
+            {gigs.map((gig) => (
+              <GigCard
+                key={gig.id}
+                gig={gig}
+                action={<ApplyGigButton gigId={gig.id} applied={!!gig.applied} />}
+              />
+            ))}
+          </div>
+        ) : null}
+      </div>
     </div>
   );
 }

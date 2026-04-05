@@ -17,12 +17,14 @@ import {
   Bell,
   AlertOctagon,
   Briefcase,
+  Orbit,
 } from "lucide-react";
 import { NotificationBell } from "@/components/realtime/NotificationBell";
 import { STAFF_PUBLIC_PREFIX, staffHref } from "@/lib/staff-paths";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState, useRef } from "react";
 import { useLogout } from "@/hooks/useLogout";
+import { OCC_BRAND_ICON } from "@/lib/brand";
 
 type NavItem = {
   path: string;
@@ -39,6 +41,7 @@ const nav: NavItem[] = [
   { path: "/posts", label: "All Posts", icon: ImageIcon },
   { path: "/gigs", label: "Gigs & hires", icon: Briefcase },
   { path: "/reports", label: "Intel Reports", icon: AlertOctagon },
+  { path: "/orbit", label: "Orbit Gallery", icon: Orbit },
   { path: "/analytics", label: "Analytics", icon: TrendingUp },
   { path: "/settings", label: "Settings", icon: Settings },
 ];
@@ -99,7 +102,7 @@ export function AdminShell({
           <div className="flex items-center gap-4 px-2 py-8 group cursor-pointer mb-6">
             <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl shadow-[0_0_25px_rgba(82,39,255,0.5)] group-hover:shadow-[0_0_35px_rgba(82,39,255,0.7)] transition-shadow duration-500">
               <img
-                src="/file_00000000c25c720ba27a68ebfd16e397.png"
+                src={OCC_BRAND_ICON}
                 alt="OCC"
                 className="h-full w-full object-cover"
                 width={44}

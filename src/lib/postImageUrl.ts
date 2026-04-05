@@ -4,13 +4,18 @@ export const OCC_PREMIUM_CLUB_IMAGES = {
   music: "/premium-assets/club_music_premium_169_1775157345029.png",
   football: "/premium-assets/club_football_premium_169_1775157363794.png",
   photography: "/premium-assets/club_photography_premium_169_1775157399055.png",
+  fitness: "/premium-assets/club_fitness_premium.png",
+  fashion: "/premium-assets/club_fashion_premium.png",
 } as const;
 
 export function premiumClubImageForName(name: string): string {
-  if (name.includes("Biker")) return OCC_PREMIUM_CLUB_IMAGES.bikers;
-  if (name.includes("Music")) return OCC_PREMIUM_CLUB_IMAGES.music;
-  if (name.includes("Football")) return OCC_PREMIUM_CLUB_IMAGES.football;
-  if (name.includes("Photography")) return OCC_PREMIUM_CLUB_IMAGES.photography;
+  const n = name.toLowerCase();
+  if (n.includes("biker")) return OCC_PREMIUM_CLUB_IMAGES.bikers;
+  if (n.includes("music")) return OCC_PREMIUM_CLUB_IMAGES.music;
+  if (n.includes("football") || n.includes("sport")) return OCC_PREMIUM_CLUB_IMAGES.football;
+  if (n.includes("photography") || n.includes("photo")) return OCC_PREMIUM_CLUB_IMAGES.photography;
+  if (n.includes("fitness") || n.includes("gym")) return OCC_PREMIUM_CLUB_IMAGES.fitness;
+  if (n.includes("fashion") || n.includes("style")) return OCC_PREMIUM_CLUB_IMAGES.fashion;
   return OCC_PREMIUM_CLUB_IMAGES.bikers;
 }
 
@@ -60,4 +65,33 @@ export function resolvePostImageUrlForFeed(
   }
 
   return raw;
+}
+export function resolveClubAvatar(
+  userAvatar: string | null | undefined,
+  clubName: string,
+): string {
+  if (userAvatar?.trim() && userAvatar.startsWith("http")) return userAvatar.trim();
+  if (userAvatar?.trim() && userAvatar.startsWith("/uploads/")) {
+     const abs = absoluteUrlForUploadPath(userAvatar.trim());
+     return abs ?? userAvatar.trim();
+  }
+
+  // HUMAN AVATARS (Unsplash high-quality placeholders)
+  const categoryAvatars: Record<string, string> = {
+    fashion: "https://images.unsplash.com/photo-1494790108377-be9c29b29330?q=80&w=200&h=200&auto=format&fit=crop",
+    music: "https://images.unsplash.com/photo-1520813792240-56fc4a3765a7?q=80&w=200&h=200&auto=format&fit=crop",
+    bikers: "https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?q=80&w=200&h=200&auto=format&fit=crop",
+    football: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?q=80&w=200&h=200&auto=format&fit=crop",
+    photography: "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?q=80&w=200&h=200&auto=format&fit=crop",
+    default: "https://images.unsplash.com/photo-1554151228-14d9def656e4?q=80&w=200&h=200&auto=format&fit=crop"
+  };
+
+  const nameUpper = clubName.toUpperCase();
+  if (nameUpper.includes("FASHION")) return categoryAvatars.fashion;
+  if (nameUpper.includes("MUSIC")) return categoryAvatars.music;
+  if (nameUpper.includes("BIKER")) return categoryAvatars.bikers;
+  if (nameUpper.includes("FOOTBALL") || nameUpper.includes("SPORT")) return categoryAvatars.football;
+  if (nameUpper.includes("PHOTO")) return categoryAvatars.photography;
+
+  return categoryAvatars.default;
 }

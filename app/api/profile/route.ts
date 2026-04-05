@@ -25,6 +25,7 @@ export async function PATCH(req: NextRequest) {
 
     const data: Prisma.UserUpdateInput = {
       fullName: parsed.fullName,
+      phoneNumber: parsed.phoneNumber,
       collegeName: parsed.collegeName,
       bio: parsed.bio === "" || parsed.bio === undefined ? null : parsed.bio,
       city: parsed.city === "" || parsed.city === undefined ? null : parsed.city,
@@ -40,6 +41,22 @@ export async function PATCH(req: NextRequest) {
     const updated = await prisma.user.update({
       where: { id: user.id },
       data,
+    });
+
+    // Audit Log for Admin Visibility
+    await prisma.auditLog.create({
+      data: {
+        adminId: user.id, // User themselves for self-updates
+        adminEmail: user.email,
+        action: "PROFILE_UPDATE",
+        entity: "USER",
+        entityId: user.id,
+        details: {
+          changedFields: Object.keys(data),
+          platform: "DASHBOARD",
+          timestamp: new Date().toISOString(),
+        },
+      },
     });
 
     return NextResponse.json({ success: true, user: updated });

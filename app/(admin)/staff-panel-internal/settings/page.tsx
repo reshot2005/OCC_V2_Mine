@@ -26,9 +26,13 @@ export default function AdminSettingsPage() {
     {
       label: "Images (Cloudinary)",
       ok: env.cloudinary,
-      detail: "CLOUDINARY_CLOUD_NAME + CLOUDINARY_API_KEY + CLOUDINARY_API_SECRET",
+      detail: "Cloud name + API key + API secret in project env",
     },
-    { label: "Images (Vercel Blob fallback)", ok: env.vercelBlob, detail: "BLOB_READ_WRITE_TOKEN" },
+    {
+      label: "Images (Vercel Blob fallback)",
+      ok: env.vercelBlob,
+      detail: "Vercel Blob read/write token in project env",
+    },
   ];
 
   return (

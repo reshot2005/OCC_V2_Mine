@@ -27,90 +27,92 @@ export function OCCHeader({ user }: { user: any }) {
     <motion.header 
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
-      className="flex shrink-0 items-center justify-between px-4 sm:px-5 lg:px-6 py-4 sm:py-5 bg-white/80 backdrop-blur-3xl z-40 w-full border-b border-black/[0.03] sticky top-0 shadow-sm"
+      className="flex shrink-0 items-center justify-between px-6 py-4 bg-white/80 backdrop-blur-xl z-40 w-full border-b border-black/5 sticky top-0"
     >
-      <div className="min-w-0 flex-1 flex items-center gap-3 pr-2 sm:pr-4">
+      <div className="min-w-0 flex-1 flex items-center gap-4 pr-4">
         <Suspense fallback={null}>
           <ExploreNavSearch />
         </Suspense>
       </div>
 
-      {/* Action Items - High-End Layout */}
-      <div className="flex items-center gap-2 sm:gap-4">
-        <div className="hidden lg:flex items-center gap-2 bg-black/[0.02] p-1.5 rounded-3xl border border-black/5 mr-4 shadow-inner">
-          <button className="relative p-3 rounded-2xl bg-white shadow-sm border border-black/5 text-black hover:scale-105 active:scale-95 transition-all group overflow-hidden">
+      {/* Action Items */}
+      <div className="flex items-center gap-4">
+        <div className="hidden lg:flex items-center gap-3 bg-black/[0.02] p-1.5 rounded-2xl border border-black/5 mr-2">
+          <button className="relative p-2.5 rounded-xl bg-white border border-black/5 text-slate-600 hover:text-[#5227FF] hover:border-[#5227FF]/20 transition-all group overflow-hidden">
             <Bell className="h-5 w-5" strokeWidth={2.5} />
-            <span className="absolute top-3 right-3 flex h-2.5 w-2.5 rounded-full bg-[#5227FF] ring-4 ring-white shadow-lg"></span>
+            <span className="absolute top-2.5 right-2.5 flex h-2 w-2 rounded-full bg-[#5227FF]"></span>
           </button>
           
-          <button className="p-3 rounded-2xl hover:bg-black/10 text-black/40 hover:text-black transition-all">
+          <button className="p-2.5 rounded-xl hover:bg-black/5 text-slate-400 hover:text-slate-900 transition-all">
             <LayoutGrid className="h-5 w-5" strokeWidth={2.5} />
           </button>
         </div>
+      </div>
 
       {/* Profile Section */}
       <div className="relative" ref={profileRef}>
         <motion.button 
           whileHover={{ scale: 1.02 }}
           onClick={() => setIsProfileOpen(!isProfileOpen)}
-          className={`flex items-center gap-2 sm:gap-4 pl-2 sm:pl-6 p-1 sm:p-2 pr-2 rounded-[2rem] border transition-all group shrink-0 ${isProfileOpen ? 'bg-black/[0.03] border-[#5227FF]/20 shadow-inner' : 'bg-white border-black/5 shadow-sm'}`}
+          className={`flex items-center gap-3 pl-4 p-1.5 pr-2 rounded-full border transition-all group shrink-0 ${isProfileOpen ? 'bg-black/5 border-black/10' : 'bg-black/[0.02] border-black/5'}`}
         >
-          <div className="hidden sm:flex flex-col items-end leading-none">
-            <div className="flex items-center gap-1.5">
-              <span className="text-[14px] sm:text-[15px] font-semibold tracking-tight text-slate-900">
-                {user.fullName || "User"}
-              </span>
-              <Sparkles className="h-3 w-3 shrink-0 text-[#5227FF]" fill="currentColor" />
-            </div>
-            <span className="mt-0.5 text-[9px] sm:text-[10px] font-medium uppercase tracking-[0.2em] text-slate-500">
-              Elite Member
+          <div className="hidden sm:flex flex-col items-end leading-tight mr-1">
+            <span className="text-[13px] font-bold tracking-tight text-slate-900">
+              {user.fullName || "User"}
+            </span>
+            <span className="text-[9px] font-bold uppercase tracking-[0.1em] text-slate-400">
+              ELITE MEMBER
             </span>
           </div>
           <div className="relative">
-            <div className={`h-8 w-8 sm:h-12 sm:w-12 overflow-hidden rounded-full ring-2 shadow-lg transition-all ${isProfileOpen ? 'ring-[#5227FF]/50' : 'ring-white group-hover:ring-[#5227FF]/20'}`}>
+            <div className={`h-9 w-9 overflow-hidden rounded-full ring-2 transition-all ${isProfileOpen ? 'ring-[#5227FF]/40' : 'ring-black/5 group-hover:ring-[#5227FF]/20'}`}>
               <img
                 alt="Profile"
                 src={avatarSrc(user.avatar)}
                 className="h-full w-full object-cover"
               />
             </div>
-            <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-[#00E87A] border-2 border-white shadow-lg" />
+            <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-[#00E87A] border-2 border-white shadow-sm" />
           </div>
-          <ChevronDown className={`h-4 w-4 transition-all hidden sm:block ${isProfileOpen ? 'text-[#5227FF] rotate-180' : 'text-black/10 group-hover:text-black/30'}`} strokeWidth={3} />
+          <ChevronDown className={`h-3.5 w-3.5 transition-all hidden sm:block ${isProfileOpen ? 'text-[#5227FF] rotate-180' : 'text-slate-300 group-hover:text-slate-500'}`} strokeWidth={3} />
         </motion.button>
 
         {/* PROFILE DROPDOWN */}
         <AnimatePresence>
           {isProfileOpen && (
             <motion.div
-              initial={{ opacity: 0, y: 10, scale: 0.95 }}
-              animate={{ opacity: 1, y: 5, scale: 1 }}
-              exit={{ opacity: 0, y: 10, scale: 0.95 }}
-              className="absolute top-full right-0 mt-3 w-56 p-2 rounded-2xl bg-white/95 backdrop-blur-3xl border border-black/5 shadow-[0_20px_50px_rgba(0,0,0,0.1)] z-50"
+              initial={{ opacity: 0, y: 12, scale: 0.98 }}
+              animate={{ opacity: 1, y: 8, scale: 1 }}
+              exit={{ opacity: 0, y: 12, scale: 0.98 }}
+              className="absolute top-full right-0 w-64 p-2 rounded-[24px] bg-white border border-black/5 shadow-[0_20px_50px_rgba(0,0,0,0.1)] z-50 overflow-hidden"
             >
-              <div className="p-3 border-b border-black/5 mb-1 sm:hidden">
-                <p className="text-sm font-semibold text-black">{user.fullName}</p>
-                <p className="text-[10px] font-medium text-black/40 uppercase tracking-wider">{user.email}</p>
+              <div className="p-4 border-b border-black/5 mb-1 sm:hidden">
+                <p className="text-sm font-bold text-slate-900">{user.fullName}</p>
+                <p className="text-[11px] font-medium text-slate-400 mt-0.5">{user.email}</p>
               </div>
               <Link
                 href="/profile"
-                className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-black/[0.04] text-black transition-all font-medium text-sm"
+                className="flex items-center gap-3 w-full p-3.5 rounded-2xl hover:bg-slate-50 text-slate-700 transition-all font-bold text-sm group"
                 onClick={() => setIsProfileOpen(false)}
               >
-                <User className="h-4 w-4" />
-                Edit profile
+                <div className="h-9 w-9 flex items-center justify-center rounded-xl bg-slate-100 group-hover:bg-[#5227FF]/10 group-hover:text-[#5227FF] transition-all">
+                   <User className="h-4 w-4" />
+                </div>
+                Manage Profile
               </Link>
+              
               <button
                 onClick={logout}
-                className="flex items-center gap-3 w-full p-3 rounded-xl hover:bg-red-50 text-red-500 transition-all font-medium text-sm"
+                className="flex items-center gap-3 w-full p-3.5 rounded-2xl hover:bg-red-50 text-red-500 transition-all font-bold text-sm group"
               >
-                <LogOut className="h-4 w-4" />
+                <div className="h-9 w-9 flex items-center justify-center rounded-xl bg-red-50 group-hover:bg-red-100 transition-all">
+                  <LogOut className="h-4 w-4" />
+                </div>
                 Sign Out
               </button>
             </motion.div>
           )}
         </AnimatePresence>
-      </div>
       </div>
     </motion.header>
   );

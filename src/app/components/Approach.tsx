@@ -6,8 +6,15 @@ import { MovableBlock } from "./LayoutEditor";
 
 const TUBE_PATH = "M 0 0 C 400 0 700 300 700 800";
 
-/** Scroll-driven tube — draws downward as the section scrolls into view. */
-function ScrollTube({ containerRef }: { containerRef: React.RefObject<HTMLElement | null> }) {
+/** Scroll-driven tube — draws as the section scrolls (same motion as Approach). */
+export function ScrollTube({
+  containerRef,
+  mirror,
+}: {
+  containerRef: React.RefObject<HTMLElement | null>;
+  /** Place ribbon on the right (e.g. Experiences) with the same path, flipped. */
+  mirror?: boolean;
+}) {
   const pathRef = useRef<SVGPathElement>(null);
   const filterId = useId().replace(/:/g, "");
   const [pathLen, setPathLen] = useState(2200);
@@ -29,7 +36,11 @@ function ScrollTube({ containerRef }: { containerRef: React.RefObject<HTMLElemen
   return (
     <svg
       viewBox="0 0 1000 1000"
-      className="absolute -left-[8%] -top-[18%] h-[125%] w-[85%] min-w-[280px] text-indigo-600"
+      className={
+        mirror
+          ? "absolute -right-[8%] -top-[18%] h-[125%] w-[85%] min-w-[280px] scale-x-[-1] text-indigo-600"
+          : "absolute -left-[8%] -top-[18%] h-[125%] w-[85%] min-w-[280px] text-indigo-600"
+      }
       preserveAspectRatio="xMidYMid slice"
       aria-hidden
     >

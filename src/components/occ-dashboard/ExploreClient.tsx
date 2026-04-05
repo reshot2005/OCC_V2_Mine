@@ -12,7 +12,7 @@ function useDebouncedValue<T>(value: T, ms: number): T {
   return debounced;
 }
 import { OCCPostCard, type OCCPost } from "@/components/occ-dashboard/OCCPostCard";
-import { resolvePostImageUrlForFeed } from "@/lib/postImageUrl";
+import { resolvePostImageUrlForFeed, resolveClubAvatar } from "@/lib/postImageUrl";
 
 function getTimeAgo(iso: string): string {
   const seconds = Math.floor((Date.now() - new Date(iso).getTime()) / 1000);
@@ -35,17 +35,18 @@ type ApiPost = {
   sharesCount: number;
   createdAt: string;
   clubId: string;
-  user: { id: string; fullName: string; avatar: string | null };
-  club: { id: string; name: string; slug: string } | null;
+  user: { id: string; fullName: string; avatar: string | null; role: string };
+  club: { id: string; name: string; slug: string; icon: string; coverImage: string | null } | null;
 };
 
 function toCards(posts: ApiPost[]): OCCPost[] {
   return posts.map((p) => {
     const postImg = resolvePostImageUrlForFeed(p.imageUrl, p.club?.name || "");
+    const avatar = resolveClubAvatar(p.user.avatar, p.club?.name || "OCC");
     return {
       id: p.id,
       username: p.user.fullName,
-      userAvatarUrl: p.user.avatar || "https://i.pravatar.cc/150?u=" + p.user.id,
+      userAvatarUrl: avatar,
       timestamp: getTimeAgo(p.createdAt),
       caption: p.caption || p.content || "",
       imageUrl: postImg,

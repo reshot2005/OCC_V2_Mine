@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Link } from "react-router";
+import { Link } from "@/lib/router-compat";
 import { useBikersFrames } from "../../../hooks/useBikersFrames";
 import { TOTAL_FRAMES, FRAMES_PATH, COLORS } from "./constants";
 import { LoadingScreen } from "./LoadingScreen";

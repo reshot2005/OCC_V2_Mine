@@ -52,7 +52,8 @@ export function useClubOnboarding({
   const [isComplete, setIsComplete] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
 
-  const activeQuestion = config.questions[activeIndex];
+  const activeQuestion =
+    config.questions[activeIndex] ?? config.questions[Math.max(0, config.questions.length - 1)];
   const progress = isComplete
     ? 1
     : (activeIndex + 1) / Math.max(1, config.questions.length);

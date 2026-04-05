@@ -114,7 +114,14 @@ export function AdminPostsClient({ posts: initial }: { posts: AdminPostRow[] }) 
                 <div className="aspect-square w-full max-w-[140px] shrink-0 overflow-hidden rounded-xl bg-black/40">
                   {p.imageUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
-                    <img src={p.imageUrl} alt="" className="h-full w-full object-cover" />
+                    <img 
+                      src={p.imageUrl} 
+                      alt="" 
+                      className="h-full w-full object-cover" 
+                      onError={(e) => {
+                        e.currentTarget.src = "https://images.unsplash.com/photo-1485846234645-a62644f84728?w=500&q=80";
+                      }}
+                    />
                   ) : (
                     <div className="flex h-full items-center justify-center p-2 text-center text-xs text-white/50">
                       {p.caption}
