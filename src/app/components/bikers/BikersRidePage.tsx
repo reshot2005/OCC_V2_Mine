@@ -14,12 +14,12 @@ import { GigsSection } from "./GigsSection";
 import { JoinSection } from "./JoinSection";
 import { WheelStoriesSection } from "../WheelStories";
 
-export function BikersRidePage() {
+export function BikersRidePage({ hideLoader = false }: { hideLoader?: boolean } = {}) {
   const { frames, loaded, progress } = useBikersFrames(FRAMES_PATH, TOTAL_FRAMES);
 
   return (
     <div className="cursor-none" style={{ background: COLORS.bg, color: COLORS.text }}>
-      <LoadingScreen progress={progress} loaded={loaded} />
+      {!hideLoader && <LoadingScreen progress={progress} loaded={loaded} />}
       <CustomCursor />
       <GrainOverlay />
 

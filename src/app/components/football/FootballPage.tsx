@@ -430,12 +430,12 @@ function JoinFootballSection() {
 }
 
 /* ── Main Page ───────────────────────────────────────────── */
-export function FootballPage() {
+export function FootballPage({ hideLoader = false }: { hideLoader?: boolean } = {}) {
   const { frames, loaded, progress } = useFootballFrames(FOOTBALL_FRAMES_PATH, FOOTBALL_TOTAL_FRAMES);
 
   return (
     <div className="cursor-none" style={{ background: FC.bg, color: FC.text }}>
-      <FootballLoadingScreen progress={progress} loaded={loaded} />
+      {!hideLoader && <FootballLoadingScreen progress={progress} loaded={loaded} />}
       <FootballCursor />
       <GrainOverlay />
 

@@ -3,7 +3,6 @@
 import dynamic from "next/dynamic";
 import type { ComponentType } from "react";
 import { ClubOnboardingGate } from "@/components/club-onboarding/ClubOnboardingGate";
-import { StaticClubExperience } from "@/components/club-onboarding/StaticClubExperience";
 import type { ClubOnboardingSlug } from "@/config/clubOnboardingQuestions";
 import { FRAMES_PATH, TOTAL_FRAMES } from "@/app/components/bikers/constants";
 import {
@@ -21,10 +20,12 @@ import {
 import {
   MUSIC_FRAMES_PATH,
   MUSIC_TOTAL_FRAMES,
+  MUSIC_FRAME_PREFIX,
 } from "@/app/components/music/MusicConstants";
 import {
   FITNESS_FRAMES_PATH,
   FITNESS_TOTAL_FRAMES,
+  FITNESS_FRAME_PREFIX,
 } from "@/app/components/fitness/fitnessConstants";
 
 const BikersRidePage = dynamic(
@@ -52,18 +53,10 @@ const FitnessPage = dynamic(
   { ssr: false },
 );
 
-function MusicStatic() {
-  return <StaticClubExperience clubSlug="music" />;
-}
-
-function FitnessStatic() {
-  return <StaticClubExperience clubSlug="fitness" />;
-}
-
 type ExperienceEntry = {
   framesPath: string;
   totalFrames: number;
-  // Dynamic next/dynamic() pages use ComponentType<{}>; widen for the map.
+  framePrefix: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   Experience: ComponentType<any>;
   skipFramePreload: boolean;
@@ -73,36 +66,42 @@ const EXPERIENCE_MAP = {
   bikers: {
     framesPath: FRAMES_PATH,
     totalFrames: TOTAL_FRAMES,
-    Experience: BikersRidePage as ComponentType<any>,
+    framePrefix: "",
+    Experience: () => <BikersRidePage hideLoader />,
     skipFramePreload: false,
   },
   sports: {
     framesPath: FOOTBALL_FRAMES_PATH,
     totalFrames: FOOTBALL_TOTAL_FRAMES,
-    Experience: FootballPage as ComponentType<any>,
+    framePrefix: "",
+    Experience: () => <FootballPage hideLoader />,
     skipFramePreload: false,
   },
   photography: {
     framesPath: PHOTO_FRAMES_PATH,
     totalFrames: PHOTO_TOTAL_FRAMES,
-    Experience: PhotographyPage as ComponentType<any>,
+    framePrefix: "",
+    Experience: () => <PhotographyPage hideLoader />,
     skipFramePreload: false,
   },
   fashion: {
     framesPath: FASHION_FRAMES_PATH,
     totalFrames: FASHION_TOTAL_FRAMES,
-    Experience: FashionPage as ComponentType<any>,
+    framePrefix: "",
+    Experience: () => <FashionPage hideLoader />,
     skipFramePreload: false,
   },
   music: {
     framesPath: MUSIC_FRAMES_PATH,
     totalFrames: MUSIC_TOTAL_FRAMES,
+    framePrefix: MUSIC_FRAME_PREFIX,
     Experience: () => <MusicPage hideLoader />,
     skipFramePreload: false,
   },
   fitness: {
     framesPath: FITNESS_FRAMES_PATH,
     totalFrames: FITNESS_TOTAL_FRAMES,
+    framePrefix: FITNESS_FRAME_PREFIX,
     Experience: () => <FitnessPage hideLoader />,
     skipFramePreload: false,
   },
@@ -122,6 +121,7 @@ export function ClubOnboardingEntry({
       clubSlug={clubSlug}
       framesPath={experience.framesPath}
       totalFrames={experience.totalFrames}
+      framePrefix={experience.framePrefix}
       Experience={experience.Experience}
       skipFramePreload={experience.skipFramePreload}
       userId={userId}

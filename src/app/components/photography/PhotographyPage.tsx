@@ -308,7 +308,7 @@ function JoinPhotoSection() {
   );
 }
 
-export function PhotographyPage() {
+export function PhotographyPage({ hideLoader = false }: { hideLoader?: boolean } = {}) {
   const { frames, loaded, progress } = usePhotographyFrames(
     PHOTO_FRAMES_PATH,
     PHOTO_TOTAL_FRAMES,
@@ -316,7 +316,7 @@ export function PhotographyPage() {
 
   return (
     <div className="cursor-none" style={{ background: PC.bg, color: PC.text }}>
-      <PhotoLoadingScreen progress={progress} loaded={loaded} />
+      {!hideLoader && <PhotoLoadingScreen progress={progress} loaded={loaded} />}
       <PhotoCursor />
       <GrainOverlay />
 

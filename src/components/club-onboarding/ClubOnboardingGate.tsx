@@ -10,53 +10,68 @@ export function ClubOnboardingGate({
   clubSlug,
   framesPath,
   totalFrames,
+  framePrefix = "",
   Experience,
   userId,
-  /** Skip JPEG frame preload (music / fitness — lightweight dive-in). */
   skipFramePreload = false,
 }: {
   clubSlug: ClubOnboardingSlug;
   framesPath: string;
   totalFrames: number;
+  framePrefix?: string;
   Experience: ComponentType<any>;
   userId?: string | null;
   skipFramePreload?: boolean;
 }) {
   const onboarding = useClubOnboarding({ clubSlug, userId });
-  const [framesReady, setFramesReady] = useState(false);
+  const [frameLoadProgress, setFrameLoadProgress] = useState(0);
+  const [framesPreloadComplete, setFramesPreloadComplete] = useState(false);
   const [experienceMounted, setExperienceMounted] = useState(false);
   const [revealing, setRevealing] = useState(false);
   const [revealed, setRevealed] = useState(false);
 
+  // Start loading immediately on mount (during questions). No loadStarted ref:
+  // React Strict Mode remounts would skip the second effect and leave progress
+  // stuck at 0%. Progress is broadcast to all subscribers (see loadFrameSequence).
   useEffect(() => {
     if (skipFramePreload) {
-      setFramesReady(true);
+      setFrameLoadProgress(1);
+      setFramesPreloadComplete(true);
       setExperienceMounted(true);
       return;
     }
 
-    let active = true;
+    let released = false;
 
-    void loadFrameSequence(framesPath, totalFrames, (p) => {
-      if (!active) return;
-      // Start mounting early at 45% for speed responsiveness
-      if (p >= 0.45) {
-        setFramesReady(true);
-        setExperienceMounted(true);
-      }
-    }).then(() => {
-      if (!active) return;
-      setFramesReady(true);
+    void loadFrameSequence(
+      framesPath,
+      totalFrames,
+      (p) => {
+        if (released) return;
+        setFrameLoadProgress(p);
+      },
+      framePrefix,
+    ).then(() => {
+      if (released) return;
+      setFrameLoadProgress(1);
+      setFramesPreloadComplete(true);
       setExperienceMounted(true);
     });
 
     return () => {
-      active = false;
+      released = true;
     };
-  }, [framesPath, totalFrames, skipFramePreload]);
+  }, [framesPath, totalFrames, skipFramePreload, framePrefix]);
 
+  // Reveal only when onboarding is done AND every frame has finished loading
   useEffect(() => {
-    if (!framesReady || !experienceMounted || !onboarding.isComplete || revealing || revealed) {
+    if (
+      !framesPreloadComplete ||
+      !experienceMounted ||
+      !onboarding.isComplete ||
+      revealing ||
+      revealed
+    ) {
       return;
     }
 
@@ -65,7 +80,13 @@ export function ClubOnboardingGate({
     }, 250);
 
     return () => window.clearTimeout(startReveal);
-  }, [experienceMounted, framesReady, onboarding.isComplete, revealed, revealing]);
+  }, [
+    experienceMounted,
+    framesPreloadComplete,
+    onboarding.isComplete,
+    revealed,
+    revealing,
+  ]);
 
   useEffect(() => {
     if (!revealing) return;
@@ -76,6 +97,9 @@ export function ClubOnboardingGate({
 
     return () => window.clearTimeout(finishReveal);
   }, [revealing]);
+
+  const assetsLoadProgress =
+    !skipFramePreload && !framesPreloadComplete ? frameLoadProgress : null;
 
   return (
     <>
@@ -96,6 +120,7 @@ export function ClubOnboardingGate({
                 : "questions"
           }
           onChooseOption={onboarding.chooseOption}
+          assetsLoadProgress={assetsLoadProgress}
         />
       ) : null}
     </>

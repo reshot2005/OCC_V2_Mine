@@ -7,6 +7,39 @@ type ClubOnboardingPhase = "questions" | "holding" | "revealing";
 
 const optionSpring = { type: "spring" as const, stiffness: 420, damping: 28 };
 
+function ScrollFramesWarmupBar({
+  slug,
+  assetsLoadProgress,
+}: {
+  slug: string;
+  assetsLoadProgress: number;
+}) {
+  if (assetsLoadProgress >= 1) return null;
+  return (
+    <div className="mt-3 w-full max-w-sm">
+      <div className="h-1 overflow-hidden rounded-full bg-white/10">
+        <motion.div
+          className="h-full rounded-full"
+          style={{
+            background:
+              slug === "music"
+                ? "linear-gradient(90deg, #7C3AED, #A78BFA)"
+                : "linear-gradient(90deg, #C9A96E, #F4D88A)",
+          }}
+          initial={{ width: 0 }}
+          animate={{
+            width: `${Math.min(100, Math.max(0, assetsLoadProgress * 100))}%`,
+          }}
+          transition={{ duration: 0.2 }}
+        />
+      </div>
+      <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.22em] text-white/40">
+        Scroll frames · {Math.round(Math.min(1, assetsLoadProgress) * 100)}%
+      </p>
+    </div>
+  );
+}
+
 export function ClubOnboardingFlow({
   config,
   activeIndex,
@@ -16,6 +49,7 @@ export function ClubOnboardingFlow({
   isAdvancing,
   phase,
   onChooseOption,
+  assetsLoadProgress = null,
 }: {
   config: ClubOnboardingConfig;
   activeIndex: number;
@@ -25,8 +59,12 @@ export function ClubOnboardingFlow({
   isAdvancing: boolean;
   phase: ClubOnboardingPhase;
   onChooseOption: (option: string) => void;
+  /** 0–1 while frames preload (during questions + holding) */
+  assetsLoadProgress?: number | null;
 }) {
   const currentQuestion = config.questions[activeIndex] ?? config.questions[0];
+  const showWarmup =
+    assetsLoadProgress != null && assetsLoadProgress < 1;
 
   return (
     <motion.div
@@ -111,6 +149,15 @@ export function ClubOnboardingFlow({
           ))}
         </div>
 
+        {phase === "questions" && showWarmup ? (
+          <div className="mx-auto mt-2 flex w-full max-w-5xl">
+            <ScrollFramesWarmupBar
+              slug={config.slug}
+              assetsLoadProgress={assetsLoadProgress}
+            />
+          </div>
+        ) : null}
+
         <div className="mx-auto flex w-full max-w-5xl flex-1 items-center justify-center">
           <AnimatePresence mode="wait">
             {phase === "questions" ? (
@@ -194,6 +241,14 @@ export function ClubOnboardingFlow({
                     ? "Final touches are syncing behind the curtain. Your club experience is about to open."
                     : "Your club world is ready. Opening the full scroll experience now."}
                 </p>
+                {phase === "holding" && showWarmup && assetsLoadProgress != null ? (
+                  <div className="mt-6 flex w-full justify-center">
+                    <ScrollFramesWarmupBar
+                      slug={config.slug}
+                      assetsLoadProgress={assetsLoadProgress}
+                    />
+                  </div>
+                ) : null}
               </motion.div>
             )}
           </AnimatePresence>

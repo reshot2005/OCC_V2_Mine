@@ -144,7 +144,7 @@ function FashionGrainOverlay() {
   );
 }
 
-export function FashionPage() {
+export function FashionPage({ hideLoader = false }: { hideLoader?: boolean } = {}) {
   const { frames, loaded, progress } = useFashionFrames(
     FASHION_FRAMES_PATH,
     FASHION_TOTAL_FRAMES,
@@ -152,7 +152,7 @@ export function FashionPage() {
 
   return (
     <div className="cursor-none" style={{ background: FAC.bg, color: FAC.text }}>
-      <FashionLoadingScreen progress={progress} loaded={loaded} />
+      {!hideLoader && <FashionLoadingScreen progress={progress} loaded={loaded} />}
       <FashionCursor />
       <FashionGrainOverlay />
 

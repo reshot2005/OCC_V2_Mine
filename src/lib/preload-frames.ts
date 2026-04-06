@@ -23,6 +23,8 @@ const SEQUENCES: FrameSequence[] = [
   { path: "/football-frames/", count: 384 },
   { path: "/photography-frames/", count: 546 },
   { path: "/fashion-frames/", count: 510 },
+  { path: "/fitness-frames/", count: 621 }, // ADDED: Fitness total frames
+  { path: "/music-frames/", count: 441 },   // Fixed: Music has 441 frames
 ];
 
 const CONCURRENCY = 8;

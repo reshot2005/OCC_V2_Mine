@@ -195,10 +195,17 @@ export function FeaturedWork() {
         {clubs.map((club, index) => {
           const opensBikersRide = club.title === "Bikers";
           const opensFootball = club.title === "Football & Sports";
+          const opensMusic = club.title === "Music";
           const opensPhotography = club.title === "Photography";
+          const opensFitness = club.title === "Fitness";
           const opensFashion = club.title === "Fashion";
           const isClickable =
-            opensBikersRide || opensFootball || opensPhotography || opensFashion;
+            opensBikersRide ||
+            opensFootball ||
+            opensMusic ||
+            opensPhotography ||
+            opensFitness ||
+            opensFashion;
           return (
           <motion.div
             key={club.title}
@@ -214,8 +221,12 @@ export function FeaturedWork() {
                 ? "Open Bikers scroll motion experience"
                 : opensFootball
                 ? "Open Football scroll motion experience"
+                : opensMusic
+                ? "Open Music scroll motion experience"
                 : opensPhotography
                 ? "Open Photography scroll motion experience"
+                : opensFitness
+                ? "Open Fitness scroll motion experience"
                 : opensFashion
                 ? "Open Fashion scroll motion experience"
                 : undefined
@@ -223,7 +234,9 @@ export function FeaturedWork() {
             onClick={() => {
               if (opensBikersRide) navigate("/bikers");
               else if (opensFootball) navigate("/football");
+              else if (opensMusic) navigate("/music");
               else if (opensPhotography) navigate("/photography");
+              else if (opensFitness) navigate("/fitness");
               else if (opensFashion) navigate("/fashion");
             }}
             onKeyDown={(e) => {
@@ -232,7 +245,9 @@ export function FeaturedWork() {
                 e.preventDefault();
                 if (opensBikersRide) navigate("/bikers");
                 else if (opensFootball) navigate("/football");
+                else if (opensMusic) navigate("/music");
                 else if (opensPhotography) navigate("/photography");
+                else if (opensFitness) navigate("/fitness");
                 else if (opensFashion) navigate("/fashion");
               }
             }}

@@ -1,28 +1,25 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Loader2, Crown, Sparkles } from "lucide-react";
 import Link from "next/link";
 
-const clubs = [
-  { slug: "bikers", label: "Bikers", icon: "🏍" },
-  { slug: "music", label: "Music", icon: "🎵" },
-  { slug: "sports", label: "Sports", icon: "⚽" },
-  { slug: "photography", label: "Photography", icon: "📷" },
-  { slug: "fitness", label: "Fitness", icon: "💪" },
-  { slug: "fashion", label: "Fashion", icon: "👗" },
-];
+type ClubOption = { slug: string; name: string; icon: string };
 
 export default function ClubHeaderRegisterPage() {
   const router = useRouter();
+  const [clubsList, setClubsList] = useState<ClubOption[]>([]);
+  const [clubsLoading, setClubsLoading] = useState(true);
+  const [clubsError, setClubsError] = useState("");
+
   const [form, setForm] = useState({
     fullName: "",
     email: "",
     phoneNumber: "",
     collegeName: "",
-    clubSlug: "bikers",
+    clubSlug: "",
     experience: "",
     instagramHandle: "",
     password: "",
@@ -32,9 +29,46 @@ export default function ClubHeaderRegisterPage() {
   const [done, setDone] = useState(false);
   const [error, setError] = useState("");
 
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      setClubsLoading(true);
+      setClubsError("");
+      try {
+        const res = await fetch("/api/club-header/clubs", { cache: "no-store" });
+        const data = await res.json().catch(() => ({}));
+        if (cancelled) return;
+        const list: ClubOption[] = Array.isArray(data.clubs) ? data.clubs : [];
+        setClubsList(list);
+        if (list.length > 0) {
+          setForm((prev) => ({
+            ...prev,
+            clubSlug: list.some((c) => c.slug === prev.clubSlug)
+              ? prev.clubSlug
+              : list[0].slug,
+          }));
+        }
+        if (!res.ok && list.length === 0) {
+          setClubsError("Could not load clubs. Refresh the page.");
+        }
+      } catch {
+        if (!cancelled) setClubsError("Could not load clubs. Check your connection and refresh.");
+      } finally {
+        if (!cancelled) setClubsLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+    if (!form.clubSlug || !clubsList.some((c) => c.slug === form.clubSlug)) {
+      setError("Please select a valid club.");
+      return;
+    }
     if (form.password !== form.confirmPassword) {
       setError("Passwords do not match");
       return;
@@ -134,30 +168,46 @@ export default function ClubHeaderRegisterPage() {
               </motion.div>
             ))}
 
-            {/* Club Selector */}
+            {/* Club Selector — populated from DB (admin control panel) */}
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.7 }}
             >
               <p className="text-xs text-white/40 uppercase tracking-widest mb-3">Select Your Club</p>
-              <div className="grid grid-cols-3 gap-2">
-                {clubs.map((c) => (
-                  <button
-                    key={c.slug}
-                    type="button"
-                    onClick={() => setForm((prev) => ({ ...prev, clubSlug: c.slug }))}
-                    className={`flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-medium transition-all ${
-                      form.clubSlug === c.slug
-                        ? "bg-[#5227FF] text-white shadow-[0_0_15px_rgba(82,39,255,0.4)] border border-[#5227FF]"
-                        : "bg-white/[0.03] text-white/50 border border-white/[0.06] hover:bg-white/[0.06] hover:text-white/80"
-                    }`}
-                  >
-                    <span className="text-lg">{c.icon}</span>
-                    <span>{c.label}</span>
-                  </button>
-                ))}
-              </div>
+              {clubsError ? (
+                <p className="mb-3 text-sm text-amber-400/90">{clubsError}</p>
+              ) : null}
+              {clubsLoading ? (
+                <div className="flex items-center gap-2 rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-4 text-sm text-white/50">
+                  <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
+                  Loading clubs…
+                </div>
+              ) : clubsList.length === 0 ? (
+                <p className="rounded-xl border border-white/[0.08] bg-white/[0.03] px-4 py-4 text-sm text-white/45">
+                  No clubs are available yet. Please try again later or contact support.
+                </p>
+              ) : (
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  {clubsList.map((c) => (
+                    <button
+                      key={c.slug}
+                      type="button"
+                      onClick={() => setForm((prev) => ({ ...prev, clubSlug: c.slug }))}
+                      className={`flex items-center gap-2 rounded-xl px-3 py-3 text-left text-sm font-medium transition-all sm:px-4 ${
+                        form.clubSlug === c.slug
+                          ? "bg-[#5227FF] text-white shadow-[0_0_15px_rgba(82,39,255,0.4)] border border-[#5227FF]"
+                          : "bg-white/[0.03] text-white/50 border border-white/[0.06] hover:bg-white/[0.06] hover:text-white/80"
+                      }`}
+                    >
+                      <span className="shrink-0 text-lg" aria-hidden>
+                        {c.icon || "🏷"}
+                      </span>
+                      <span className="min-w-0 truncate">{c.name}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
             </motion.div>
 
             {/* Experience */}
@@ -203,7 +253,7 @@ export default function ClubHeaderRegisterPage() {
               whileHover={{ scale: 1.01 }}
               whileTap={{ scale: 0.99 }}
               type="submit"
-              disabled={loading || done}
+              disabled={loading || done || clubsLoading || clubsList.length === 0}
               className="w-full py-4 bg-gradient-to-r from-[#5227FF] to-[#2B4BFF] text-white font-semibold rounded-xl shadow-[0_0_25px_rgba(82,39,255,0.4)] hover:shadow-[0_0_35px_rgba(82,39,255,0.6)] transition-shadow disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
             >
               {loading ? (
