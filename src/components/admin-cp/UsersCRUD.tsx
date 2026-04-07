@@ -132,7 +132,9 @@ export function UsersCRUD({ users: initial }: { users: User[] }) {
                 <td className="px-4 py-3">
                   <p className="font-semibold text-white text-[13px]">{u.fullName}</p>
                   <p className="text-[11px] text-white/40 font-mono">{u.email}</p>
-                  <p className="text-[10px] text-white/30 font-mono">{u.phoneNumber}</p>
+                  {u.phoneNumber && (
+                    <p className="text-[10px] text-white/30 font-mono italic">{u.phoneNumber}</p>
+                  )}
                   <p className="text-[10px] text-white/25 mt-0.5">{u.collegeName}</p>
                 </td>
                 <td className="px-4 py-3">

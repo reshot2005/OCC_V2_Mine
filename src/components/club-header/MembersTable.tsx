@@ -58,7 +58,9 @@ export function MembersTable({ members }: { members: Member[] }) {
                   <div className="flex flex-col">
                     <span className="font-medium text-white/90">{m.student.fullName}</span>
                     <span className="text-[10px] text-white/40 font-mono mt-0.5">{m.student.email}</span>
-                    <span className="text-[10px] text-white/30 font-mono">{m.student.phoneNumber}</span>
+                    {m.student.phoneNumber && (
+                      <span className="text-[10px] text-white/30 font-mono italic">{m.student.phoneNumber}</span>
+                    )}
                   </div>
                 </div>
               </td>

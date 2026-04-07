@@ -131,7 +131,9 @@ export function UsersAdminClient({
                 <td className="px-4 py-3">
                   <p className="font-medium">{u.fullName}</p>
                   <p className="font-mono text-[11px] text-white/50 mb-0.5">{u.email}</p>
-                  <p className="font-mono text-[10px] text-white/40">{u.phoneNumber}</p>
+                  {u.phoneNumber && (
+                    <p className="font-mono text-[10px] text-white/40 italic">{u.phoneNumber}</p>
+                  )}
                   <p className="text-xs text-white/40 mt-1">{u.collegeName}</p>
                   {u.referralCode ? (
                     <p className="mt-1 font-mono text-[10px] text-[#C9A96E]">Code {u.referralCode}</p>
