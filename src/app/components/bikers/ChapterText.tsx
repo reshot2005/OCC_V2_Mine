@@ -1,5 +1,4 @@
 import React from "react";
-import { motion } from "motion/react";
 import { Link } from "@/lib/router-compat";
 import type { ChapterConfig } from "./constants";
 
@@ -33,9 +32,9 @@ export function ChapterText({ chapter: ch, scrollProgress }: Props) {
   };
 
   return (
-    <motion.div
+    <div
       className={`pointer-events-none z-20 ${posClasses[ch.position] ?? posClasses.center}`}
-      style={{ opacity, y }}
+      style={{ opacity, transform: `translateY(${y}px)` }}
     >
       {ch.chapter ? (
         <p
@@ -106,6 +105,6 @@ export function ChapterText({ chapter: ch, scrollProgress }: Props) {
           </Link>
         </div>
       ) : null}
-    </motion.div>
+    </div>
   );
 }

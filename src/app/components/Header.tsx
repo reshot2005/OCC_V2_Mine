@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import { Activity } from "lucide-react";
+import { Activity, Moon, Sun } from "lucide-react";
 import { motion } from "motion/react";
 import { MovableBlock } from "./LayoutEditor";
 import {
@@ -11,7 +11,6 @@ import {
   storeRedirectIntent,
 } from "@/lib/client-auth-redirect";
 import { scrollToOccClubsSection } from "@/lib/landingNav";
-import { OCC_BRAND_ICON } from "@/lib/brand";
 
 const JOIN_HREF = authEntryHref(LANDING_POST_AUTH_PATH, "/login");
 
@@ -45,8 +44,15 @@ function useHeaderOverDarkSection() {
   return overDark;
 }
 
-export function Header() {
-  const overDark = useHeaderOverDarkSection();
+export function Header({
+  theme,
+  onToggleTheme,
+}: {
+  theme: "dark" | "light";
+  onToggleTheme: () => void;
+}) {
+  const overDarkBySection = useHeaderOverDarkSection();
+  const overDark = theme === "dark" ? true : overDarkBySection;
 
   const logoClass = overDark
     ? "text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.45)]"
@@ -74,6 +80,11 @@ export function Header() {
 
   const clubsDotClass = overDark ? "bg-white/75" : "bg-slate-900/70";
 
+  const goToWhatIsOcc = () => {
+    const target = document.getElementById("what-is-occ");
+    target?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
   return (
     <motion.header
       initial={{ opacity: 0, y: -20 }}
@@ -85,24 +96,40 @@ export function Header() {
         id="header-logo"
         className={`pointer-events-auto flex items-center select-none transition-opacity duration-300 hover:opacity-80 ${logoClass}`}
       >
-        <span className="text-3xl font-black tracking-widest font-sans flex items-center">
-          occ
-          <motion.span
-            animate={{ y: [0, -8, 0] }}
-            transition={{ 
-              duration: 1, 
-              repeat: Infinity, 
-              ease: "easeInOut" 
-            }}
-            className="ml-1.5 h-3 w-3 rounded-full bg-[#3B5BFF]"
+        <button
+          type="button"
+          onClick={goToWhatIsOcc}
+          className="inline-flex items-center"
+          aria-label="Go to What is OCC section"
+        >
+          <img
+            src="/favicon.png"
+            alt="OCC"
+            className="h-[36px] w-auto sm:h-[40px]"
           />
-        </span>
+        </button>
       </MovableBlock>
 
       <div className="flex items-center gap-2 sm:gap-3 pointer-events-auto">
         <MovableBlock id="header-activity-btn" className="hidden xs:flex">
           <button type="button" className={`flex h-9 w-9 items-center justify-center rounded-full ${activityBtnClass}`}>
             <Activity size={16} className={activityIconClass} />
+          </button>
+        </MovableBlock>
+
+        <MovableBlock id="header-theme-toggle" className="flex">
+          <button
+            type="button"
+            onClick={onToggleTheme}
+            className={`flex h-9 min-w-[68px] items-center justify-center gap-1 rounded-full px-2 text-[10px] font-bold tracking-wider ${
+              overDark
+                ? "bg-white/15 text-white backdrop-blur-md ring-1 ring-white/20 hover:bg-white/25"
+                : "bg-slate-200/60 text-slate-800 backdrop-blur-md hover:bg-slate-200"
+            }`}
+            aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} theme`}
+          >
+            {theme === "dark" ? <Moon size={12} /> : <Sun size={12} />}
+            {theme === "dark" ? "DARK" : "LIGHT"}
           </button>
         </MovableBlock>
 

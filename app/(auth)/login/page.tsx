@@ -19,7 +19,6 @@ function LoginPageInner() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -307,7 +306,7 @@ function LoginPageInner() {
             </svg>
           </div>
           <div>
-            <p className="text-white font-semibold text-sm">OFF-Campus Space</p>
+            <p className="text-white font-semibold text-sm">OFF-Campus Club</p>
             <p className="text-white/70 text-xs">Community</p>
           </div>
         </div>
@@ -331,39 +330,6 @@ function LoginPageInner() {
           </motion.h3>
         </div>
 
-        {/* Navigation Dots */}
-        <div className="absolute bottom-12 right-12 flex items-center gap-2 z-10">
-          <button className="w-8 h-8 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 transition-colors">
-            <svg
-              className="w-4 h-4 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M15 19l-7-7 7-7"
-              />
-            </svg>
-          </button>
-          <button className="w-8 h-8 rounded-full border border-white/30 flex items-center justify-center hover:bg-white/10 transition-colors">
-            <svg
-              className="w-4 h-4 text-white"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M9 5l7 7-7 7"
-              />
-            </svg>
-          </button>
-        </div>
       </motion.div>
     </div>
   );

@@ -95,7 +95,8 @@ export function BikersCanvas({
     const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) return;
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    // Lower DPR cap for smoother frame-sequence playback on mid-range devices.
+    const dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     const W = canvas.clientWidth;
     const H = canvas.clientHeight;
 
@@ -137,22 +138,8 @@ export function BikersCanvas({
       ctx.globalAlpha = 1;
     }
 
-    // Speed-lines/Ghosting effect
-    if (speedIntensity > 0.08) {
-      ctx.globalAlpha = speedIntensity * 0.15;
-      ctx.strokeStyle = "rgba(200, 169, 110, 0.4)";
-      ctx.lineWidth = 1;
-      const count = Math.floor(speedIntensity * 8);
-      for (let i = 0; i < count; i++) {
-        const x = Math.random() * W;
-        const h = Math.random() * (H * 0.4);
-        ctx.beginPath();
-        ctx.moveTo(x, (H - h) / 2);
-        ctx.lineTo(x, (H + h) / 2);
-        ctx.stroke();
-      }
-      ctx.globalAlpha = 1;
-    }
+    // Speed lines are rendered by the SVG overlay component (SpeedLines.tsx).
+    // Keeping only one implementation avoids duplicate GPU work and stutter.
   }, [frames, totalFrames]);
 
   useEffect(() => {

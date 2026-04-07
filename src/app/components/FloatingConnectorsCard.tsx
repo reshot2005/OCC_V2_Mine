@@ -4,7 +4,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { motion, AnimatePresence, useSpring } from "motion/react";
 import { OCC_BRAND_ICON } from "@/lib/brand";
 
-const IMAGES = ["/1775026121637.jpg", OCC_BRAND_ICON];
+const IMAGES = ["/occ-showcase.png", "/1775026121637.jpg", OCC_BRAND_ICON];
 
 export function FloatingConnectorsCard() {
   const cardRef = useRef<HTMLDivElement>(null);

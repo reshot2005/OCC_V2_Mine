@@ -15,6 +15,10 @@ function ScrollFramesWarmupBar({
   assetsLoadProgress: number;
 }) {
   if (assetsLoadProgress >= 1) return null;
+  const pct =
+    assetsLoadProgress >= 1
+      ? 100
+      : Math.min(99, Math.max(0, Math.floor(assetsLoadProgress * 100)));
   return (
     <div className="mt-3 w-full max-w-sm">
       <div className="h-1 overflow-hidden rounded-full bg-white/10">
@@ -34,7 +38,7 @@ function ScrollFramesWarmupBar({
         />
       </div>
       <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.22em] text-white/40">
-        Scroll frames · {Math.round(Math.min(1, assetsLoadProgress) * 100)}%
+        Experience · {pct}%
       </p>
     </div>
   );
@@ -44,7 +48,7 @@ export function ClubOnboardingFlow({
   config,
   activeIndex,
   activePrompt,
-  progress,
+  answeredCount,
   selectedOption,
   isAdvancing,
   phase,
@@ -54,7 +58,7 @@ export function ClubOnboardingFlow({
   config: ClubOnboardingConfig;
   activeIndex: number;
   activePrompt: string;
-  progress: number;
+  answeredCount: number;
   selectedOption: string | null;
   isAdvancing: boolean;
   phase: ClubOnboardingPhase;
@@ -137,13 +141,14 @@ export function ClubOnboardingFlow({
                 style={{ background: config.slug === "music" ? "linear-gradient(90deg, #7C3AED, #A78BFA)" : "linear-gradient(90deg, #C9A96E, #F4D88A)" }}
                 animate={{
                   width:
-                    index < activeIndex
+                    index < answeredCount
                       ? "100%"
-                      : index === activeIndex
-                        ? `${Math.max(progress * 100 - index * 20, 18)}%`
+                      : index === activeIndex && isAdvancing
+                        ? "100%"
                         : "0%",
-                  opacity: index === activeIndex ? 1 : 0.75,
+                  opacity: index < answeredCount || (index === activeIndex && isAdvancing) ? 1 : 0.5,
                 }}
+                transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
               />
             </div>
           ))}

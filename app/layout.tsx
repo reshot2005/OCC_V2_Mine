@@ -26,9 +26,9 @@ export const metadata: Metadata = {
   metadataBase: new URL("https://www.offcampusclub.com"), // Setting this helps with absolute image paths
   manifest: "/site.webmanifest",
   icons: {
-    icon: [{ url: OCC_BRAND_ICON, type: "image/svg+xml", sizes: "any" }],
+    icon: [{ url: OCC_BRAND_ICON, type: "image/png", sizes: "512x512" }],
     shortcut: OCC_BRAND_ICON,
-    apple: [{ url: OCC_BRAND_ICON, type: "image/svg+xml" }],
+    apple: [{ url: OCC_BRAND_ICON, type: "image/png", sizes: "512x512" }],
   },
   openGraph: {
     title: "OCC — Off Campus Clubs for Gen Z",

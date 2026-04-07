@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { usePhotographyPhysics } from "../../../hooks/usePhotographyPhysics";
+import { setFrameSequenceDecodeHint } from "../../../lib/loadFrameSequence";
 import { usePhotographyProgress } from "../../../hooks/usePhotographyProgress";
 import { PhotographyCanvas } from "./PhotographyCanvas";
 import { PhotographyLightLeaks } from "./PhotographyLightLeaks";
@@ -10,6 +11,7 @@ import { PhotographyChapterText } from "./PhotographyChapterText";
 import { playShutterClick } from "./playShutterClick";
 import {
   PHOTO_TOTAL_FRAMES,
+  PHOTO_FRAMES_PATH,
   PHOTO_SCROLL_HEIGHT_VH,
   PHOTO_CHAPTERS,
   PC,
@@ -58,6 +60,11 @@ export function PhotographyScrollSection({ frames, loaded = true }: Props) {
   const heroScrollOpacity = Math.max(0, 1 - p / HERO_FADE_END);
   const heroLift = (p / HERO_FADE_END) * 28;
   const heroVisible = loaded && heroScrollOpacity > 0.02;
+
+  useEffect(() => {
+    const leadFrame = playhead.currentFrame + 10;
+    setFrameSequenceDecodeHint(PHOTO_FRAMES_PATH, PHOTO_TOTAL_FRAMES, leadFrame);
+  }, [playhead.currentFrame]);
 
   return (
     <section

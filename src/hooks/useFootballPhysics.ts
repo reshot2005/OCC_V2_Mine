@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type MutableRefObject } from "react";
 import { stickySectionScrollProgress } from "../lib/frameImage";
 
 // ─── One-way damped chase — lerp cannot overshoot, no spring bounce ─────────
@@ -27,15 +27,19 @@ export interface FootballPlayhead {
   speedIntensity: number;
 }
 
-export type FootballPhysics = FootballPlayhead;
+export interface FootballPhysics {
+  playhead: FootballPlayhead;
+  playheadRef: MutableRefObject<FootballPlayhead>;
+}
 
 export function useFootballPhysics(
   containerRef: React.RefObject<HTMLElement | null>,
   totalFrames: number,
-): FootballPlayhead {
+): FootballPhysics {
   const physicsFrame = useRef(0);
   const prevTarget = useRef(0);
   const scrollVel = useRef(0);
+  const lastUiCommitMs = useRef(0);
   const ag = useRef({
     floatY: 0,
     tiltDeg: 0,
@@ -53,6 +57,7 @@ export function useFootballPhysics(
     zoomVal: 1,
     speedIntensity: 0,
   });
+  const playheadRef = useRef<FootballPlayhead>(state);
 
   useEffect(() => {
     let raf = 0;
@@ -105,7 +110,7 @@ export function useFootballPhysics(
           0.08,
         );
 
-        setState({
+        const next: FootballPlayhead = {
           currentFrame: physicsFrame.current,
           playheadProgress: physicsFrame.current / Math.max(1, totalFrames - 1),
           floatY: ag.current.floatY,
@@ -113,7 +118,17 @@ export function useFootballPhysics(
           scaleVal: ag.current.scaleVal,
           zoomVal: ag.current.zoomVal,
           speedIntensity: ag.current.speedIntensity,
-        });
+        };
+
+        // Keep the high-frequency playhead fully up-to-date for canvas draws.
+        playheadRef.current = next;
+
+        // Commit UI state at ~30fps to reduce expensive React re-renders.
+        const now = performance.now();
+        if (now - lastUiCommitMs.current >= 33) {
+          lastUiCommitMs.current = now;
+          setState(next);
+        }
       }
       raf = requestAnimationFrame(loop);
     };
@@ -121,5 +136,5 @@ export function useFootballPhysics(
     return () => cancelAnimationFrame(raf);
   }, [containerRef, totalFrames]);
 
-  return state;
+  return { playhead: state, playheadRef };
 }

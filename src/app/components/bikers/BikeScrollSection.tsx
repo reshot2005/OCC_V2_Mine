@@ -1,11 +1,13 @@
 import React, { useRef, useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { useBikersPhysics } from "../../../hooks/useBikersPhysics";
+import { setFrameSequenceDecodeHint } from "../../../lib/loadFrameSequence";
 import { BikersCanvas } from "./BikersCanvas";
 import { ChapterText } from "./ChapterText";
 import { SpeedLines } from "./SpeedLines";
 import {
   TOTAL_FRAMES,
+  FRAMES_PATH,
   SCROLL_HEIGHT_VH,
   SCROLL_CHAPTERS,
   COLORS,
@@ -47,6 +49,11 @@ export function BikeScrollSection({ frames, loaded = true }: Props) {
   const heroScrollOpacity = Math.max(0, 1 - p / HERO_FADE_END);
   const heroLift = (p / HERO_FADE_END) * 28;
   const heroVisible = loaded && heroScrollOpacity > 0.02;
+
+  useEffect(() => {
+    const leadFrame = playhead.currentFrame + 10;
+    setFrameSequenceDecodeHint(FRAMES_PATH, TOTAL_FRAMES, leadFrame);
+  }, [playhead.currentFrame]);
 
   return (
     <section

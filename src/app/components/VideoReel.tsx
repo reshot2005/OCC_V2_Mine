@@ -5,19 +5,28 @@ import { Play } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MovableBlock } from "./LayoutEditor";
 
-export function VideoReel() {
+export function VideoReel({ theme }: { theme: "dark" | "light" }) {
   const [popped, setPopped] = useState(false);
+  const isDark = theme === "dark";
 
   const handleClick = () => {
     setPopped(true);
   };
 
   return (
-    <section className="relative w-full max-w-[100vw] overflow-x-hidden px-4 py-10 sm:px-6 md:px-12 md:py-12 bg-[#F6F7FA]">
-      <div className="mx-auto flex w-full max-w-[90rem] items-center justify-between pb-10 font-bold text-slate-500 md:pb-12">
+    <section
+      className={`relative w-full max-w-[100vw] overflow-x-hidden px-4 py-10 sm:px-6 md:px-12 md:py-12 ${
+        isDark ? "bg-[#070914]" : "bg-[#F6F7FA]"
+      }`}
+    >
+      <div
+        className={`mx-auto flex w-full max-w-[90rem] items-center justify-between pb-10 font-bold md:pb-12 ${
+          isDark ? "text-white/40" : "text-slate-500"
+        }`}
+      >
         {[0, 1, 2, 3, 4].map((i) => (
           <MovableBlock key={`video-reel-top-plus-${i}`} id={`video-reel-decor-top-${i}`}>
-            <span>+</span>
+            <span></span>
           </MovableBlock>
         ))}
       </div>
@@ -32,7 +41,7 @@ export function VideoReel() {
           onClick={handleClick}
         >
           <img
-            src="https://images.unsplash.com/photo-1758598305805-4b9d79ae89bf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0JTIwbG9va2luZyUyMGF0JTIwY2FtZXJhJTIwdmlkZW98ZW58MXx8fHwxNzc0OTM0NDgzfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+            src="/image.png"
             alt="Campus Reel Girl Selfie — Off Campus Clubs"
             className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
           />
@@ -48,7 +57,11 @@ export function VideoReel() {
                 </span>
               </MovableBlock>
               <MovableBlock id="video-reel-play-control">
-                <div className="flex h-12 w-16 items-center justify-center rounded-full bg-white shadow-2xl sm:h-16 sm:w-24 md:h-20 md:w-32 lg:h-24 lg:w-40 group-hover:bg-indigo-50 transition-colors">
+                <div
+                  className={`flex h-12 w-16 items-center justify-center rounded-full shadow-2xl transition-colors sm:h-16 sm:w-24 md:h-20 md:w-32 lg:h-24 lg:w-40 ${
+                    isDark ? "bg-white/95 group-hover:bg-white" : "bg-white group-hover:bg-indigo-50"
+                  }`}
+                >
                   <Play className="ml-1 h-5 w-5 fill-current text-[#1a1c1e] sm:h-7 sm:w-7 md:h-10 md:w-10" />
                 </div>
               </MovableBlock>
@@ -62,10 +75,14 @@ export function VideoReel() {
         </motion.div>
       </MovableBlock>
 
-      <div className="mx-auto flex w-full max-w-[90rem] items-center justify-between pt-10 font-bold text-slate-500 md:pt-12">
+      <div
+        className={`mx-auto flex w-full max-w-[90rem] items-center justify-between pt-10 font-bold md:pt-12 ${
+          isDark ? "text-white/40" : "text-slate-500"
+        }`}
+      >
         {[0, 1, 2, 3, 4].map((i) => (
           <MovableBlock key={`video-reel-bottom-plus-${i}`} id={`video-reel-decor-bottom-${i}`}>
-            <span>+</span>
+            <span></span>
           </MovableBlock>
         ))}
       </div>
@@ -108,7 +125,7 @@ export function VideoReel() {
               {/* card image */}
               <div className="aspect-[21/9] w-full overflow-hidden">
                 <motion.img
-                  src="https://images.unsplash.com/photo-1758598305805-4b9d79ae89bf?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx3b21hbiUyMHBvcnRyYWl0JTIwbG9va2luZyUyMGF0JTIwY2FtZXJhJTIwdmlkZW98ZW58MXx8fHwxNzc0OTM0NDgzfDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral"
+                  src="/image.png"
                   alt="OCC Orbit Experience"
                   className="h-full w-full object-cover"
                   initial={{ scale: 1.1 }}

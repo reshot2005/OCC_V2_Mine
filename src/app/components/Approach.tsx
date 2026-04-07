@@ -68,13 +68,16 @@ export function ScrollTube({
   );
 }
 
-export function Approach() {
+export function Approach({ theme }: { theme: "dark" | "light" }) {
   const sectionRef = useRef<HTMLElement>(null);
+  const isDark = theme === "dark";
 
   return (
     <section
       ref={sectionRef}
-      className="relative isolate w-full max-w-[100vw] overflow-visible bg-[#F6F7FA] px-4 py-24 sm:px-6 md:px-12 md:py-32"
+      className={`relative isolate w-full max-w-[100vw] overflow-visible px-4 py-24 sm:px-6 md:px-12 md:py-32 ${
+        isDark ? "bg-[#070914]" : "bg-[#F6F7FA]"
+      }`}
     >
       <MovableBlock
         id="approach-purple-tube"
@@ -86,7 +89,11 @@ export function Approach() {
       <div className="relative z-20 mx-auto mt-8 grid w-full max-w-[90rem] grid-cols-1 gap-12 md:mt-12 md:grid-cols-2 md:gap-24 lg:gap-32">
         <MovableBlock id="approach-heading">
           <div>
-            <h2 className="whitespace-pre-line text-[2.75rem] font-medium leading-[0.98] tracking-tighter text-slate-900 sm:text-[4rem] md:text-[5rem] lg:text-[6rem] xl:text-[6.5rem]">
+            <h2
+              className={`whitespace-pre-line text-[2.75rem] font-medium leading-[0.98] tracking-tighter sm:text-[4rem] md:text-[5rem] lg:text-[6rem] xl:text-[6.5rem] ${
+                isDark ? "text-white" : "text-slate-900"
+              }`}
+            >
               {"Clubs beyond\n the lecture hall"}
             </h2>
           </div>
@@ -97,9 +104,13 @@ export function Approach() {
             <div>
               <button
                 type="button"
-                className="flex items-center gap-3 rounded-full bg-white px-6 py-3 text-sm font-bold tracking-widest text-slate-900 shadow-lg shadow-slate-200/50 transition-all hover:scale-105 hover:bg-slate-50"
+                className={`flex items-center gap-3 rounded-full px-6 py-3 text-sm font-bold tracking-widest shadow-lg transition-all hover:scale-105 ${
+                  isDark
+                    ? "bg-white/10 text-white shadow-black/40 hover:bg-white/15"
+                    : "bg-white text-slate-900 shadow-slate-200/50 hover:bg-slate-50"
+                }`}
               >
-                <span className="h-2 w-2 rounded-full bg-slate-900" />
+                <span className={`h-2 w-2 rounded-full ${isDark ? "bg-white" : "bg-slate-900"}`} />
                 HOW OCC WORKS
               </button>
             </div>
@@ -120,14 +131,30 @@ export function Approach() {
       </div>
 
       <MovableBlock id="approach-tagline">
-        <div className="relative z-20 mx-auto mt-20 w-full max-w-[90rem] text-center md:mt-32">
+        <div
+          className={`relative z-20 mx-auto mt-20 w-full max-w-[90rem] text-center md:mt-32 ${
+            isDark
+              ? "rounded-[1.75rem] bg-[#070914]/72 px-4 py-6 backdrop-blur-[2px] ring-1 ring-white/10 md:px-8 md:py-8"
+              : ""
+          }`}
+        >
           <p className="text-sm font-bold uppercase tracking-[0.25em] text-indigo-600 md:text-base">
             Built for the ones who show up
           </p>
-          <h3 className="mx-auto mt-4 max-w-[52rem] text-[1.75rem] font-medium leading-[1.15] tracking-tight text-slate-900 sm:text-[2.5rem] md:text-[3.25rem] lg:text-[4rem]">
+          <h3
+            className={`mx-auto mt-4 max-w-[52rem] text-[1.75rem] font-medium leading-[1.15] tracking-tight sm:text-[2.5rem] md:text-[3.25rem] lg:text-[4rem] ${
+              isDark
+                ? "text-white drop-shadow-[0_3px_14px_rgba(0,0,0,0.6)]"
+                : "text-slate-900"
+            }`}
+          >
             Where your campus ends, your community begins
           </h3>
-          <p className="mx-auto mt-6 max-w-[40rem] text-base leading-relaxed text-slate-500 md:text-lg">
+          <p
+            className={`mx-auto mt-6 max-w-[40rem] text-base leading-relaxed md:text-lg ${
+              isDark ? "text-white/60" : "text-slate-500"
+            }`}
+          >
             Whether you're looking to have fun, learn something new, or earn on
             the side — OCC gives you a platform to do it all, in a way that
             feels natural, exciting, and truly yours.

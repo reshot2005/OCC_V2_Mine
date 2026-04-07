@@ -1,17 +1,8 @@
 "use client";
 
 import React, { useRef, useState } from 'react';
-import Link from 'next/link';
 import { motion, useSpring } from 'motion/react';
 import { MovableBlock } from './LayoutEditor';
-import {
-  authEntryHref,
-  LANDING_POST_AUTH_PATH,
-  storeRedirectIntent,
-} from '@/lib/client-auth-redirect';
-import { scrollToOccClubsSection } from '@/lib/landingNav';
-
-const JOIN_HREF = authEntryHref(LANDING_POST_AUTH_PATH, '/login');
 
 const CARD_W = 560;
 const CARD_H = 380;
@@ -63,53 +54,26 @@ export function ChromeKnotCard() {
               OCC
             </div>
           </MovableBlock>
-
-          <div className="flex items-center gap-3">
-            <MovableBlock id="chrome-card-nav-join">
-              <Link
-                href={JOIN_HREF}
-                prefetch
-                onClick={() => storeRedirectIntent(LANDING_POST_AUTH_PATH)}
-                className="inline-flex h-9 items-center rounded-lg bg-[#0D1B2A] px-4 text-sm font-medium text-white transition-colors hover:bg-[#162838]"
-              >
-                JOIN •
-              </Link>
-            </MovableBlock>
-            <MovableBlock id="chrome-card-nav-clubs">
-              <button
-                type="button"
-                onClick={() => scrollToOccClubsSection()}
-                className="h-9 rounded-lg bg-[#E8E8E8] px-4 text-sm font-medium text-gray-900 transition-colors hover:bg-white"
-              >
-                CLUBS ···
-              </button>
-            </MovableBlock>
-          </div>
         </div>
 
-        {/* 3D Scene Container */}
-        <div className="absolute inset-0 flex items-center justify-center" style={{ transformStyle: 'preserve-3d' }}>
-          {/* 3D Video Background */}
-          <motion.div
-            className="absolute z-10 w-full h-full pointer-events-none scale-[1.1]"
-            style={{ transformStyle: 'preserve-3d' }}
-            animate={{
-              rotateY: mousePosition.x * 8, // Parallax: -8deg to +8deg
-              rotateX: -mousePosition.y * 4, // Tilt: -4deg to +4deg
-              x: -mousePosition.x * 12, // Shifting slightly in opposite direction
-            }}
-            transition={{ type: 'spring', stiffness: 80, damping: 75 }}
-          >
-            <video 
-              src="/Night_Event_Crowd_Video_Generation.mp4"
-              autoPlay
-              loop
-              muted
-              playsInline
-              className="w-full h-full object-cover rounded-[20px]"
-            />
-          </motion.div>
-        </div>
+        {/* Hero image layer */}
+        <motion.div
+          className="absolute inset-0 z-10 pointer-events-none scale-[1.04]"
+          style={{ transformStyle: 'preserve-3d' }}
+          animate={{
+            rotateY: mousePosition.x * 8,
+            rotateX: -mousePosition.y * 4,
+            x: -mousePosition.x * 12,
+          }}
+          transition={{ type: 'spring', stiffness: 80, damping: 75 }}
+        >
+          <img
+            src="/events/fashion-event.png"
+            alt="OCC club event highlight"
+            className="h-full w-full object-cover rounded-[20px]"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-black/20" />
+        </motion.div>
 
         {/* Bottom Text Overlay */}
         <div className="absolute bottom-8 left-8 z-20 flex flex-col gap-2">

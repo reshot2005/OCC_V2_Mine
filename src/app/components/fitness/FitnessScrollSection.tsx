@@ -1,8 +1,14 @@
 "use client";
-import React, { useRef } from "react";
+import React, { useEffect, useRef } from "react";
 import { useFitnessPhysics } from "../../../hooks/useFitnessPhysics";
+import { setFrameSequenceDecodeHint } from "../../../lib/loadFrameSequence";
 import { FitnessCanvas } from "./FitnessCanvas";
-import { FITNESS_TOTAL_FRAMES, FC } from "./fitnessConstants";
+import {
+  FITNESS_TOTAL_FRAMES,
+  FITNESS_FRAMES_PATH,
+  FITNESS_FRAME_PREFIX,
+  FC,
+} from "./fitnessConstants";
 import { motion } from "motion/react";
 
 interface FitnessScrollProps {
@@ -13,6 +19,16 @@ interface FitnessScrollProps {
 export function FitnessScrollSection({ frames, loaded }: FitnessScrollProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const physics = useFitnessPhysics(containerRef, FITNESS_TOTAL_FRAMES);
+
+  useEffect(() => {
+    const leadFrame = physics.currentFrame + 10;
+    setFrameSequenceDecodeHint(
+      FITNESS_FRAMES_PATH,
+      FITNESS_TOTAL_FRAMES,
+      leadFrame,
+      FITNESS_FRAME_PREFIX,
+    );
+  }, [physics.currentFrame]);
 
   return (
     <section ref={containerRef} className="relative h-[800vh] w-full bg-black">

@@ -140,13 +140,16 @@ const clubs: {
   },
 ];
 
-export function FeaturedWork() {
+export function FeaturedWork({ theme }: { theme: "dark" | "light" }) {
   const navigate = useNavigate();
+  const isDark = theme === "dark";
 
   return (
     <section
       id="occ-clubs"
-      className="relative scroll-mt-24 w-full max-w-[100vw] overflow-x-hidden bg-[#F6F7FA] px-4 py-24 sm:px-6 md:px-12 md:py-32"
+      className={`relative scroll-mt-24 w-full max-w-[100vw] overflow-x-hidden px-4 py-24 sm:px-6 md:px-12 md:py-32 ${
+        isDark ? "bg-[#070914]" : "bg-[#F6F7FA]"
+      }`}
     >
       <div className="mx-auto mb-16 flex w-full max-w-[90rem] flex-col justify-between gap-10 md:mb-20 md:flex-row md:items-end">
         <div className="flex flex-col gap-4 md:gap-6">
@@ -157,8 +160,8 @@ export function FeaturedWork() {
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 0.8 }}
             >
-              <div className="text-2xl font-medium tracking-widest text-slate-900">
-                OCC
+              <div className={`text-2xl font-medium tracking-widest ${isDark ? "text-white" : "text-slate-900"}`}>
+                
               </div>
             </motion.div>
           </MovableBlock>
@@ -169,8 +172,12 @@ export function FeaturedWork() {
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 0.8, delay: 0.06 }}
             >
-              <h2 className="text-[2.75rem] font-medium leading-[0.95] tracking-tighter text-slate-900 sm:text-[4rem] md:text-[5rem] lg:text-[6.5rem]">
-                OCC-Clubs
+              <h2
+                className={`text-[2.75rem] font-medium leading-[0.95] tracking-tighter sm:text-[4rem] md:text-[5rem] lg:text-[6.5rem] ${
+                  isDark ? "text-white" : "text-slate-900"
+                }`}
+              >
+                OFF-Campus Clubs
               </h2>
             </motion.div>
           </MovableBlock>
@@ -183,7 +190,7 @@ export function FeaturedWork() {
             viewport={{ once: true, margin: "-100px" }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <p className="text-sm font-bold leading-[1.6] text-slate-800 md:text-base">
+            <p className={`text-sm font-bold leading-[1.6] md:text-base ${isDark ? "text-white/80" : "text-slate-800"}`}>
               ONE PLATFORM FOR OFF-CAMPUS CREWS ACROSS COLLEGES—SPORTS, BIKERS, MUSIC, PHOTO,
               FITNESS, FASHION—PLUS EVENTS YOU ACTUALLY WANT TO GO TO AND GIGS THAT PAY.
             </p>
@@ -260,7 +267,11 @@ export function FeaturedWork() {
               {club.comingSoon ? (
                 <div className="absolute inset-0 flex items-center justify-center rounded-[2rem] bg-slate-900/55 backdrop-blur-[2px]">
                   <MovableBlock id={`featured-club-${index}-badge`}>
-                    <span className="rounded-full bg-white/95 px-4 py-2 text-xs font-bold tracking-widest text-slate-900">
+                    <span
+                      className={`rounded-full px-4 py-2 text-xs font-bold tracking-widest ${
+                        isDark ? "bg-white/90 text-slate-900" : "bg-white/95 text-slate-900"
+                      }`}
+                    >
                       COMING SOON
                     </span>
                   </MovableBlock>
@@ -271,12 +282,16 @@ export function FeaturedWork() {
             <MovableBlock id={`featured-club-${index}-copy`} className="px-1 md:px-2">
               <div className="flex flex-col gap-2 md:gap-3">
                 <MovableBlock id={`featured-club-${index}-tags`}>
-                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 md:text-sm">
+                  <p className={`text-xs font-semibold uppercase tracking-wider md:text-sm ${isDark ? "text-white/60" : "text-slate-500"}`}>
                     {club.tags}
                   </p>
                 </MovableBlock>
                 <MovableBlock id={`featured-club-${index}-title`}>
-                  <div className="flex items-center gap-3 text-xl font-medium tracking-tight text-slate-900 md:gap-4 md:text-3xl lg:text-4xl">
+                  <div
+                    className={`flex items-center gap-3 text-xl font-medium tracking-tight md:gap-4 md:text-3xl lg:text-4xl ${
+                      isDark ? "text-white" : "text-slate-900"
+                    }`}
+                  >
                     <span className="-ml-6 opacity-0 transition-all duration-300 ease-out group-hover:ml-0 group-hover:opacity-100">
                       <ArrowRight size={28} className="md:h-8 md:w-8" />
                     </span>
@@ -302,9 +317,13 @@ export function FeaturedWork() {
             href={SEE_ALL_CLUBS_HREF}
             prefetch
             onClick={() => storeRedirectIntent(LANDING_POST_AUTH_PATH)}
-            className="flex items-center gap-3 rounded-full bg-white px-8 py-4 text-sm font-bold tracking-widest text-slate-900 shadow-xl shadow-slate-200 transition-all hover:scale-105 hover:bg-slate-50"
+            className={`flex items-center gap-3 rounded-full px-8 py-4 text-sm font-bold tracking-widest shadow-xl transition-all hover:scale-105 ${
+              isDark
+                ? "bg-white/10 text-white shadow-black/30 hover:bg-white/15"
+                : "bg-white text-slate-900 shadow-slate-200 hover:bg-slate-50"
+            }`}
           >
-            <span className="h-2 w-2 rounded-full bg-slate-900" />
+            <span className={`h-2 w-2 rounded-full ${isDark ? "bg-white" : "bg-slate-900"}`} />
             SEE ALL CLUBS
           </Link>
         </motion.div>

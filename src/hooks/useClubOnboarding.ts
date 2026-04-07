@@ -54,9 +54,10 @@ export function useClubOnboarding({
 
   const activeQuestion =
     config.questions[activeIndex] ?? config.questions[Math.max(0, config.questions.length - 1)];
-  const progress = isComplete
-    ? 1
-    : (activeIndex + 1) / Math.max(1, config.questions.length);
+  const answeredCount = useMemo(
+    () => Object.values(answers).filter(Boolean).length,
+    [answers],
+  );
 
   const submitAnswers = useCallback(
     (nextAnswers: ClubOnboardingAnswers) => {
@@ -116,7 +117,7 @@ export function useClubOnboarding({
     activeQuestion,
     isAdvancing,
     isComplete,
-    progress,
+    answeredCount,
     selectedOption,
     chooseOption,
   };

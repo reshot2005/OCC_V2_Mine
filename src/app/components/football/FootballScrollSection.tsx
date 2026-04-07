@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { useFootballPhysics } from "../../../hooks/useFootballPhysics";
+import { setFrameSequenceDecodeHint } from "../../../lib/loadFrameSequence";
 import { FootballCanvas }      from "./FootballCanvas";
 import { FootballSpeedLines }  from "./FootballSpeedLines";
 import { FootballBallTracker } from "./FootballBallTracker";
@@ -8,6 +9,7 @@ import { FootballCrowdDots }   from "./FootballCrowdDots";
 import { FootballChapterText } from "./FootballChapterText";
 import {
   FOOTBALL_TOTAL_FRAMES,
+  FOOTBALL_FRAMES_PATH,
   FOOTBALL_SCROLL_HEIGHT_VH,
   FOOTBALL_CHAPTERS,
   FC,
@@ -23,7 +25,8 @@ interface Props {
 export function FootballScrollSection({ frames, loaded = true }: Props) {
   const containerRef = useRef<HTMLElement>(null);
 
-  const playhead = useFootballPhysics(containerRef, FOOTBALL_TOTAL_FRAMES);
+  const physics = useFootballPhysics(containerRef, FOOTBALL_TOTAL_FRAMES);
+  const playhead = physics.playhead;
 
   // ── Stadium flash — fires once as playhead crosses the GOAL chapter ───
   const [flashOpacity, setFlashOpacity] = useState(0);
@@ -53,6 +56,11 @@ export function FootballScrollSection({ frames, loaded = true }: Props) {
   const heroLift = (p / HERO_FADE_END) * 28;
   const heroVisible = loaded && heroScrollOpacity > 0.02;
 
+  useEffect(() => {
+    const leadFrame = playhead.currentFrame + 10;
+    setFrameSequenceDecodeHint(FOOTBALL_FRAMES_PATH, FOOTBALL_TOTAL_FRAMES, leadFrame);
+  }, [playhead.currentFrame]);
+
   return (
     <section
       ref={containerRef}
@@ -70,6 +78,7 @@ export function FootballScrollSection({ frames, loaded = true }: Props) {
           frames={frames}
           totalFrames={FOOTBALL_TOTAL_FRAMES}
           playhead={playhead}
+          playheadRef={physics.playheadRef}
           flashOpacity={flashOpacity}
         />
 

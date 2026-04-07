@@ -16,6 +16,7 @@ export const LAYOUT_SECTION_IDS = [
   "header",
   "hero",
   "video-reel",
+  "about-occ",
   "approach",
   "featured-work",
   "experiences",

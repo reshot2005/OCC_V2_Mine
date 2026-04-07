@@ -5,13 +5,16 @@ import { motion } from "motion/react";
 import { MovableBlock } from "./LayoutEditor";
 import { ScrollTube } from "./Approach";
 
-export function Experiences() {
+export function Experiences({ theme }: { theme: "dark" | "light" }) {
   const sectionRef = useRef<HTMLElement>(null);
+  const isDark = theme === "dark";
 
   return (
     <section
       ref={sectionRef}
-      className="relative isolate w-full max-w-[100vw] overflow-visible bg-[#F6F7FA] px-4 py-24 sm:px-6 md:px-12 md:py-32"
+      className={`relative isolate w-full max-w-[100vw] overflow-visible px-4 py-24 sm:px-6 md:px-12 md:py-32 ${
+        isDark ? "bg-[#070914]" : "bg-[#F6F7FA]"
+      }`}
     >
       <MovableBlock
         id="experiences-bg-stroke"
@@ -29,7 +32,11 @@ export function Experiences() {
             transition={{ duration: 0.8 }}
             className="w-full"
           >
-            <h2 className="text-left text-[1.125rem] font-medium leading-snug tracking-tighter text-slate-900 sm:text-[1.35rem] md:whitespace-nowrap md:text-[1.65rem] lg:text-[1.85rem] xl:text-[2rem]">
+            <h2
+              className={`text-left text-[1.125rem] font-medium leading-snug tracking-tighter sm:text-[1.35rem] md:whitespace-nowrap md:text-[1.65rem] lg:text-[1.85rem] xl:text-[2rem] ${
+                isDark ? "text-white" : "text-slate-900"
+              }`}
+            >
               Events, gigs, and matchups that hit different
             </h2>
           </motion.div>
@@ -62,7 +69,7 @@ export function Experiences() {
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 1, delay: 0.2 }}
             >
-              <div className="text-2xl font-medium tracking-widest text-slate-900">OCC</div>
+              <div className={`text-2xl font-medium tracking-widest ${isDark ? "text-white" : "text-slate-900"}`}>OCC</div>
             </motion.div>
           </MovableBlock>
           <MovableBlock id="experiences-copy-p1">
@@ -72,7 +79,7 @@ export function Experiences() {
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 1, delay: 0.26 }}
             >
-              <p className="text-lg font-medium leading-[1.4] text-slate-900 md:text-xl lg:text-[1.65rem]">
+              <p className={`text-lg font-medium leading-[1.4] md:text-xl lg:text-[1.65rem] ${isDark ? "text-white" : "text-slate-900"}`}>
                 We are not another generic campus feed. OCC is built for Gen Z who want real scenes
                 off campus—trivia nights, open mics, movie screenings, pickup and turf blocks, and
                 curated match setups when you want to play for real.
@@ -86,7 +93,7 @@ export function Experiences() {
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 1, delay: 0.32 }}
             >
-              <p className="text-base font-medium leading-[1.5] text-slate-800 md:text-lg lg:text-xl">
+              <p className={`text-base font-medium leading-[1.5] md:text-lg lg:text-xl ${isDark ? "text-white/75" : "text-slate-800"}`}>
                 Tap into gig listings when you want to earn, discover clubs by interest, and move
                 with people who show up for the same energy—whether that is a bike loop, a lens
                 crawl, or a lift session.

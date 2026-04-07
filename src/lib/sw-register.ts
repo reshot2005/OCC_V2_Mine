@@ -6,6 +6,13 @@
 export function registerServiceWorker() {
   if (typeof window === "undefined") return;
   if (!("serviceWorker" in navigator)) return;
+  if (process.env.NODE_ENV === "development") {
+    void navigator.serviceWorker
+      .getRegistrations()
+      .then((regs) => Promise.all(regs.map((r) => r.unregister())))
+      .catch(() => {});
+    return;
+  }
 
   const enabled = process.env.NEXT_PUBLIC_SW_ENABLED;
   if (enabled === "false") return;

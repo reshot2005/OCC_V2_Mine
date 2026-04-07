@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useRef } from "react";
-import type { PhotographyPlayhead as FootballPlayhead } from "../../../hooks/usePhotographyPhysics";
+import type { FootballPlayhead } from "../../../hooks/useFootballPhysics";
 
 interface Props {
   frames: HTMLImageElement[];
   totalFrames: number;
   playhead: FootballPlayhead;
+  playheadRef?: React.MutableRefObject<FootballPlayhead>;
   flashOpacity: number;
 }
 
@@ -81,9 +82,11 @@ export function FootballCanvas({
   frames,
   totalFrames,
   playhead,
+  playheadRef,
   flashOpacity,
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const ctxRef = useRef<CanvasRenderingContext2D | null>(null);
   const rafRef = useRef(0);
   const ref = useRef({ playhead, flashOpacity });
   ref.current = { playhead, flashOpacity };
@@ -91,8 +94,9 @@ export function FootballCanvas({
   const draw = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d", { alpha: false });
+    const ctx = ctxRef.current ?? canvas.getContext("2d", { alpha: false });
     if (!ctx) return;
+    if (!ctxRef.current) ctxRef.current = ctx;
 
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const W = canvas.clientWidth;
@@ -107,7 +111,8 @@ export function FootballCanvas({
 
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
-    const { playhead: ph, flashOpacity: fo } = ref.current;
+    const { playhead: statePlayhead, flashOpacity: fo } = ref.current;
+    const ph = playheadRef?.current ?? statePlayhead;
     const { currentFrame, floatY, tiltDeg, scaleVal, zoomVal, speedIntensity } = ph;
 
     // Background clearing
@@ -154,6 +159,10 @@ export function FootballCanvas({
     ro.observe(canvas);
     return () => ro.disconnect();
   }, [draw]);
+
+  useEffect(() => {
+    ctxRef.current = null;
+  }, []);
 
   return (
     <canvas

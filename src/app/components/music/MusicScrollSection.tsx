@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { useMusicPhysics } from "../../../hooks/useMusicPhysics";
+import { setFrameSequenceDecodeHint } from "../../../lib/loadFrameSequence";
 import { MusicCanvas }      from "./MusicCanvas";
 import { MusicSpeedLines }  from "./MusicSpeedLines";
 import { MusicBallTracker } from "./MusicBallTracker";
@@ -8,6 +9,8 @@ import { MusicCrowdDots }   from "./MusicCrowdDots";
 import { MusicChapterText } from "./MusicChapterText";
 import {
   MUSIC_TOTAL_FRAMES,
+  MUSIC_FRAMES_PATH,
+  MUSIC_FRAME_PREFIX,
   MUSIC_SCROLL_HEIGHT_VH,
   MUSIC_CHAPTERS,
   FC,
@@ -52,6 +55,17 @@ export function MusicScrollSection({ frames, loaded = true }: Props) {
   const heroScrollOpacity = Math.max(0, 1 - p / HERO_FADE_END);
   const heroLift = (p / HERO_FADE_END) * 28;
   const heroVisible = loaded && heroScrollOpacity > 0.02;
+
+  useEffect(() => {
+    // Keep decode priority around where the user is heading next.
+    const leadFrame = playhead.currentFrame + 10;
+    setFrameSequenceDecodeHint(
+      MUSIC_FRAMES_PATH,
+      MUSIC_TOTAL_FRAMES,
+      leadFrame,
+      MUSIC_FRAME_PREFIX,
+    );
+  }, [playhead.currentFrame]);
 
   return (
     <section

@@ -85,6 +85,15 @@ export function PhotographyCanvas({
 }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const rafRef = useRef(0);
+  const lastDrawnRef = useRef({
+    width: 0,
+    height: 0,
+    frame: -1,
+    floatY: 999,
+    tiltDeg: 999,
+    scale: 999,
+    flashOpacity: -1,
+  });
   // Cache state in ref to avoid re-creating the RAF loop on every re-render
   const ref = useRef({ playhead, flashOpacity });
   ref.current = { playhead, flashOpacity };
@@ -95,7 +104,7 @@ export function PhotographyCanvas({
     const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) return;
 
-    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const dpr = Math.min(window.devicePixelRatio || 1, window.innerWidth < 900 ? 1.25 : 1.5);
     const W = canvas.clientWidth;
     const H = canvas.clientHeight;
 
@@ -109,7 +118,18 @@ export function PhotographyCanvas({
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     const { playhead: ph, flashOpacity: fo } = ref.current;
-    const { currentFrame, floatY, tiltDeg, scaleVal, zoomVal, speedIntensity } = ph;
+    const { currentFrame, floatY, tiltDeg, scaleVal, zoomVal } = ph;
+    const effectiveScale = scaleVal * zoomVal;
+    const frameInt = Math.floor(currentFrame);
+    const last = lastDrawnRef.current;
+    const isSameSize = last.width === W && last.height === H;
+    const isSameVisual =
+      Math.abs(last.frame - frameInt) < 0.001 &&
+      Math.abs(last.floatY - floatY) < 0.2 &&
+      Math.abs(last.tiltDeg - tiltDeg) < 0.02 &&
+      Math.abs(last.scale - effectiveScale) < 0.0015 &&
+      Math.abs(last.flashOpacity - fo) < 0.01;
+    if (isSameSize && isSameVisual) return;
 
     // Background clearing
     ctx.fillStyle = "#0C0C0A";
@@ -125,7 +145,7 @@ export function PhotographyCanvas({
         H,
         floatY,
         tiltDeg,
-        scaleVal * zoomVal,
+        effectiveScale,
       );
     }
 
@@ -136,6 +156,16 @@ export function PhotographyCanvas({
       ctx.fillRect(0, 0, W, H);
       ctx.globalAlpha = 1;
     }
+
+    lastDrawnRef.current = {
+      width: W,
+      height: H,
+      frame: frameInt,
+      floatY,
+      tiltDeg,
+      scale: effectiveScale,
+      flashOpacity: fo,
+    };
 
   }, [frames, totalFrames]);
 

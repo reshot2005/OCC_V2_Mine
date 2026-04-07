@@ -142,8 +142,8 @@ export function Hero() {
             id="hero-footer-decor-right"
             className="flex flex-1 items-center justify-end gap-6 sm:gap-10"
           >
-            <span>+</span>
-            <span>+</span>
+            <span></span>
+            <span></span>
           </MovableBlock>
         </motion.div>
       </section>

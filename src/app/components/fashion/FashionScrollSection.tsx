@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from "react";
 import { motion } from "motion/react";
 import { useFashionPhysics } from "../../../hooks/useFashionPhysics";
+import { setFrameSequenceDecodeHint } from "../../../lib/loadFrameSequence";
 import { useFashionProgress } from "../../../hooks/useFashionProgress";
 import { FashionCanvas } from "./FashionCanvas";
 import { FashionRunwayStreaks } from "./FashionRunwayStreaks";
@@ -9,6 +10,7 @@ import { FashionGrainBurst } from "./FashionGrainBurst";
 import { FashionChapterText } from "./FashionChapterText";
 import {
   FASHION_TOTAL_FRAMES,
+  FASHION_FRAMES_PATH,
   FASHION_SCROLL_HEIGHT_VH,
   FASHION_CHAPTERS,
   FAC,
@@ -52,6 +54,11 @@ export function FashionScrollSection({ frames, loaded = true }: Props) {
   const heroScrollOpacity = Math.max(0, 1 - p / HERO_FADE_END);
   const heroLift = (p / HERO_FADE_END) * 28;
   const heroVisible = loaded && heroScrollOpacity > 0.02;
+
+  useEffect(() => {
+    const leadFrame = playhead.currentFrame + 10;
+    setFrameSequenceDecodeHint(FASHION_FRAMES_PATH, FASHION_TOTAL_FRAMES, leadFrame);
+  }, [playhead.currentFrame]);
 
   return (
     <section
