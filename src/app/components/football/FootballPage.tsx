@@ -398,7 +398,7 @@ function JoinFootballSection() {
         </p>
         <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
           <Link
-            to="/"
+            to="/login"
             className="font-mono-label px-10 py-[18px] text-[11px] tracking-[0.2em] uppercase transition-all duration-300 hover:scale-[1.02]"
             style={{ background: P.green, color: P.bg, borderRadius: "2px" }}
             onMouseEnter={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = P.green; e.currentTarget.style.boxShadow = `inset 0 0 0 1px ${P.green}`; }}
@@ -407,7 +407,7 @@ function JoinFootballSection() {
             Join Now
           </Link>
           <Link
-            to="/"
+            to="/login"
             className="font-mono-label px-10 py-[18px] text-[11px] tracking-[0.2em] uppercase transition-all duration-300 hover:scale-[1.02]"
             style={{ color: P.green, boxShadow: `inset 0 0 0 1px ${P.green}`, borderRadius: "2px" }}
             onMouseEnter={(e) => { e.currentTarget.style.background = P.green; e.currentTarget.style.color = P.bg; }}

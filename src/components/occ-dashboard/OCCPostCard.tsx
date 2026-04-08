@@ -23,13 +23,34 @@ export type OCCPost = {
   userAvatarUrl: string;
   timestamp: string;
   caption: string;
+  content?: string;
   imageUrl: string;
+  imageUrls?: string[];
   likeCount: number;
   sharesCount?: number;
   clubId?: string;
   clubName?: string;
+  clubMembersLabel?: string;
   commentsCount?: number;
 };
+
+function extractHashtags(text: string): string[] {
+  if (!text) return [];
+  const tags = text.match(/#[A-Za-z0-9_]+/g) || [];
+  const uniq: string[] = [];
+  for (const t of tags) {
+    const normalized = t.replace(/^#/, "").toUpperCase();
+    if (!normalized) continue;
+    if (!uniq.includes(normalized)) uniq.push(normalized);
+    if (uniq.length >= 8) break;
+  }
+  return uniq;
+}
+
+function stripHashtags(text: string): string {
+  if (!text) return "";
+  return text.replace(/#[A-Za-z0-9_]+/g, "").replace(/\s{2,}/g, " ").trim();
+}
 
 type PostComment = {
   id: string;
@@ -105,7 +126,15 @@ export function OCCPostCard({
   const [isLoaded, setIsLoaded] = useState(false);
   /** True only if both the post URL and premium fallback failed to load. */
   const [imgError, setImgError] = useState(false);
-  const [mediaSrc, setMediaSrc] = useState(post.imageUrl);
+  const mediaList = useMemo(() => {
+    const list = (post.imageUrls || []).filter(Boolean);
+    return list.length > 0 ? list : [post.imageUrl];
+  }, [post.imageUrl, post.imageUrls]);
+  const [activeImage, setActiveImage] = useState(0);
+  const [touchStartX, setTouchStartX] = useState<number | null>(null);
+  const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [lightboxTouchStartX, setLightboxTouchStartX] = useState<number | null>(null);
+  const [mediaSrc, setMediaSrc] = useState(mediaList[0] || post.imageUrl);
   const imgRef = useRef<HTMLImageElement>(null);
 
   const premiumFallback = useMemo(
@@ -119,16 +148,21 @@ export function OCCPostCard({
   const [commentsCount, setCommentsCount] = useState(post.commentsCount ?? 0);
   const [commentText, setCommentText] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const allTagText = `${post.caption || ""} ${post.content || ""}`;
+  const parsedHashtags = useMemo(() => extractHashtags(allTagText), [allTagText]);
+  const cleanBody = useMemo(() => stripHashtags(post.content || ""), [post.content]);
+  const headingText = (post.caption || "").trim() || (cleanBody ? cleanBody.split(".")[0] + "." : "Editorial Statement.");
 
   useEffect(() => {
     setLikeCount(post.likeCount);
   }, [post.id, post.likeCount]);
 
   useEffect(() => {
-    setMediaSrc(post.imageUrl);
+    setActiveImage(0);
+    setMediaSrc(mediaList[0] || post.imageUrl);
     setImgError(false);
     setIsLoaded(false);
-  }, [post.id, post.imageUrl]);
+  }, [post.id, post.imageUrl, mediaList]);
 
   useEffect(() => {
     setCommentsCount(post.commentsCount ?? 0);
@@ -187,6 +221,31 @@ export function OCCPostCard({
     setIsLoaded(true);
     setImgError(true);
   };
+
+  const prevImage = () => {
+    if (mediaList.length <= 1) return;
+    setActiveImage((prev) => {
+      const nextIdx = prev === 0 ? mediaList.length - 1 : prev - 1;
+      setMediaSrc(mediaList[nextIdx] || post.imageUrl);
+      setImgError(false);
+      setIsLoaded(false);
+      return nextIdx;
+    });
+  };
+
+  const nextImage = () => {
+    if (mediaList.length <= 1) return;
+    setActiveImage((prev) => {
+      const nextIdx = (prev + 1) % mediaList.length;
+      setMediaSrc(mediaList[nextIdx] || post.imageUrl);
+      setImgError(false);
+      setIsLoaded(false);
+      return nextIdx;
+    });
+  };
+
+  const openLightbox = () => setIsLightboxOpen(true);
+  const closeLightbox = () => setIsLightboxOpen(false);
 
   const toggleLike = async () => {
     const prevLiked = liked;
@@ -292,7 +351,7 @@ export function OCCPostCard({
       layout
       initial={{ opacity: 0, y: 15 }}
       animate={{ opacity: 1, y: 0 }}
-      className="group relative overflow-hidden rounded-none border-y border-black/[0.05] bg-white shadow-[0_12px_40px_-18px_rgba(0,0,0,0.1)] sm:rounded-2xl sm:border mb-3 sm:mb-6 max-w-full lg:max-w-[min(100%,920px)] mx-auto w-full transition-all duration-500"
+      className="group relative overflow-hidden rounded-[1.35rem] sm:rounded-[1.75rem] border border-black/[0.08] bg-white shadow-[0_16px_34px_-18px_rgba(15,23,42,0.32),0_4px_10px_-6px_rgba(15,23,42,0.18)] sm:shadow-[0_26px_60px_-28px_rgba(15,23,42,0.36),0_8px_20px_-12px_rgba(15,23,42,0.2)] mb-3 sm:mb-6 max-w-full lg:max-w-[min(100%,920px)] mx-auto w-full transition-all duration-500"
     >
       {/* Mobile: stacked · Desktop (lg+): image | text — not driven by photo aspect ratio */}
       <div className="flex flex-col lg:flex-row lg:items-stretch transition-all duration-500">
@@ -325,12 +384,69 @@ export function OCCPostCard({
               ref={imgRef}
               src={mediaSrc} 
               alt="" 
+              onClick={openLightbox}
+              onTouchStart={(e) => setTouchStartX(e.touches[0]?.clientX ?? null)}
+              onTouchEnd={(e) => {
+                if (touchStartX === null) return;
+                const endX = e.changedTouches[0]?.clientX ?? touchStartX;
+                const delta = endX - touchStartX;
+                if (Math.abs(delta) > 36) {
+                  if (delta < 0) nextImage();
+                  else prevImage();
+                }
+                setTouchStartX(null);
+              }}
               onLoad={handleImageLoad}
               onError={handleImageError}
               className="relative z-10 h-full w-full object-cover transition-all duration-700 ease-out max-h-[300px] sm:max-h-[380px] lg:max-h-none lg:min-h-[min(520px,72vh)] lg:max-h-[min(640px,75vh)]"
               onDoubleClick={toggleLike}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  openLightbox();
+                }
+              }}
             />
           )}
+
+          {mediaList.length > 1 ? (
+            <>
+              <button
+                type="button"
+                onClick={prevImage}
+                className="absolute left-3 top-1/2 z-20 -translate-y-1/2 rounded-full bg-black/50 px-2 py-1 text-xs font-bold text-white"
+                aria-label="Previous image"
+              >
+                ‹
+              </button>
+              <button
+                type="button"
+                onClick={nextImage}
+                className="absolute right-3 top-1/2 z-20 -translate-y-1/2 rounded-full bg-black/50 px-2 py-1 text-xs font-bold text-white"
+                aria-label="Next image"
+              >
+                ›
+              </button>
+              <div className="absolute bottom-3 left-1/2 z-20 flex -translate-x-1/2 items-center gap-1.5 rounded-full bg-black/45 px-2 py-1">
+                {mediaList.map((_, idx) => (
+                  <button
+                    key={`${post.id}-img-${idx}`}
+                    type="button"
+                    onClick={() => {
+                      setActiveImage(idx);
+                      setMediaSrc(mediaList[idx] || post.imageUrl);
+                      setImgError(false);
+                      setIsLoaded(false);
+                    }}
+                    className={`h-1.5 w-1.5 rounded-full ${idx === activeImage ? "bg-white" : "bg-white/45"}`}
+                    aria-label={`Open image ${idx + 1}`}
+                  />
+                ))}
+              </div>
+            </>
+          ) : null}
 
           <AnimatePresence>
             {liked && (
@@ -360,7 +476,9 @@ export function OCCPostCard({
                   <span className="truncate text-[13px] font-semibold text-black tracking-tight font-sans">{post.username}</span>
                   <BadgeCheck className="h-3.5 w-3.5 shrink-0 text-[#5227FF]" fill="#5227FF" />
                 </div>
-                <span className="text-[9px] font-medium text-black/35 uppercase tracking-[0.08em] font-sans">{post.timestamp} · {post.clubName || "OCC"}</span>
+                <span className="text-[9px] font-medium text-black/35 uppercase tracking-[0.08em] font-sans">
+                  {post.clubMembersLabel || "800 Members"} · {post.clubName || "OCC"}
+                </span>
               </div>
             </div>
             <button type="button" className="shrink-0 rounded-lg p-1.5 text-black/25 transition hover:bg-black/[0.04] hover:text-black/40">
@@ -380,19 +498,21 @@ export function OCCPostCard({
                   className="space-y-2.5 sm:space-y-3"
                 >
                   <h4 className="font-serif italic text-[1.15rem] sm:text-[1.25rem] text-black/90 leading-snug tracking-normal text-balance line-clamp-2">
-                    {post.caption ? post.caption.split(".")[0] + "." : "Editorial Statement."}
+                    {headingText}
                   </h4>
-                  <PostCaptionBody text={post.caption || ""} />
-                  <div className="flex flex-wrap gap-1">
-                    {["Elite", "Direct", "Intel"].map((tag) => (
-                      <span
-                        key={tag}
-                        className="rounded-full border border-black/[0.06] bg-black/[0.02] px-2 py-0.5 text-[8px] font-medium uppercase tracking-wider text-black/35 font-sans"
-                      >
-                        #{tag}
-                      </span>
-                    ))}
-                  </div>
+                  <PostCaptionBody text={cleanBody || "No description provided."} />
+                  {parsedHashtags.length > 0 ? (
+                    <div className="flex flex-wrap gap-1">
+                      {parsedHashtags.map((tag) => (
+                        <span
+                          key={tag}
+                          className="rounded-full border border-black/[0.06] bg-black/[0.02] px-2 py-0.5 text-[8px] font-medium uppercase tracking-wider text-black/35 font-sans"
+                        >
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
                 </motion.div>
               ) : (
                 <motion.div 
@@ -510,6 +630,92 @@ export function OCCPostCard({
           </div>
         </div>
       </div>
+
+      <AnimatePresence>
+        {isLightboxOpen ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[220] flex items-center justify-center bg-black/95 p-3 sm:p-6"
+            onClick={closeLightbox}
+          >
+            <button
+              type="button"
+              onClick={closeLightbox}
+              className="absolute right-4 top-4 z-[230] rounded-full bg-black/50 px-3 py-1.5 text-sm font-semibold text-white hover:bg-black/70"
+              aria-label="Close full image"
+            >
+              Close
+            </button>
+
+            {mediaList.length > 1 ? (
+              <>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    prevImage();
+                  }}
+                  className="absolute left-4 top-1/2 z-[230] -translate-y-1/2 rounded-full bg-black/55 px-3 py-2 text-xl font-bold text-white"
+                  aria-label="Previous image"
+                >
+                  ‹
+                </button>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    nextImage();
+                  }}
+                  className="absolute right-4 top-1/2 z-[230] -translate-y-1/2 rounded-full bg-black/55 px-3 py-2 text-xl font-bold text-white"
+                  aria-label="Next image"
+                >
+                  ›
+                </button>
+              </>
+            ) : null}
+
+            <img
+              src={mediaList[activeImage] || mediaSrc}
+              alt=""
+              className="max-h-[92vh] max-w-[96vw] object-contain"
+              onClick={(e) => e.stopPropagation()}
+              onTouchStart={(e) => setLightboxTouchStartX(e.touches[0]?.clientX ?? null)}
+              onTouchEnd={(e) => {
+                if (lightboxTouchStartX === null) return;
+                const endX = e.changedTouches[0]?.clientX ?? lightboxTouchStartX;
+                const delta = endX - lightboxTouchStartX;
+                if (Math.abs(delta) > 36) {
+                  if (delta < 0) nextImage();
+                  else prevImage();
+                }
+                setLightboxTouchStartX(null);
+              }}
+            />
+
+            {mediaList.length > 1 ? (
+              <div
+                className="absolute bottom-5 left-1/2 z-[230] flex -translate-x-1/2 items-center gap-2 rounded-full bg-black/45 px-3 py-1.5"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {mediaList.map((_, idx) => (
+                  <button
+                    key={`${post.id}-lightbox-dot-${idx}`}
+                    type="button"
+                    onClick={() => {
+                      setActiveImage(idx);
+                      setMediaSrc(mediaList[idx] || post.imageUrl);
+                    }}
+                    className={`h-2 w-2 rounded-full ${idx === activeImage ? "bg-white" : "bg-white/45"}`}
+                    aria-label={`View image ${idx + 1}`}
+                  />
+                ))}
+              </div>
+            ) : null}
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
     </motion.article>
 
   );

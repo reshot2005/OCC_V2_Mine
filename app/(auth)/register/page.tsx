@@ -16,6 +16,7 @@ function RegisterPageInner() {
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [college, setCollege] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -141,6 +142,10 @@ function RegisterPageInner() {
       setError("Enter a valid 10-digit Indian mobile number starting with 6-9.");
       return;
     }
+    if (college.trim().length < 2) {
+      setError("Enter your college / university name.");
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError("Passwords do not match");
@@ -178,6 +183,7 @@ function RegisterPageInner() {
         credentials: "include",
         body: JSON.stringify({
           fullName: name.trim(),
+          collegeName: college.trim(),
           email: email.trim(),
           phoneNumber: phone.trim(),
           password,
@@ -419,6 +425,18 @@ function RegisterPageInner() {
               onChange={(e) => setPhone(e.target.value.replace(/\D/g, "").slice(0, 10))}
               required
               className="w-full px-5 py-4 bg-white border-2 border-gray-400 rounded-2xl text-sm font-bold text-gray-900 placeholder:text-gray-500 placeholder:uppercase placeholder:font-black placeholder:tracking-widest focus:outline-none focus:border-gray-900 focus:ring-4 focus:ring-gray-900/5 transition-all"
+            />
+          </div>
+
+          {/* College Input */}
+          <div>
+            <input
+              type="text"
+              placeholder="COLLEGE / UNIVERSITY"
+              value={college}
+              onChange={(e) => setCollege(e.target.value)}
+              required
+              className="w-full px-5 py-4 bg-white border-2 border-gray-400 rounded-2xl text-sm font-medium text-gray-900 placeholder:text-gray-500 placeholder:uppercase placeholder:font-semibold placeholder:tracking-[0.12em] focus:outline-none focus:border-gray-900 focus:ring-4 focus:ring-gray-900/5 transition-all"
             />
           </div>
 

@@ -33,11 +33,18 @@ export async function POST(req: NextRequest) {
     }
     const { referralSource, referralCode } = body as {
       referralSource?: string;
+      collegeName?: string;
       referralCode?: string;
     };
+    const collegeName = typeof (body as { collegeName?: unknown })?.collegeName === "string"
+      ? (body as { collegeName: string }).collegeName.trim()
+      : "";
 
     if (!referralSource) {
       return NextResponse.json({ error: "referralSource is required" }, { status: 400 });
+    }
+    if (collegeName.length < 2) {
+      return NextResponse.json({ error: "collegeName is required" }, { status: 400 });
     }
 
     const codeNormalized =
@@ -51,6 +58,7 @@ export async function POST(req: NextRequest) {
       data: {
         onboardingComplete: true,
         referralSource,
+        collegeName,
       },
     });
 
@@ -58,7 +66,7 @@ export async function POST(req: NextRequest) {
       const attached = await attachStudentToReferralCode({
         studentId: user.id,
         studentFullName: user.fullName,
-        studentCollegeName: user.collegeName,
+        studentCollegeName: collegeName,
         codeRaw: codeNormalized,
       });
       if (!attached.ok) {

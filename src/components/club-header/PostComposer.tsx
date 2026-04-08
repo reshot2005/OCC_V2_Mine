@@ -13,7 +13,9 @@ const postTypes = [
 ];
 
 export function PostComposer({ clubId }: { clubId: string }) {
+  const [heading, setHeading] = useState("");
   const [content, setContent] = useState("");
+  const [hashtags, setHashtags] = useState("");
   const [imageUrl, setImageUrl] = useState("");
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [imageUrls, setImageUrls] = useState<string[]>([]);
@@ -94,8 +96,8 @@ export function PostComposer({ clubId }: { clubId: string }) {
   };
 
   const submit = async () => {
-    if (!content.trim() && !imageUrl) {
-      toast.error("Add some content or a photo");
+    if (!heading.trim() && !content.trim() && !imageUrl) {
+      toast.error("Add heading/content or a photo");
       return;
     }
     if (imagePreview && !imageUrl.trim()) {
@@ -104,13 +106,21 @@ export function PostComposer({ clubId }: { clubId: string }) {
     }
     setLoading(true);
     try {
+      const normalizedTags = hashtags
+        .split(/[,\s]+/)
+        .map((t) => t.trim().replace(/^#/, "").toUpperCase())
+        .filter(Boolean)
+        .slice(0, 8);
+      const hashtagsLine = normalizedTags.map((t) => `#${t}`).join(" ");
+      const composedContent = [content.trim(), hashtagsLine].filter(Boolean).join("\n\n");
+
       const res = await fetch("/api/posts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           clubId,
-          content,
-          caption: content,
+          content: composedContent || undefined,
+          caption: heading.trim() || undefined,
           imageUrl: imageUrl || undefined,
           imageUrls: imageUrls.length > 0 ? imageUrls : undefined,
           type,
@@ -120,7 +130,9 @@ export function PostComposer({ clubId }: { clubId: string }) {
         const errData = await res.json().catch(() => null);
         throw new Error(errData?.error || "Failed to post");
       }
+      setHeading("");
       setContent("");
+      setHashtags("");
       removeImage();
       toast.success("Posted successfully! 🎉");
     } catch (err) {
@@ -142,12 +154,24 @@ export function PostComposer({ clubId }: { clubId: string }) {
       <h3 className="text-lg font-semibold text-white mb-6 relative z-10">Create Post</h3>
 
       <div className="relative z-10 space-y-5">
+        <input
+          value={heading}
+          onChange={(e) => setHeading(e.target.value)}
+          placeholder="Post heading"
+          className="w-full rounded-2xl border border-white/[0.08] bg-black/30 px-5 py-3 text-sm font-semibold text-white outline-none placeholder:text-white/35 focus:border-[#5227FF]/50 transition-colors"
+        />
         <textarea
           value={content}
           onChange={(e) => setContent(e.target.value)}
           rows={4}
           placeholder="What's happening in your club?"
           className="w-full rounded-2xl border border-white/[0.08] bg-black/30 p-5 text-sm text-white outline-none placeholder:text-white/30 focus:border-[#5227FF]/50 transition-colors resize-none"
+        />
+        <input
+          value={hashtags}
+          onChange={(e) => setHashtags(e.target.value)}
+          placeholder="Hashtags (e.g. #ESPORTS #OCC or ESPORTS OCC)"
+          className="w-full rounded-2xl border border-white/[0.08] bg-black/30 px-5 py-3 text-sm text-white outline-none placeholder:text-white/35 focus:border-[#5227FF]/50 transition-colors"
         />
 
         {/* Image Preview */}
@@ -251,7 +275,7 @@ export function PostComposer({ clubId }: { clubId: string }) {
             disabled={
               loading ||
               uploading ||
-              (!content.trim() && !imageUrl) ||
+              (!heading.trim() && !content.trim() && !imageUrl) ||
               (Boolean(imagePreview) && imageUrls.length === 0 && !imageUrl.trim())
             }
             className="flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#5227FF] to-[#2B4BFF] px-8 py-3 text-sm font-semibold text-white shadow-[0_0_20px_rgba(82,39,255,0.4)] hover:shadow-[0_0_30px_rgba(82,39,255,0.6)] transition-shadow disabled:opacity-40 disabled:cursor-not-allowed"

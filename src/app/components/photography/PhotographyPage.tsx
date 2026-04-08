@@ -277,7 +277,7 @@ function JoinPhotoSection() {
         </p>
         <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
           <Link
-            to="/"
+            to="/login"
             className="font-mono-label px-10 py-[18px] text-[11px] tracking-[0.2em] uppercase transition-all duration-300 hover:scale-[1.02]"
             style={{ background: PP.gold, color: PP.bg, borderRadius: "2px" }}
             onMouseEnter={(e) => { e.currentTarget.style.background = "transparent"; e.currentTarget.style.color = PP.gold; e.currentTarget.style.boxShadow = `inset 0 0 0 1px ${PP.gold}`; }}
@@ -286,7 +286,7 @@ function JoinPhotoSection() {
             Join Now
           </Link>
           <Link
-            to="/"
+            to="/login"
             className="font-mono-label px-10 py-[18px] text-[11px] tracking-[0.2em] uppercase transition-all duration-300 hover:scale-[1.02]"
             style={{ color: PP.gold, boxShadow: `inset 0 0 0 1px ${PP.gold}`, borderRadius: "2px" }}
             onMouseEnter={(e) => { e.currentTarget.style.background = PP.gold; e.currentTarget.style.color = PP.bg; }}

@@ -24,6 +24,7 @@ export default function OnboardingPage() {
   const [referralSource, setReferralSource] = useState("");
   
   // Step 2
+  const [collegeName, setCollegeName] = useState("");
   const [referralCode, setReferralCode] = useState("");
   const [codeValidating, setCodeValidating] = useState(false);
   const [codeValid, setCodeValid] = useState<boolean | null>(null);
@@ -109,10 +110,15 @@ export default function OnboardingPage() {
   };
 
   const handleComplete = async (skipCode = false) => {
+    if (collegeName.trim().length < 2) {
+      toast.error("Please enter your college / university name.");
+      return;
+    }
     setLoading(true);
     try {
       const payload = {
         referralSource,
+        collegeName: collegeName.trim(),
         referralCode: skipCode ? "" : referralCode.trim().toUpperCase(),
       };
 
@@ -222,6 +228,19 @@ export default function OnboardingPage() {
 
               <div className="space-y-4">
                 <label className="text-sm font-medium text-white/60 uppercase tracking-wider">
+                  College / University
+                </label>
+                <input
+                  type="text"
+                  value={collegeName}
+                  onChange={(e) => setCollegeName(e.target.value)}
+                  placeholder="Enter your college name"
+                  className="w-full bg-white/[0.03] border border-white/10 rounded-xl px-5 py-4 text-white font-medium text-base focus:outline-none focus:border-white/30 focus:bg-white/[0.05] transition-all placeholder:text-white/20"
+                />
+              </div>
+
+              <div className="space-y-4">
+                <label className="text-sm font-medium text-white/60 uppercase tracking-wider">
                   Referral Code
                 </label>
                 <div className="relative">
@@ -285,6 +304,7 @@ export default function OnboardingPage() {
                   onClick={() => handleComplete(false)}
                   disabled={
                     loading ||
+                    collegeName.trim().length < 2 ||
                     (referralCode.trim().length > 0 && codeValid !== true)
                   }
                   className="w-full flex items-center justify-center space-x-2 bg-white text-black py-4 rounded-xl font-semibold text-lg hover:bg-gray-100 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -301,7 +321,7 @@ export default function OnboardingPage() {
                 <button
                   type="button"
                   onClick={() => handleComplete(true)}
-                  disabled={loading}
+                  disabled={loading || collegeName.trim().length < 2}
                   className="w-full py-3 text-sm font-medium text-white/50 hover:text-white/80 transition-colors disabled:opacity-30"
                 >
                   Skip — I don&apos;t have a referral code

@@ -92,7 +92,7 @@ export function MusicChapterText({ chapter: ch, scrollProgress }: Props) {
       {ch.hasCTA ? (
         <div className="pointer-events-auto mt-10 flex justify-center">
           <Link
-            to="/"
+            to="/login"
             className="border px-10 py-4 text-xs tracking-[0.4em] uppercase transition-all duration-300 hover:scale-[1.02]"
             style={{ borderColor: FC.accent, color: FC.accent }}
             onMouseEnter={(e) => {

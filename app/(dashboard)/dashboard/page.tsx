@@ -28,31 +28,38 @@ function getTimeAgo(date: Date): string {
 export default async function DashboardPage() {
   const user = await requireUser();
 
-  const [clubs, events, posts, gigs, memberships] = await Promise.all([
-    prisma.club.findMany({ take: 8, orderBy: { createdAt: "asc" } }),
-    prisma.event.findMany({ take: 3, include: { club: true }, orderBy: { date: "asc" } }),
-    // FILTER: Only show posts from users who are CLUB_HEADER or have a valid imageUrl
-    prisma.post.findMany({ 
-      where: {
-        OR: [
-          { user: { role: 'CLUB_HEADER' } },
-          { imageUrl: { not: "" } }
-        ]
-      },
-      take: 6, 
-      include: { user: true, club: true, _count: { select: { comments: true } } }, 
-      orderBy: { createdAt: "desc" } 
-    }),
-    prisma.gig.findMany({
-      where: { ...gigWhereNotLegacyDummy },
-      take: 3,
-      orderBy: { createdAt: "desc" },
-    }),
-    prisma.clubMembership.findMany({
-      where: { userId: user.id },
-      select: { clubId: true },
-    }),
-  ]);
+  let clubs: Awaited<ReturnType<typeof prisma.club.findMany>> = [];
+  let events: Awaited<ReturnType<typeof prisma.event.findMany>> = [];
+  let posts: Awaited<ReturnType<typeof prisma.post.findMany>> = [];
+  let gigs: Awaited<ReturnType<typeof prisma.gig.findMany>> = [];
+  let memberships: Awaited<ReturnType<typeof prisma.clubMembership.findMany>> = [];
+
+  try {
+    [clubs, events, posts, gigs, memberships] = await Promise.all([
+      prisma.club.findMany({ take: 8, orderBy: { createdAt: "asc" } }),
+      prisma.event.findMany({ take: 3, include: { club: true }, orderBy: { date: "asc" } }),
+      // FILTER: Only show posts from users who are CLUB_HEADER or have a valid imageUrl
+      prisma.post.findMany({
+        where: {
+          OR: [{ user: { role: "CLUB_HEADER" } }, { imageUrl: { not: "" } }],
+        },
+        take: 6,
+        include: { user: true, club: true, _count: { select: { comments: true } } },
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.gig.findMany({
+        where: { ...gigWhereNotLegacyDummy },
+        take: 3,
+        orderBy: { createdAt: "desc" },
+      }),
+      prisma.clubMembership.findMany({
+        where: { userId: user.id },
+        select: { clubId: true },
+      }),
+    ]);
+  } catch (error) {
+    console.error("[dashboard] data load failed:", error);
+  }
 
   const joinedClubIds = new Set(memberships.map(m => m.clubId));
 
@@ -69,21 +76,29 @@ export default async function DashboardPage() {
 
   const feedPosts = (posts.length
     ? posts.map((p) => {
-        const ago = getTimeAgo(p.createdAt);
         let postImg = resolvePostImageUrlForFeed(p.imageUrl, p.club?.name || "");
+        const postImages =
+          Array.isArray(p.imageUrls) && p.imageUrls.length > 0
+            ? p.imageUrls.map((img) => resolvePostImageUrlForFeed(img, p.club?.name || ""))
+            : [postImg];
 
         const avatar = resolveClubAvatar(p.user.avatar, p.club?.name || "OCC");
+        const memberCountRaw = p.club ? displayClubMembers(p.club.id, p.club.memberCount || 0) : 0;
+        const memberCountCapped = Math.min(800, Math.max(0, memberCountRaw));
         return {
           id: p.id,
           username: p.user.fullName,
           userAvatarUrl: avatar,
-          timestamp: ago,
-          caption: p.caption || p.content || "",
+          timestamp: getTimeAgo(p.createdAt),
+          caption: p.caption || "",
+          content: p.content || "",
           imageUrl: postImg,
+          imageUrls: postImages,
           likeCount: displayPostLikes(p.id, p.likesCount || p.likes || 0),
           sharesCount: p.sharesCount || 0,
           clubId: p.clubId,
           clubName: p.club?.name || "OCC Club",
+          clubMembersLabel: `${memberCountCapped} Members`,
           commentsCount: p._count.comments || 0,
         };
       })

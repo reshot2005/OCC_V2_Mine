@@ -43,19 +43,17 @@ export function OCCTrendingClubs({ clubs }: { clubs: OCCTrendingClub[] }) {
   }, [localClubs.length]);
 
   const checkScroll = () => {
-    if (scrollRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
-      setShowLeft(scrollLeft > 20);
-      setShowRight(scrollLeft < scrollWidth - clientWidth - 20);
-    }
+    if (!scrollRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+    setShowLeft(scrollLeft > 20);
+    setShowRight(scrollLeft < scrollWidth - clientWidth - 20);
   };
 
-  const scroll = (direction: 'left' | 'right') => {
-    if (scrollRef.current) {
-      const { clientWidth } = scrollRef.current;
-      const scrollAmount = direction === 'left' ? -clientWidth * 0.7 : clientWidth * 0.7;
-      scrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-    }
+  const scroll = (direction: "left" | "right") => {
+    if (!scrollRef.current) return;
+    const { clientWidth } = scrollRef.current;
+    const amount = direction === "left" ? -clientWidth * 0.72 : clientWidth * 0.72;
+    scrollRef.current.scrollBy({ left: amount, behavior: "smooth" });
   };
 
   const handleJoin = async (slug: string, id: string) => {
@@ -74,14 +72,14 @@ export function OCCTrendingClubs({ clubs }: { clubs: OCCTrendingClub[] }) {
     }
   };
 
-  // Single-line staggered dimensions for masonry-style wavering
+  // Horizontal, staggered "big then small" rhythm.
   const cardStyles = [
-    "w-[280px] h-[340px]",
-    "w-[360px] h-[300px]",
-    "w-[300px] h-[380px]",
-    "w-[340px] h-[320px]",
-    "w-[420px] h-[280px]",
-    "w-[260px] h-[360px]",
+    "w-[420px] h-[340px]",
+    "w-[320px] h-[420px]",
+    "w-[410px] h-[330px]",
+    "w-[310px] h-[410px]",
+    "w-[430px] h-[350px]",
+    "w-[315px] h-[405px]",
   ];
 
   return (
@@ -93,30 +91,31 @@ export function OCCTrendingClubs({ clubs }: { clubs: OCCTrendingClub[] }) {
           </div>
           <h2 className="text-[18px] sm:text-[20px] font-black text-slate-900 tracking-tight leading-none uppercase">Trending Hubs</h2>
         </div>
-
         <div className="flex items-center gap-2">
-           <button 
-             onClick={() => scroll('left')}
-             className={cn(
-               "p-2.5 rounded-full border border-black/5 bg-white shadow-sm transition-all hover:bg-black hover:text-white disabled:opacity-0",
-               !showLeft && "pointer-events-none opacity-0"
-             )}
-           >
-             <ChevronLeft className="h-4 w-4" strokeWidth={3} />
-           </button>
-           <button 
-             onClick={() => scroll('right')}
-             className={cn(
-               "p-2.5 rounded-full border border-black/5 bg-white shadow-sm transition-all hover:bg-black hover:text-white disabled:opacity-0",
-               !showRight && "pointer-events-none opacity-0"
-             )}
-           >
-             <ChevronRight className="h-4 w-4" strokeWidth={3} />
-           </button>
+          <button
+            type="button"
+            onClick={() => scroll("left")}
+            className={cn(
+              "p-2.5 rounded-full border border-black/5 bg-white shadow-sm transition-all hover:bg-black hover:text-white",
+              !showLeft && "pointer-events-none opacity-0",
+            )}
+          >
+            <ChevronLeft className="h-4 w-4" strokeWidth={3} />
+          </button>
+          <button
+            type="button"
+            onClick={() => scroll("right")}
+            className={cn(
+              "p-2.5 rounded-full border border-black/5 bg-white shadow-sm transition-all hover:bg-black hover:text-white",
+              !showRight && "pointer-events-none opacity-0",
+            )}
+          >
+            <ChevronRight className="h-4 w-4" strokeWidth={3} />
+          </button>
         </div>
       </div>
 
-      <div 
+      <div
         ref={scrollRef}
         onScroll={checkScroll}
         className="flex items-center overflow-x-auto scrollbar-hide py-5 -mx-2 px-2 scroll-smooth"
@@ -128,10 +127,7 @@ export function OCCTrendingClubs({ clubs }: { clubs: OCCTrendingClub[] }) {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.6, delay: idx * 0.05 }}
-              className={cn(
-                "relative flex-shrink-0 group rounded-[2.5rem] sm:rounded-[3rem] overflow-hidden bg-slate-50 cursor-pointer shadow-[0_10px_40px_rgb(0,0,0,0.05)] hover:shadow-[0_40px_80px_rgb(0,0,0,0.15)] transition-all duration-700",
-                cardStyles[idx % cardStyles.length]
-              )}
+              className={`relative flex-shrink-0 group rounded-[2.5rem] sm:rounded-[3rem] overflow-hidden bg-slate-50 cursor-pointer shadow-[0_10px_40px_rgb(0,0,0,0.05)] hover:shadow-[0_40px_80px_rgb(0,0,0,0.15)] transition-all duration-700 ${cardStyles[idx % cardStyles.length]}`}
               onClick={() => window.location.href = `/clubs/${club.slug}`}
             >
               <img
