@@ -18,22 +18,12 @@ export function ScrollTube({
   const pathRef = useRef<SVGPathElement>(null);
   const filterId = useId().replace(/:/g, "");
   const [pathLen, setPathLen] = useState(2200);
-  /** `slice` crops the sides on tall narrow viewports and cuts off the ribbon cap; `meet` keeps the full path visible. */
-  const [narrowViewport, setNarrowViewport] = useState(false);
 
   useLayoutEffect(() => {
     const el = pathRef.current;
     if (!el) return;
     const L = el.getTotalLength();
     if (L > 0) setPathLen(L);
-  }, []);
-
-  useLayoutEffect(() => {
-    const mq = window.matchMedia("(max-width: 767px)");
-    const sync = () => setNarrowViewport(mq.matches);
-    sync();
-    mq.addEventListener("change", sync);
-    return () => mq.removeEventListener("change", sync);
   }, []);
 
   const { scrollYProgress } = useScroll({
@@ -45,14 +35,14 @@ export function ScrollTube({
 
   return (
     <svg
-      viewBox="0 0 1100 1000"
+      viewBox="0 0 1000 1000"
       overflow="visible"
       className={
         mirror
           ? "absolute -right-[8%] -top-[18%] h-[125%] w-[85%] min-w-[280px] scale-x-[-1] text-indigo-600"
           : "absolute -left-[8%] -top-[18%] h-[125%] w-[85%] min-w-[280px] text-indigo-600"
       }
-      preserveAspectRatio={narrowViewport ? "xMidYMid meet" : "xMidYMid slice"}
+      preserveAspectRatio="xMidYMid slice"
       aria-hidden
     >
       <defs>
