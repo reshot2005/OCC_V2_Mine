@@ -16,7 +16,7 @@ type MemberRow = {
  * club headers among members, then recent members. No PII beyond image URLs.
  */
 export function clubHeroAvatarUrls(
-  club: { id: string; name: string; header: Pick<User, "avatar" | "role" | "clubManagedId" | "fullName"> | null & { id?: string } },
+  club: { id: string; name: string; header: (Pick<User, "id" | "avatar" | "role" | "clubManagedId" | "fullName"> | null) },
   members: MemberRow[],
 ): HeroAvatar[] {
   const out: HeroAvatar[] = [];
