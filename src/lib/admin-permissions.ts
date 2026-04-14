@@ -64,7 +64,7 @@ const MODERATOR_PERMISSIONS: Record<AdminModule, AdminAction[]> = {
   clubs: ["read"],
   users: ["read", "suspend"],
   posts: ["read", "update", "delete"],
-  events: ["read"],
+  events: ["read", "create", "update", "delete"],
   gigs: ["read"],
   orbit: ["read"],
   approvals: ["read"],

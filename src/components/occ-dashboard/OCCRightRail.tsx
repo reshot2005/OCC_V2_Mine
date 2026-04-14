@@ -134,15 +134,19 @@ export function OCCRightRail({ events, trending, opportunities, currentUserId }:
     };
   }, [localTrending.length]);
 
-  const handleJoin = async (id: string, slug?: string) => {
+  const handleToggleJoin = async (id: string, slug?: string, isJoined?: boolean) => {
     if (!slug) return;
     setJoiningId(id);
     try {
-      const res = await fetch(`/api/clubs/${slug}/join`, { method: "POST" });
+      const endpoint = isJoined ? "unjoin" : "join";
+      const res = await fetch(`/api/clubs/${slug}/${endpoint}`, { method: "POST" });
       const data = await res.json();
-      if (data.success || data.error === "Already a member") {
-        if (data.success) toast.success(`Welcome to ${slug}!`);
-        setLocalTrending(prev => prev.map(c => c.id === id ? { ...c, joined: true } : c));
+      if (data.success || data.error === "Already a member" || data.message === "Not a member") {
+        if (data.success) {
+          if (isJoined) toast.success(`You left ${slug}`);
+          else toast.success(`Welcome to ${slug}!`);
+        }
+        setLocalTrending(prev => prev.map(c => c.id === id ? { ...c, joined: !isJoined } : c));
       } else {
         toast.error("Cluster access denied.");
       }
@@ -264,13 +268,18 @@ export function OCCRightRail({ events, trending, opportunities, currentUserId }:
               </Link>
               <button 
                 type="button"
-                onClick={() => handleJoin(club.id, club.slug)}
-                disabled={joiningId === club.id || club.joined}
+                onClick={() => handleToggleJoin(club.id, club.slug, club.joined)}
+                disabled={joiningId === club.id}
                 className={club.joined 
-                  ? "text-[11px] font-semibold text-[#5227FF] h-9 px-4 rounded-xl bg-[#5227FF]/5 transition-all duration-300 border border-[#5227FF]/10 cursor-default opacity-80 shrink-0" 
+                  ? "group/unjoin text-[11px] font-semibold text-[#5227FF] h-9 px-4 rounded-xl bg-[#5227FF]/5 transition-all duration-300 border border-[#5227FF]/10 hover:bg-black hover:text-white shrink-0" 
                   : "text-[11px] font-semibold text-[#5227FF] h-9 px-4 rounded-xl bg-[#5227FF]/5 hover:bg-[#5227FF] hover:text-white transition-all duration-300 border border-[#5227FF]/10 disabled:opacity-50 shrink-0"}
               >
-                {club.joined ? 'Joined ✓' : joiningId === club.id ? '...' : 'Join'}
+                {joiningId === club.id ? '...' : club.joined ? (
+                  <>
+                    <span className="block group-hover/unjoin:hidden">Joined ✓</span>
+                    <span className="hidden group-hover/unjoin:block">Unjoin</span>
+                  </>
+                ) : 'Join'}
               </button>
             </motion.div>
           ))}

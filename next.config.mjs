@@ -83,6 +83,10 @@ const nextConfig = {
           { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
           { key: "X-Frame-Options", value: "DENY" },
           {
+            key: "Strict-Transport-Security",
+            value: "max-age=63072000; includeSubDomains; preload",
+          },
+          {
             key: "Permissions-Policy",
             value:
               "accelerometer=(), autoplay=(), camera=(), clipboard-read=(), clipboard-write=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), usb=()",
@@ -96,6 +100,42 @@ const nextConfig = {
             key: "Cache-Control",
             value: "public, max-age=31536000, immutable",
           },
+        ],
+      },
+      // ── Security: block sensitive files with 404-like headers ──
+      {
+        source: "/.env",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex" },
+          { key: "Cache-Control", value: "no-store" },
+        ],
+      },
+      {
+        source: "/.env:path*",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex" },
+          { key: "Cache-Control", value: "no-store" },
+        ],
+      },
+      {
+        source: "/.git/:path*",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex" },
+          { key: "Cache-Control", value: "no-store" },
+        ],
+      },
+      {
+        source: "/package.json",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex" },
+          { key: "Cache-Control", value: "no-store" },
+        ],
+      },
+      {
+        source: "/package-lock.json",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex" },
+          { key: "Cache-Control", value: "no-store" },
         ],
       },
     ];

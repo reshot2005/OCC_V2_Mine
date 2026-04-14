@@ -125,7 +125,7 @@ export default async function ClubDetailPage({
       ) : null}
 
       {/* Hero Section */}
-      <section className="relative overflow-hidden rounded-[3rem] border border-black/5 bg-white shadow-xl shadow-black/5">
+      <section className="relative overflow-hidden rounded-[2rem] sm:rounded-[3rem] border border-black/5 bg-white shadow-xl shadow-black/5">
         <div className="absolute inset-0 z-0">
           <img 
             src={club.coverImage || premiumClubImageForName(club.name)} 
@@ -135,7 +135,7 @@ export default async function ClubDetailPage({
           <div className="absolute inset-0 bg-gradient-to-r from-white via-white/40 to-transparent" />
         </div>
 
-        <div className="relative z-10 flex flex-col gap-6 p-8 lg:p-12">
+        <div className="relative z-10 flex flex-col gap-6 p-6 sm:p-12">
           <div className="flex flex-col gap-4">
             <div className="flex items-center gap-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#5227FF]/10 text-[#5227FF] font-bold">
@@ -145,10 +145,10 @@ export default async function ClubDetailPage({
             </div>
             
             <div className="max-w-3xl">
-              <h1 className="text-4xl lg:text-7xl font-black text-slate-900 tracking-tighter">
+              <h1 className="text-3xl sm:text-5xl lg:text-7xl font-black text-slate-900 tracking-tighter">
                 {club.name}
               </h1>
-              <p className="mt-5 text-xl font-medium text-slate-500 max-w-2xl leading-relaxed">
+              <p className="mt-4 sm:mt-5 text-base sm:text-lg lg:text-xl font-medium text-slate-500 max-w-2xl leading-relaxed">
                 {club.description || "A cornerstone of community and excellence at OCC."}
               </p>
             </div>

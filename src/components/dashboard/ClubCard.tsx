@@ -45,7 +45,7 @@ export function ClubCard({
   const accentColor = themeColors[club.theme] || themeColors.charcoal;
 
   return (
-    <GlassCard className="group relative overflow-hidden rounded-[3.5rem] border-0 bg-white shadow-[0_15px_40px_-15px_rgba(0,0,0,0.15)] transition-all duration-700 hover:scale-[1.03] hover:shadow-[0_50px_90px_-20px_rgba(0,0,0,0.4)]">
+    <GlassCard className="group relative overflow-hidden rounded-[2rem] sm:rounded-[3.5rem] border-0 bg-white shadow-[0_15px_40px_-15px_rgba(0,0,0,0.15)] transition-all duration-700 hover:scale-[1.03] hover:shadow-[0_50px_90px_-20px_rgba(0,0,0,0.4)]">
       {/* High-Fidelity Background Visual */}
       <div className="absolute inset-x-0 top-0 h-[85%] overflow-hidden bg-black">
         <img 
@@ -58,7 +58,7 @@ export function ClubCard({
       </div>
 
       {/* Premium Badge */}
-      <div className="absolute left-6 sm:left-10 top-6 sm:top-10 z-20 flex items-center gap-2 sm:gap-3 rounded-full border border-white/30 bg-black/60 px-4 sm:px-6 py-1.5 sm:py-2.5 backdrop-blur-2xl shadow-2xl">
+      <div className="absolute left-4 sm:left-10 top-4 sm:top-10 z-20 flex items-center gap-2 sm:gap-3 rounded-full border border-white/30 bg-black/60 px-3 sm:px-6 py-1 sm:py-2.5 backdrop-blur-2xl shadow-2xl">
         <div className="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#D4AF37] opacity-75"></span>
           <span className="relative inline-flex h-1.5 w-1.5 sm:h-2 sm:w-2 rounded-full bg-[#D4AF37]"></span>
@@ -70,11 +70,11 @@ export function ClubCard({
 
       <div className="relative z-10 flex h-[400px] sm:h-[520px] flex-col justify-end p-6 sm:p-12">
         <div className="space-y-4 sm:space-y-6">
-          <div className="space-y-2 sm:space-y-3">
-            <h3 className="font-sans text-[1.75rem] sm:text-[3rem] font-bold leading-[1.1] tracking-tight text-white drop-shadow-[0_10px_30px_rgba(0,0,0,1)] uppercase">
+          <div className="space-y-1.5 sm:space-y-3">
+            <h3 className="font-sans text-lg sm:text-[3rem] font-bold leading-[1.1] tracking-tight text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] sm:drop-shadow-[0_10px_30px_rgba(0,0,0,1)] uppercase">
               {club.name}
             </h3>
-            <p className="line-clamp-2 max-w-[280px] sm:max-w-[320px] text-[13px] sm:text-[16px] font-medium leading-relaxed text-white opacity-80 drop-shadow-[0_5px_15px_rgba(0,0,0,0.8)]">
+            <p className="line-clamp-3 max-w-full sm:max-w-[320px] text-[11px] sm:text-[16px] font-medium leading-relaxed text-white opacity-80 drop-shadow-[0_5px_15px_rgba(0,0,0,0.8)]">
               {club.description}
             </p>
           </div>

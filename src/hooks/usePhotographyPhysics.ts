@@ -39,7 +39,7 @@ const INITIAL_PLAYHEAD: PhotographyPlayhead = {
   playheadProgress: 0,
   floatY: 0,
   tiltDeg: 0,
-  scaleVal: 1,
+  scaleVal: 1.15,
   zoomVal: 1,
   speedIntensity: 0,
 };
@@ -55,7 +55,7 @@ export function usePhotographyPhysics(
   const ag = useRef({
     floatY: 0,
     tiltDeg: 0,
-    scaleVal: 1,
+    scaleVal: 1.15,
     zoomVal: 1,
     speedIntensity: 0,
   });
@@ -113,7 +113,7 @@ export function usePhotographyPhysics(
           clamp(-nv * 2.2, -2.2, 2.2),
           microEase,
         );
-        ag.current.scaleVal = lerp(ag.current.scaleVal, 1 + absNv * 0.014, microEase);
+        ag.current.scaleVal = lerp(ag.current.scaleVal, 1.15 + absNv * 0.014, microEase);
         ag.current.zoomVal = lerp(ag.current.zoomVal, 1 + absNv * 0.02, zoomEase);
         ag.current.speedIntensity = lerp(
           ag.current.speedIntensity,

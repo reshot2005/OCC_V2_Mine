@@ -11,10 +11,9 @@ const eventPatchSchema = z
     date: z.string().optional(),
     venue: z.string().max(240).optional(),
     price: z.number().finite().min(0).max(1_000_000).optional(),
-    maxCapacity: z.number().int().min(1).max(1_000_000).optional(),
+    maxCapacity: z.number().int().min(1).max(1_000_000).optional().nullable(),
     imageUrl: z.string().max(2000).optional(),
-  })
-  .strict();
+  });
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   const admin = await requireAdminMutationPermission(req, "events", "update", {

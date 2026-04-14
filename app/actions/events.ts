@@ -48,3 +48,38 @@ export async function createEvent(formData: FormData) {
   
   return { success: true };
 }
+
+export async function getEventRegistrants(eventId: string) {
+  const user = await requireUser();
+  
+  const event = await prisma.event.findUnique({
+    where: { id: eventId },
+    include: { club: true }
+  });
+
+  if (!event) throw new Error("Event not found");
+
+  // Only allow Admin or the specific Club Header of that club to see registrants
+  if (user.role !== "ADMIN" && user.clubManagedId !== event.clubId) {
+    throw new Error("Unauthorized access to registrant list");
+  }
+
+  const registrants = await prisma.eventRegistration.findMany({
+    where: { eventId },
+    include: {
+      user: {
+        select: {
+          fullName: true,
+          email: true,
+          phoneNumber: true,
+          collegeName: true,
+          graduationYear: true,
+          avatar: true,
+        }
+      }
+    },
+    orderBy: { createdAt: "desc" }
+  });
+
+  return registrants;
+}

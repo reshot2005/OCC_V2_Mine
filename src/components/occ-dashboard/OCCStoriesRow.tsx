@@ -79,12 +79,12 @@ export function OCCTrendingClubs({ clubs }: { clubs: OCCTrendingClub[] }) {
 
   // Horizontal, staggered "big then small" rhythm.
   const cardStyles = [
-    "w-[420px] h-[340px]",
-    "w-[320px] h-[420px]",
-    "w-[410px] h-[330px]",
-    "w-[310px] h-[410px]",
-    "w-[430px] h-[350px]",
-    "w-[315px] h-[405px]",
+    "w-[280px] sm:w-[420px] h-[300px] sm:h-[340px]",
+    "w-[240px] sm:w-[320px] h-[340px] sm:h-[420px]",
+    "w-[270px] sm:w-[410px] h-[290px] sm:h-[330px]",
+    "w-[230px] sm:w-[310px] h-[330px] sm:h-[410px]",
+    "w-[290px] sm:w-[430px] h-[310px] sm:h-[350px]",
+    "w-[235px] sm:w-[315px] h-[325px] sm:h-[405px]",
   ];
 
   return (

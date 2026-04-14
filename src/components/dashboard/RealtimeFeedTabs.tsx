@@ -1,7 +1,6 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { SlidersHorizontal } from "lucide-react";
 import { OCCPostCard, type OCCPost } from "@/components/occ-dashboard/OCCPostCard";
 import { resolveClubAvatar, resolvePostImageUrlForFeed } from "@/lib/postImageUrl";
 
@@ -153,13 +152,7 @@ export function RealtimeFeedTabs({
           ))}
         </div>
 
-        <button
-          type="button"
-          className="flex items-center gap-2 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl border border-black/5 bg-white text-[10px] sm:text-[12px] font-medium uppercase tracking-widest text-black/60 hover:bg-black/5 transition-all shadow-sm shrink-0"
-        >
-          <SlidersHorizontal className="h-3.5 w-3.5 sm:h-4 sm:w-4" />
-          <span className="hidden xs:inline">Latest</span>
-        </button>
+
       </div>
 
       {loadError ? (

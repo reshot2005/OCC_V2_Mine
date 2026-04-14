@@ -27,17 +27,12 @@
 }
 
 @keyframes grain-shift {
-  0%, 100% { transform: translate(0, 0); }
-  10% { transform: translate(-5%, -10%); }
-  20% { transform: translate(-15%, 5%); }
-  30% { transform: translate(7%, -25%); }
-  40% { transform: translate(-5%, 25%); }
-  50% { transform: translate(-15%, 10%); }
-  60% { transform: translate(15%, 0%); }
-  70% { transform: translate(0%, 15%); }
-  80% { transform: translate(3%, -35%); }
-  90% { transform: translate(-10%, 10%); }
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  25% { transform: translate3d(-1.2%, -0.9%, 0); }
+  50% { transform: translate3d(0.9%, 1.1%, 0); }
+  75% { transform: translate3d(-0.6%, 0.7%, 0); }
 }
 .animate-grain {
-  animation: grain-shift 0.15s steps(1) infinite;
+  animation: grain-shift 1.2s linear infinite;
+  will-change: transform;
 }

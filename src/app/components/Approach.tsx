@@ -112,23 +112,7 @@ export function Approach({ theme }: { theme: "dark" | "light" }) {
           </div>
         </MovableBlock>
 
-        <div className="relative z-30 flex min-w-0 flex-col justify-end gap-10 pt-6 md:gap-12 md:pt-16 lg:pt-32">
-          <MovableBlock id="approach-how-works-cta">
-            <div>
-              <button
-                type="button"
-                className={`flex items-center gap-3 rounded-full px-6 py-3 text-sm font-bold tracking-widest shadow-lg transition-all hover:scale-105 ${
-                  isDark
-                    ? "bg-white/10 text-white shadow-black/40 hover:bg-white/15"
-                    : "bg-white text-slate-900 shadow-slate-200/50 hover:bg-slate-50"
-                }`}
-              >
-                <span className={`h-2 w-2 rounded-full ${isDark ? "bg-white" : "bg-slate-900"}`} />
-                HOW OCC WORKS
-              </button>
-            </div>
-          </MovableBlock>
-        </div>
+
       </div>
 
       <div className="relative z-10 mx-auto mt-10 flex w-full max-w-[90rem] justify-end md:mt-16 md:-translate-y-12 lg:mt-20 lg:-translate-y-16 xl:-translate-y-20">

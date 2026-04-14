@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   getClubOnboardingConfig,
   pickRandomOnboardingVariantIndex,
@@ -16,6 +16,10 @@ const EMPTY_ANSWERS: ClubOnboardingAnswers = {
   q4: "",
   q5: "",
 };
+
+function variantStorageKey(clubSlug: ClubOnboardingSlug) {
+  return `occ:onboarding:variant:${clubSlug}`;
+}
 
 function postAnswers(payload: {
   userId?: string | null;
@@ -46,10 +50,21 @@ export function useClubOnboarding({
   clubSlug: ClubOnboardingSlug;
   userId?: string | null;
 }) {
-  const questionVariant = useMemo(
-    () => pickRandomOnboardingVariantIndex(),
-    [clubSlug],
-  );
+  // SSR-safe deterministic first render to avoid hydration mismatch.
+  const [questionVariant, setQuestionVariant] = useState(0);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const key = variantStorageKey(clubSlug);
+    const raw = window.sessionStorage.getItem(key);
+    const parsed = raw == null ? NaN : Number.parseInt(raw, 10);
+    const resolved = Number.isFinite(parsed)
+      ? parsed
+      : pickRandomOnboardingVariantIndex();
+    window.sessionStorage.setItem(key, String(resolved));
+    setQuestionVariant(resolved);
+  }, [clubSlug]);
+
   const config = useMemo(
     () => getClubOnboardingConfig(clubSlug, questionVariant),
     [clubSlug, questionVariant],

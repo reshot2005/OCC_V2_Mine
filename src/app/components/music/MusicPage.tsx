@@ -7,7 +7,7 @@ import { useMusicFrames } from "../../../hooks/useMusicFrames";
 import { MUSIC_TOTAL_FRAMES, MUSIC_FRAMES_PATH, MUSIC_FRAME_PREFIX, FC } from "./MusicConstants";
 import { MusicScrollSection } from "./MusicScrollSection";
 
-/* ── Loading Screen ─────────────────────────────────────── */
+/* â”€â”€ Loading Screen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function MusicLoadingScreen({ progress, loaded }: { progress: number; loaded: boolean }) {
   return (
     <AnimatePresence>
@@ -23,7 +23,7 @@ function MusicLoadingScreen({ progress, loaded }: { progress: number; loaded: bo
             transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
             className="mb-8 text-6xl"
           >
-            🎵
+            MU
           </motion.div>
           <h1 className="font-headline mb-8 text-2xl tracking-[0.4em] md:text-3xl" style={{ color: FC.text }}>
             SYNCING MUSIC CLUB
@@ -45,7 +45,7 @@ function MusicLoadingScreen({ progress, loaded }: { progress: number; loaded: bo
   );
 }
 
-/* ── Custom Cursor ───────────────────────────────────────── */
+/* â”€â”€ Custom Cursor â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function MusicCursor() {
   const dotRef = React.useRef<HTMLDivElement>(null);
   const ringRef = React.useRef<HTMLDivElement>(null);
@@ -87,19 +87,19 @@ function MusicCursor() {
   );
 }
 
-/* ── Grain Overlay ───────────────────────────────────────── */
+/* â”€â”€ Grain Overlay â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function GrainOverlay() {
   return (
-    <div className="pointer-events-none fixed inset-0 z-[9997] opacity-[0.035]">
+    <div className="pointer-events-none fixed inset-0 z-[9997] opacity-[0.022]">
       <svg className="h-[200%] w-[200%] animate-grain">
-        <filter id="fg"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" /></filter>
+        <filter id="fg"><feTurbulence type="fractalNoise" baseFrequency="0.22" numOctaves="3" stitchTiles="stitch" /></filter>
         <rect width="100%" height="100%" filter="url(#fg)" />
       </svg>
     </div>
   );
 }
 
-/* ── Post-scroll Sections ────────────────────────────────── */
+/* â”€â”€ Post-scroll Sections â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const P = {
   bg: "#060606", card: "#111111", elevated: "#1A1A1A",
   border: "rgba(255,255,255,0.08)", borderHover: "rgba(139,92,246,0.35)",
@@ -107,7 +107,7 @@ const P = {
   accent: "#8B5CF6",
 } as const;
 
-/* ── Open Mic Masonry Section ────────────────────────────── */
+/* â”€â”€ Open Mic Masonry Section â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const B = {
   bg: "#08080C", // Deep Navy-Black
   card: "rgba(18, 18, 24, 0.4)",
@@ -286,11 +286,11 @@ function OpenMicExperienceSection({ userId }: { userId?: string | null }) {
 
 function GigOpportunitiesSection() {
   const gigs = [
-    { link: "Campus Event Performer", rate: "₹800–2,000 / show" },
-    { link: "Studio Session Musician", rate: "₹600–1,200 / hour" },
-    { link: "Social Media Music Content", rate: "₹2,000–3,500 / month" },
-    { link: "Open Mic Host", rate: "₹500–1,000 / night" },
-    { link: "College Fest Main Act", rate: "₹5,000–15,000 / show" },
+    { link: "Campus Event Performer", rate: "Rs 800-2,000 / show" },
+    { link: "Studio Session Musician", rate: "Rs 600-1,200 / hour" },
+    { link: "Social Media Music Content", rate: "Rs 2,000-3,500 / month" },
+    { link: "Open Mic Host", rate: "Rs 500-1,000 / night" },
+    { link: "College Fest Main Act", rate: "Rs 5,000-15,000 / show" },
   ];
 
   return (
@@ -361,7 +361,7 @@ function JoinMusicSection({ userId }: { userId?: string | null }) {
         <h2 className="font-headline text-[clamp(2.5rem,8vw,5.5rem)] leading-[0.92] tracking-[0.04em]" style={{ color: P.text, fontFamily: "'Bebas Neue', 'Impact', sans-serif" }}>READY TO</h2>
         <h2 className="font-editorial mt-2 text-[clamp(3.5rem,10vw,7rem)] leading-[0.92] italic pr-4" style={{ color: P.accent }}>Play?</h2>
         <p className="mx-auto mt-8 max-w-[520px] text-[16px] leading-[1.8]" style={{ color: P.muted, fontFamily: "'DM Sans', sans-serif" }}>
-          Join OCC Music Club — where artists find their stage, create together, and build a name in the local scene.
+          Join OCC Music Club - where artists find their stage, create together, and build a name in the local scene.
         </p>
         <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
           <Link
@@ -388,7 +388,7 @@ function JoinMusicSection({ userId }: { userId?: string | null }) {
   );
 }
 
-/* ── Main Page ───────────────────────────────────────────── */
+/* â”€â”€ Main Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export function MusicPage({ 
   hideLoader = false,
   userId
@@ -406,7 +406,7 @@ export function MusicPage({
 
       <header className="pointer-events-none fixed top-0 right-0 left-0 z-[100] flex items-center justify-between px-6 py-6 mix-blend-difference md:px-12">
         <Link to="/" className="pointer-events-auto text-[10px] tracking-[0.4em] uppercase transition-colors" style={{ color: FC.text }}>
-          ← OCC
+          {"<- OCC"}
         </Link>
         <span className="font-headline text-lg tracking-[0.15em] md:text-xl" style={{ color: FC.text }}>OCC</span>
         <span className="text-[10px] tracking-[0.3em] uppercase" style={{ color: FC.muted }}>Music</span>
@@ -420,7 +420,7 @@ export function MusicPage({
 
       <footer className="border-t px-6 py-12 text-center" style={{ borderColor: P.border, background: P.bg }}>
         <p className="font-mono-label text-xs tracking-[0.2em]" style={{ color: P.muted }}>
-          OCC Music ·{" "}
+          OCC Music |{" "}
           <Link to="/" className="transition-colors hover:underline" style={{ color: P.accent }}>Return home</Link>
         </p>
       </footer>

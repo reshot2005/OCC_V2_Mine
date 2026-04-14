@@ -39,7 +39,7 @@ function FashionLoadingScreen({
             className="mb-6 font-headline text-4xl tracking-[0.2em] md:text-5xl"
             style={{ color: FAC.accent }}
           >
-            ◇
+            FA
           </motion.div>
           <h1
             className="font-headline mb-8 text-3xl tracking-[0.25em] md:text-4xl"
@@ -128,12 +128,12 @@ function FashionCursor() {
 
 function FashionGrainOverlay() {
   return (
-    <div className="pointer-events-none fixed inset-0 z-[9997] opacity-[0.035]">
+    <div className="pointer-events-none fixed inset-0 z-[9997] opacity-[0.022]">
       <svg className="h-[200%] w-[200%] animate-grain">
         <filter id="fashion-fg">
           <feTurbulence
             type="fractalNoise"
-            baseFrequency="0.62"
+            baseFrequency="0.22"
             numOctaves={3}
             stitchTiles="stitch"
           />
@@ -174,7 +174,7 @@ export function FashionPage({
             className="pointer-events-auto text-[10px] tracking-[0.4em] uppercase"
             style={{ color: FAC.text }}
           >
-            ← OCC
+            {"<- OCC"}
           </Link>
           <span
             className="font-headline text-lg tracking-[0.15em] md:text-xl"
@@ -199,7 +199,7 @@ export function FashionPage({
           style={{ borderColor: "rgba(255,248,235,0.08)", background: "#0C0C0A" }}
         >
           <p className="font-mono-label text-xs tracking-[0.2em]" style={{ color: "#8A8478" }}>
-            OCC Fashion ·{" "}
+            OCC Fashion |{" "}
             <Link
               to="/"
               className="transition-colors hover:underline"

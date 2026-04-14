@@ -7,7 +7,7 @@ import { useFootballFrames } from "../../../hooks/useFootballFrames";
 import { FOOTBALL_TOTAL_FRAMES, FOOTBALL_FRAMES_PATH, FC } from "./footballConstants";
 import { FootballScrollSection } from "./FootballScrollSection";
 
-/* ── Loading Screen ─────────────────────────────────────── */
+/* â”€â”€ Loading Screen â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function FootballLoadingScreen({ progress, loaded }: { progress: number; loaded: boolean }) {
   return (
     <AnimatePresence>
@@ -23,7 +23,7 @@ function FootballLoadingScreen({ progress, loaded }: { progress: number; loaded:
             transition={{ repeat: Infinity, duration: 1.2, ease: "linear" }}
             className="mb-6 text-5xl"
           >
-            ⚽
+            FB
           </motion.div>
           <h1 className="font-headline mb-8 text-4xl tracking-[0.3em] md:text-5xl" style={{ color: FC.text }}>
             LOADING SPORTS & FOOTBALL
@@ -45,7 +45,7 @@ function FootballLoadingScreen({ progress, loaded }: { progress: number; loaded:
   );
 }
 
-/* ── Custom Cursor ───────────────────────────────────────── */
+/* â”€â”€ Custom Cursor â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function FootballCursor() {
   const dotRef = React.useRef<HTMLDivElement>(null);
   const ringRef = React.useRef<HTMLDivElement>(null);
@@ -87,19 +87,19 @@ function FootballCursor() {
   );
 }
 
-/* ── Grain Overlay ───────────────────────────────────────── */
+/* â”€â”€ Grain Overlay â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 function GrainOverlay() {
   return (
-    <div className="pointer-events-none fixed inset-0 z-[9997] opacity-[0.035]">
+    <div className="pointer-events-none fixed inset-0 z-[9997] opacity-[0.022]">
       <svg className="h-[200%] w-[200%] animate-grain">
-        <filter id="fg"><feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch" /></filter>
+        <filter id="fg"><feTurbulence type="fractalNoise" baseFrequency="0.22" numOctaves="3" stitchTiles="stitch" /></filter>
         <rect width="100%" height="100%" filter="url(#fg)" />
       </svg>
     </div>
   );
 }
 
-/* ── Post-scroll Sections ────────────────────────────────── */
+/* â”€â”€ Post-scroll Sections â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 const P = {
   bg: "#0C0C0A", card: "#141410", elevated: "#1C1C18",
   border: "rgba(255,248,235,0.08)", borderHover: "rgba(0,232,122,0.35)",
@@ -120,12 +120,12 @@ function StadiumSection() {
           className="mb-8"
         >
           <div className="flex h-12 w-12 items-center justify-center rounded-full" style={{ background: "rgba(255,255,255,0.06)", border: "1px solid rgba(255,255,255,0.1)" }}>
-            <span className="text-xl">⚽</span>
+            <span className="text-xl">FB</span>
           </div>
         </motion.div>
 
         <div className="grid grid-cols-1 gap-8 md:grid-cols-[1fr_1.1fr] md:gap-12 lg:gap-16">
-          {/* Left — Player image with orange bg */}
+          {/* Left â€” Player image with orange bg */}
           <motion.div
             initial={{ opacity: 0, x: -40 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -144,7 +144,7 @@ function StadiumSection() {
             </div>
           </motion.div>
 
-          {/* Right — Headline + secondary card */}
+          {/* Right â€” Headline + secondary card */}
           <div className="flex flex-col justify-between gap-8">
             <motion.div
               initial={{ opacity: 0, y: 30 }}
@@ -159,7 +159,7 @@ function StadiumSection() {
                 TODAY I WILL DO WHAT OTHERS WON'T, SO{" "}
                 <span className="inline-flex translate-y-1 items-center">
                   <span className="mx-2 inline-flex h-10 w-14 items-center justify-center rounded bg-white/10">
-                    <span className="text-lg">🏈</span>
+                    <span className="text-lg">FB</span>
                   </span>
                 </span>{" "}
                 TOMORROW
@@ -394,7 +394,7 @@ function JoinFootballSection({ userId }: { userId?: string | null }) {
         <h2 className="font-headline text-[clamp(3rem,10vw,6rem)] leading-[0.92] tracking-[0.04em]" style={{ color: P.text }}>YOUR TEAM</h2>
         <h2 className="font-editorial text-[clamp(2.5rem,9vw,5.5rem)] leading-[0.92]" style={{ color: P.green }}>Starts Here.</h2>
         <p className="mx-auto mt-8 max-w-[520px] text-[16px] leading-[1.8]" style={{ color: P.muted, fontFamily: "'DM Sans', sans-serif" }}>
-          Join OCC Sports & Football — where college players find their squad, play real matches, and build a name on the pitch.
+          Join OCC Sports & Football - where college players find their squad, play real matches, and build a name on the pitch.
         </p>
         <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
           <Link
@@ -429,7 +429,7 @@ function JoinFootballSection({ userId }: { userId?: string | null }) {
   );
 }
 
-/* ── Main Page ───────────────────────────────────────────── */
+/* â”€â”€ Main Page â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ */
 export function FootballPage({ 
   hideLoader = false,
   userId
@@ -447,7 +447,7 @@ export function FootballPage({
 
       <header className="pointer-events-none fixed top-0 right-0 left-0 z-[100] flex items-center justify-between px-6 py-6 mix-blend-difference md:px-12">
         <Link to="/" className="pointer-events-auto text-[10px] tracking-[0.4em] uppercase transition-colors" style={{ color: FC.text }}>
-          ← OCC
+          {"<- OCC"}
         </Link>
         <span className="font-headline text-lg tracking-[0.15em] md:text-xl" style={{ color: FC.text }}>OCC</span>
         <span className="text-[10px] tracking-[0.3em] uppercase" style={{ color: FC.muted }}>Football</span>
@@ -462,7 +462,7 @@ export function FootballPage({
 
       <footer className="border-t px-6 py-12 text-center" style={{ borderColor: P.border, background: P.bg }}>
         <p className="font-mono-label text-xs tracking-[0.2em]" style={{ color: P.muted }}>
-          OCC Football ·{" "}
+          OCC Football |{" "}
           <Link to="/" className="transition-colors hover:underline" style={{ color: P.green }}>Return home</Link>
         </p>
       </footer>

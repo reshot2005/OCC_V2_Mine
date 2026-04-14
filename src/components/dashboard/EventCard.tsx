@@ -62,13 +62,15 @@ export function EventCard({
           </p>
         </div>
 
-        <div className="flex items-center justify-between gap-4 pt-4">
-          <div className="flex flex-col">
-            <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Entry Fee</span>
-            <span className="text-lg font-black text-slate-900">
-              {typeof event.price === "number" ? `₹${event.price}` : "Free Entry"}
-            </span>
-          </div>
+        <div className={`flex items-center gap-4 pt-4 ${event.price && event.price > 0 ? "justify-between" : "justify-end"}`}>
+          {event.price && event.price > 0 ? (
+            <div className="flex flex-col">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-0.5">Entry Fee</span>
+              <span className="text-lg font-black text-slate-900">
+                ₹{event.price}
+              </span>
+            </div>
+          ) : null}
           <div className="transition-transform hover:scale-105 active:scale-95">
             {action}
           </div>

@@ -2,6 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyAuthToken } from "@/lib/jwt";
 import { staffGateHref, STAFF_PUBLIC_PREFIX, ADMIN_CP_PREFIX } from "@/lib/staff-paths";
 
+// ── Security: sensitive file patterns that must NEVER be served ──
+const BLOCKED_FILES = /(\.env|\.git|\.git\/|package\.json|package-lock\.json|pnpm-lock\.yaml)$/i;
+const BUILD_MANIFEST_PATTERN = /_buildManifest\.js$/;
+
 const PROTECTED_PATHS = [
   "/dashboard",
   "/clubs",
@@ -94,6 +98,16 @@ export async function middleware(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
   const reauthRequested = req.nextUrl.searchParams.get("reauth") === "1";
 
+  // ── P1 FIX: Block _buildManifest.js to prevent internal route leaking ──
+  if (BUILD_MANIFEST_PATTERN.test(pathname)) {
+    return new NextResponse(null, { status: 404 });
+  }
+
+  // ── P1 FIX: Block .env, .git, package.json from ever being served ──
+  if (BLOCKED_FILES.test(pathname)) {
+    return new NextResponse(null, { status: 404 });
+  }
+
   // Strict CSRF guard for privileged mutation APIs.
   if (
     isMutationMethod(req.method) &&
@@ -176,10 +190,10 @@ export async function middleware(req: NextRequest) {
 
   if (requiresAuth) {
     if (!token) {
+      // ── P1 FIX: Return 404 for staff/admin routes when unauthenticated ──
+      // This hides the existence of admin routes from attackers.
       if (isStaffPanel || isAdminCP) {
-        const gate = new URL(staffGateHref(), req.url);
-        gate.searchParams.set("next", pathname + (search || ""));
-        return NextResponse.redirect(gate);
+        return new NextResponse(null, { status: 404 });
       }
       const loginUrl = new URL("/login", req.url);
       loginUrl.searchParams.set("redirect", pathname + (search || ""));
@@ -198,8 +212,9 @@ export async function middleware(req: NextRequest) {
         return response;
       }
 
+      // ── P1 FIX: Non-admin users get 404 on staff/admin routes ──
       if ((isStaffPanel || isAdminCP) && role !== "ADMIN") {
-        return NextResponse.redirect(new URL("/dashboard", req.url));
+        return new NextResponse(null, { status: 404 });
       }
 
       if (isHeaderPath) {
@@ -225,10 +240,9 @@ export async function middleware(req: NextRequest) {
 
       return NextResponse.next();
     } catch {
+      // ── P1 FIX: Invalid token on staff/admin routes → 404 ──
       if (isStaffPanel || isAdminCP) {
-        const gate = new URL(staffGateHref(), req.url);
-        gate.searchParams.set("next", pathname + (search || ""));
-        return NextResponse.redirect(gate);
+        return new NextResponse(null, { status: 404 });
       }
       const loginUrl = new URL("/login", req.url);
       const response = NextResponse.redirect(loginUrl);
@@ -269,7 +283,10 @@ export async function middleware(req: NextRequest) {
   return NextResponse.next();
 }
 
-/** Only routes that need auth redirects / staff gates — skips marketing pages & static-like paths. */
+/**
+ * Middleware matcher — covers auth routes, staff gates, admin panels,
+ * AND security-sensitive paths (_buildManifest, .env, .git, etc.).
+ */
 export const config = {
   matcher: [
     "/login",
@@ -289,6 +306,8 @@ export const config = {
     "/e-clubs/:path*",
     "/header/:path*",
     "/pending/:path*",
+    "/p",
+    "/p/:path*",
     "/admin",
     "/admin/:path*",
     // Must match default NEXT_PUBLIC_OCC_STAFF_PREFIX; update both if you change the env prefix.
@@ -304,5 +323,15 @@ export const config = {
     "/staff-gate-internal/:path*",
     "/staff-panel-internal",
     "/staff-panel-internal/:path*",
+    // ── Security: block build manifest & sensitive files ──
+    "/_next/static/:path*",
+    "/.env",
+    "/.env.local",
+    "/.env.example",
+    "/.git",
+    "/.git/:path*",
+    "/package.json",
+    "/package-lock.json",
+    "/pnpm-lock.yaml",
   ],
 };

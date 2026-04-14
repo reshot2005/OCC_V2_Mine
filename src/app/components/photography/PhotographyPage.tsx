@@ -32,7 +32,7 @@ function PhotoLoadingScreen({
             transition={{ repeat: Infinity, duration: 1.4, ease: "easeInOut" }}
             className="mb-6 text-5xl"
           >
-            📷
+            PH
           </motion.div>
           <h1
             className="font-headline mb-8 text-4xl tracking-[0.3em] md:text-5xl"
@@ -121,12 +121,12 @@ function PhotoCursor() {
 
 function GrainOverlay() {
   return (
-    <div className="pointer-events-none fixed inset-0 z-[9997] opacity-[0.04]">
+    <div className="pointer-events-none fixed inset-0 z-[9997] opacity-[0.025]">
       <svg className="h-[200%] w-[200%] animate-grain">
         <filter id="photo-fg">
           <feTurbulence
             type="fractalNoise"
-            baseFrequency="0.65"
+            baseFrequency="0.22"
             numOctaves="3"
             stitchTiles="stitch"
           />
@@ -194,11 +194,11 @@ function ShootDaySection() {
 
 function PhotoGigsSection() {
   const gigs = [
-    { title: "Event Photographer", pay: "₹1,200–2,500 / event" },
-    { title: "Portrait Sessions", pay: "₹800–1,500 / session" },
-    { title: "Social Media Shooter", pay: "₹2,500–4,000 / month" },
-    { title: "Product Photography", pay: "₹1,000–2,000 / shoot" },
-    { title: "Wedding Second Shooter", pay: "₹3,000–6,000 / day" },
+    { title: "Event Photographer", pay: "Rs 1,200-2,500 / event" },
+    { title: "Portrait Sessions", pay: "Rs 800-1,500 / session" },
+    { title: "Social Media Shooter", pay: "Rs 2,500-4,000 / month" },
+    { title: "Product Photography", pay: "Rs 1,000-2,000 / shoot" },
+    { title: "Wedding Second Shooter", pay: "Rs 3,000-6,000 / day" },
   ];
   return (
     <section className="px-6 py-28 md:px-12 md:py-40" style={{ background: PP.bg }}>
@@ -214,10 +214,10 @@ function PhotoGigsSection() {
           <h2 className="font-headline text-[clamp(3rem,8vw,6rem)] leading-[0.92] tracking-[0.04em]" style={{ color: PP.text }}>GIG</h2>
           <h2 className="font-editorial text-[clamp(2rem,6vw,4.5rem)] leading-[0.92]" style={{ color: PP.secondary }}>Opportunities.</h2>
           <p className="mt-8 max-w-[340px] text-[15px] leading-[1.8]" style={{ color: PP.muted, fontFamily: "'DM Sans', sans-serif" }}>
-            Paid shoots and retainers through OCC Photography Club — build a portfolio that pays.
+            Paid shoots and retainers through OCC Photography Club - build a portfolio that pays.
           </p>
           <div className="mt-10 flex gap-8">
-            {[{ n: "₹800–6K", l: "Per Gig" }, { n: "40+", l: "Active Gigs" }, { n: "S1", l: "Now Live" }].map((s) => (
+            {[{ n: "Rs 800-6K", l: "Per Gig" }, { n: "40+", l: "Active Gigs" }, { n: "S1", l: "Now Live" }].map((s) => (
               <div key={s.l}>
                 <span className="font-headline text-2xl tracking-wide" style={{ color: PP.text }}>{s.n}</span>
                 <p className="font-mono-label mt-1 text-[10px] tracking-[0.3em] uppercase" style={{ color: PP.muted }}>{s.l}</p>
@@ -273,7 +273,7 @@ function JoinPhotoSection({ userId }: { userId?: string | null }) {
         <h2 className="font-headline text-[clamp(3rem,10vw,6rem)] leading-[0.92] tracking-[0.04em]" style={{ color: PP.text }}>READY TO</h2>
         <h2 className="font-editorial text-[clamp(2.5rem,9vw,5.5rem)] leading-[0.92]" style={{ color: PP.gold }}>Shoot?</h2>
         <p className="mx-auto mt-8 max-w-[520px] text-[16px] leading-[1.8]" style={{ color: PP.muted, fontFamily: "'DM Sans', sans-serif" }}>
-          Join OCC Photography Club — darkroom energy, editorial craft, and a crew that actually prints the work.
+          Join OCC Photography Club - darkroom energy, editorial craft, and a crew that actually prints the work.
         </p>
         <div className="mt-12 flex flex-col items-center gap-4 sm:flex-row sm:justify-center">
           <Link
@@ -338,7 +338,7 @@ export function PhotographyPage({
             className="pointer-events-auto text-[10px] tracking-[0.4em] uppercase"
             style={{ color: PC.text }}
           >
-            ← OCC
+            {"<- OCC"}
           </Link>
           <span
             className="font-headline text-lg tracking-[0.15em] md:text-xl"
@@ -362,7 +362,7 @@ export function PhotographyPage({
           style={{ borderColor: PP.border, background: PP.bg }}
         >
           <p className="font-mono-label text-xs tracking-[0.2em]" style={{ color: PP.muted }}>
-            OCC Photography ·{" "}
+            OCC Photography |{" "}
             <Link
               to="/"
               className="transition-colors hover:underline"

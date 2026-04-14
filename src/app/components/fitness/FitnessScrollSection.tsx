@@ -43,7 +43,7 @@ export function FitnessScrollSection({ frames, loaded }: FitnessScrollProps) {
             className="text-center"
           >
             <span className="font-mono text-[10px] uppercase tracking-[0.5em] text-[#CCFF00] mb-4 block">Peak Performance</span>
-            <h2 className="text-[clamp(3rem,10vw,8rem)] font-black uppercase text-white leading-none tracking-tighter" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+            <h2 className="text-[clamp(3rem,10vw,8rem)] font-black uppercase text-white leading-none tracking-wide" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
               Silent <span className="text-[#CCFF00] italic">Sunset.</span>
             </h2>
           </motion.div>

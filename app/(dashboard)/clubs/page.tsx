@@ -69,7 +69,7 @@ export default async function ClubsPage({
         </Suspense>
 
         {/* CLUBS GRID */}
-        <div className="grid grid-cols-1 gap-4 pb-20 sm:gap-8 md:grid-cols-2 xl:grid-cols-3 px-4 sm:px-0">
+        <div className="grid grid-cols-1 gap-4 pb-20 sm:gap-8 md:grid-cols-2 xl:grid-cols-3 sm:px-0">
           {clubsFromDb.map((club) => {
             let clubImg = club.coverImage || "";
             const cn = club.name;

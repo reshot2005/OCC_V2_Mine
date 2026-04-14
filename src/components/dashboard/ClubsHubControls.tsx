@@ -59,7 +59,7 @@ export function ClubsHubControls() {
 
   return (
     <div className="mb-6 sm:mb-10 space-y-4 sm:space-y-5 border-b border-black/[0.05] pb-6 sm:pb-10">
-      <div className="w-full overflow-x-auto scrollbar-hide px-4 sm:px-0 pb-1">
+      <div className="w-full overflow-x-auto scrollbar-hide sm:px-0 pb-1">
         <div className="flex w-max min-w-full items-center gap-2 sm:gap-2.5">
           {CLUB_HUB_CATEGORIES.map(({ key, label }) => {
             const active = activeCat === key;
@@ -81,7 +81,7 @@ export function ClubsHubControls() {
         </div>
       </div>
 
-      <div className="flex items-center gap-2 px-4 sm:px-0 sm:max-w-xl">
+      <div className="flex items-center gap-2 sm:px-0 sm:max-w-xl">
         <div className="relative min-w-0 flex-1">
           <input
             type="search"
@@ -96,13 +96,7 @@ export function ClubsHubControls() {
             strokeWidth={3}
           />
         </div>
-        <button
-          type="button"
-          title="More filters (coming soon)"
-          className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl border border-black/5 bg-white text-black/40 shadow-sm sm:h-14 sm:w-14 sm:rounded-2xl"
-        >
-          <Filter className="h-4 w-4 sm:h-5 sm:w-5" />
-        </button>
+
       </div>
     </div>
   );
