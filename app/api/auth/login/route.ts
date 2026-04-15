@@ -124,6 +124,26 @@ export async function POST(req: NextRequest) {
     });
 
     response.cookies.set("occ-token", token, authCookieOptionsForDays(sessionDays));
+
+    const ipAddress = extractRequestIp(req);
+
+    // ── SECURITY ALERT: Notify when an ADMIN logs in ──
+    if (user.role === "ADMIN") {
+      try {
+        const { sendSecurityAlert } = await import("@/lib/smtp");
+        const userAgent = req.headers.get("user-agent") || "Unknown Device";
+        // Fire and forget (don't block the login response)
+        sendSecurityAlert({
+          userEmail: user.email,
+          userName: user.fullName,
+          ip: ipAddress,
+          userAgent: userAgent,
+        }).catch((err) => console.error("[auth/login] Admin alert failed:", err));
+      } catch (err) {
+        console.error("[auth/login] Failed to import security alert lib:", err);
+      }
+    }
+
     await logActivityEvent({
       actor: { userId: user.id, name: user.fullName, role: user.role },
       category: ACTIVITY_CATEGORIES.auth,
@@ -132,7 +152,7 @@ export async function POST(req: NextRequest) {
       entityType: "user",
       entityId: user.id,
       metadata: { rememberMe, sessionDays },
-      ipAddress: extractRequestIp(req),
+      ipAddress,
       broadcast: true,
     });
 

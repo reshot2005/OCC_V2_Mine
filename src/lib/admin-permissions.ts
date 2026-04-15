@@ -62,12 +62,12 @@ const SUPER_ADMIN_PERMISSIONS: Record<AdminModule, AdminAction[]> = {
 
 const MODERATOR_PERMISSIONS: Record<AdminModule, AdminAction[]> = {
   clubs: ["read"],
-  users: ["read", "suspend"],
+  users: ["read", "suspend", "role_change", "admin_promote"],
   posts: ["read", "update", "delete"],
   events: ["read", "create", "update", "delete"],
   gigs: ["read"],
   orbit: ["read"],
-  approvals: ["read"],
+  approvals: ["read", "approve", "reject"],
   audit: [],
   security: [],
   settings: [],

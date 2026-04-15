@@ -29,6 +29,10 @@ export async function PATCH(_req: NextRequest, { params }: { params: { id: strin
     },
   });
   if (!target) return NextResponse.json({ error: "User not found" }, { status: 404 });
+  if (target.role === "CLUB_HEADER" && target.approvalStatus === "APPROVED") {
+    return NextResponse.json({ success: true, message: "User is already approved", referralCode: target.referralCode });
+  }
+
   if (target.role !== "CLUB_HEADER" || target.approvalStatus !== "PENDING") {
     return NextResponse.json({ error: "Not a pending club header application" }, { status: 400 });
   }

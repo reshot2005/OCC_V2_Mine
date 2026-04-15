@@ -23,6 +23,7 @@ export function ApprovalsPanel({ approvals: initial }: { approvals: Approval[] }
       const res = await fetch(url, { method: "PATCH", headers: { "Content-Type": "application/json" } });
       if (!res.ok) { toast.error("Failed"); return; }
       setApprovals((p) => p.filter((a) => a.id !== id));
+      router.refresh();
       toast.success(action === "approve" ? "Approved!" : "Rejected");
     } catch { toast.error("Error"); }
   };
