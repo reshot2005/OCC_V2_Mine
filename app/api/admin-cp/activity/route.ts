@@ -47,7 +47,7 @@ export async function GET(req: NextRequest) {
   const nextCursor = hasMore ? items[items.length - 1]?.id ?? null : null;
 
   return NextResponse.json({
-    items: items.map((r) => ({
+    items: items.map((r: any) => ({
       ...r,
       createdAt: r.createdAt.toISOString(),
     })),
