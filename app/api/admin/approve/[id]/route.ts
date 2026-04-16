@@ -26,6 +26,7 @@ export async function PATCH(_req: NextRequest, { params }: { params: { id: strin
       role: true,
       approvalStatus: true,
       pendingLeadClubId: true,
+      referralCode: true,
     },
   });
   if (!target) return NextResponse.json({ error: "User not found" }, { status: 404 });
