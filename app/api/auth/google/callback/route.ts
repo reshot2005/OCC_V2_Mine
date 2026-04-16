@@ -34,7 +34,7 @@ function safeRedirectPath(path: string | null | undefined): string {
 }
 
 function postLoginDestination(
-  user: { role: string; approvalStatus: string; onboardingComplete?: boolean },
+  user: { role: string; approvalStatus: string; onboardingComplete?: boolean; phoneNumber?: string | null },
   redirectCookie: string | undefined,
 ): string {
   const safe = safeRedirectPath(redirectCookie);
@@ -44,7 +44,15 @@ function postLoginDestination(
     return MOBILE_SCHEME;
   }
 
-  if (user.role === "STUDENT" && user.onboardingComplete === false) {
+  const hasLegitPhone = user.phoneNumber && user.phoneNumber.replace(/\D/g, "").length === 10;
+
+  // Force onboarding if either flag is missing or phone is dummy
+  if (user.role === "STUDENT" && (user.onboardingComplete === false || !hasLegitPhone)) {
+    return "/onboarding";
+  }
+
+  // Universal catch-all for missing phone (including Admins/Headers)
+  if (!hasLegitPhone) {
     return "/onboarding";
   }
 
@@ -192,19 +200,6 @@ export async function GET(req: NextRequest) {
 
   if (!user) {
     createdViaGoogle = true;
-    let phoneNumber = "";
-    for (let i = 0; i < 10; i++) {
-      const candidate = generateIndianPhoneNumber();
-      const exists = await prisma.user.findUnique({ where: { phoneNumber: candidate } });
-      if (!exists) {
-        phoneNumber = candidate;
-        break;
-      }
-    }
-    if (!phoneNumber) {
-      phoneNumber = generateIndianPhoneNumber();
-    }
-
     const randomPassword = crypto.randomBytes(48).toString("hex");
     const hashedPassword = await bcrypt.hash(randomPassword, 12);
 
@@ -213,7 +208,7 @@ export async function GET(req: NextRequest) {
         data: {
           fullName: fullNameFromGoogle,
           collegeName: "Not specified",
-          phoneNumber,
+          phoneNumber: null, // Allow user to update manually
           email,
           password: hashedPassword,
           avatar: googleUser.picture ?? null,

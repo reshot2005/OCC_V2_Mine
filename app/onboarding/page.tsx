@@ -19,6 +19,33 @@ export default function OnboardingPage() {
   const router = useRouter();
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [initializing, setInitializing] = useState(true);
+
+  // Auto-skip logic for existing users with no phone
+  useEffect(() => {
+    async function checkExistingProfile() {
+      try {
+        const res = await fetch("/api/profile");
+        if (res.ok) {
+          const profile = await res.json();
+          // If they have a college name but no real phone, jump to Step 3
+          const hasCollege = profile.collegeName && profile.collegeName !== "Not specified";
+          const hasPhone = profile.phoneNumber && profile.phoneNumber.replace(/\D/g, "").length === 10;
+          
+          if (hasCollege && !hasPhone) {
+            setCollegeName(profile.collegeName);
+            setReferralSource(profile.referralSource || "Other");
+            setStep(3);
+          }
+        }
+      } catch (e) {
+        console.error("Failed to check profile status", e);
+      } finally {
+        setInitializing(false);
+      }
+    }
+    checkExistingProfile();
+  }, []);
   
   // Step 1
   const [referralSource, setReferralSource] = useState("");
@@ -30,6 +57,9 @@ export default function OnboardingPage() {
   const [codeValid, setCodeValid] = useState<boolean | null>(null);
   const [clubInfo, setClubInfo] = useState<{name: string, headerName: string} | null>(null);
   const [codeSuggestion, setCodeSuggestion] = useState<string | null>(null);
+
+  // Step 3
+  const [phoneNumber, setPhoneNumber] = useState("");
 
   const referralValidateSeq = useRef(0);
 
@@ -109,17 +139,31 @@ export default function OnboardingPage() {
     setStep(2);
   };
 
-  const handleComplete = async (skipCode = false) => {
+  const handleMoveToPhone = (skipCode = false) => {
     if (collegeName.trim().length < 2) {
       toast.error("Please enter your college / university name.");
       return;
     }
+    if (skipCode) {
+      setReferralCode("");
+    }
+    setStep(3);
+  };
+
+  const handleFinalSubmit = async () => {
+    const cleanPhone = phoneNumber.replace(/\D/g, "");
+    if (cleanPhone.length !== 10) {
+      toast.error("Please enter a valid 10-digit mobile number.");
+      return;
+    }
+
     setLoading(true);
     try {
       const payload = {
         referralSource,
         collegeName: collegeName.trim(),
-        referralCode: skipCode ? "" : referralCode.trim().toUpperCase(),
+        referralCode: referralCode.trim().toUpperCase(),
+        phoneNumber: cleanPhone,
       };
 
       const res = await fetch("/api/onboarding/complete", {
@@ -128,13 +172,16 @@ export default function OnboardingPage() {
         body: JSON.stringify(payload),
       });
 
-      if (!res.ok) throw new Error("Failed to complete onboarding");
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Failed to complete onboarding");
+      }
       
-      // Force refresh to update session and move to dashboard
+      toast.success("Welcome aboard!");
       router.push("/dashboard");
       router.refresh();
-    } catch (err) {
-      toast.error("Something went wrong. Please try again.");
+    } catch (err: any) {
+      toast.error(err.message || "Something went wrong. Please try again.");
       setLoading(false);
     }
   };
@@ -155,11 +202,18 @@ export default function OnboardingPage() {
             <span className={step >= 1 ? "text-white" : ""}>01</span>
             <span className="w-8 h-[1px] bg-white/20 block" />
             <span className={step >= 2 ? "text-white" : ""}>02</span>
+            <span className="w-8 h-[1px] bg-white/20 block" />
+            <span className={step >= 3 ? "text-white" : ""}>03</span>
           </div>
         </div>
 
         <React.Fragment>
-          {step === 1 && (
+          {initializing ? (
+            <div className="flex flex-col items-center justify-center py-20 animate-pulse">
+              <Loader2 className="w-12 h-12 text-blue-500 animate-spin mb-4" />
+              <p className="text-white/40 font-medium">Preparing your setup...</p>
+            </div>
+          ) : step === 1 && (
             <div
               key="step1"
               className="space-y-8"
@@ -301,7 +355,7 @@ export default function OnboardingPage() {
               <div className="pt-6 flex flex-col space-y-4">
                 <button
                   type="button"
-                  onClick={() => handleComplete(false)}
+                  onClick={() => handleMoveToPhone(false)}
                   disabled={
                     loading ||
                     collegeName.trim().length < 2 ||
@@ -309,22 +363,87 @@ export default function OnboardingPage() {
                   }
                   className="w-full flex items-center justify-center space-x-2 bg-white text-black py-4 rounded-xl font-semibold text-lg hover:bg-gray-100 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {loading ? (
-                     <>
-                        {React.createElement(Loader2 as any, { className: "w-5 h-5 animate-spin" })}
-                        <span>Completing...</span>
-                     </>
-                  ) : (
-                    <span>{referralCode.trim() ? "Continue with this code" : "Continue without a code"}</span>
-                  )}
+                  <span>{referralCode.trim() ? "Continue with this code" : "Continue"}</span>
+                  {React.createElement(ArrowRight as any, { className: "w-5 h-5" })}
                 </button>
                 <button
                   type="button"
-                  onClick={() => handleComplete(true)}
+                  onClick={() => handleMoveToPhone(true)}
                   disabled={loading || collegeName.trim().length < 2}
                   className="w-full py-3 text-sm font-medium text-white/50 hover:text-white/80 transition-colors disabled:opacity-30"
                 >
                   Skip — I don&apos;t have a referral code
+                </button>
+              </div>
+            </div>
+          )}
+
+          {step === 3 && (
+            <div
+              key="step3"
+              className="space-y-8"
+            >
+              <div>
+                <h1 className="text-4xl md:text-5xl font-bold tracking-tight mb-4 text-white">
+                  Almost there.
+                </h1>
+                <p className="text-lg text-white/50">
+                  Enter your mobile number to complete your profile.
+                </p>
+                <p className="text-sm text-white/35 mt-2">
+                  This helps your club leaders stay in touch with you.
+                </p>
+              </div>
+
+              <div className="space-y-4">
+                <label className="text-sm font-medium text-white/60 uppercase tracking-wider">
+                  Mobile Number
+                </label>
+                <div className="relative">
+                  <div className="absolute left-5 top-1/2 -translate-y-1/2 text-white/40 font-medium">
+                    +91
+                  </div>
+                  <input
+                    type="text"
+                    inputMode="numeric"
+                    autoFocus
+                    value={phoneNumber}
+                    onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, "").slice(0, 10))}
+                    placeholder="00000 00000"
+                    className="w-full bg-white/[0.03] border border-white/10 rounded-xl pl-16 pr-5 py-4 text-white font-medium text-xl focus:outline-none focus:border-white/30 focus:bg-white/[0.05] transition-all placeholder:text-white/20"
+                  />
+                </div>
+                {phoneNumber.length > 0 && phoneNumber.length < 10 && (
+                   <p className="text-xs text-amber-500/80">Keep typing... {phoneNumber.length}/10 digits</p>
+                )}
+              </div>
+
+              <div className="pt-6">
+                <button
+                  type="button"
+                  onClick={handleFinalSubmit}
+                  disabled={loading || phoneNumber.length !== 10}
+                  className="w-full flex items-center justify-center space-x-2 bg-blue-600 text-white py-4 rounded-xl font-semibold text-lg hover:bg-blue-500 transition duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_20px_rgba(37,99,235,0.2)]"
+                >
+                  {loading ? (
+                     <>
+                        {React.createElement(Loader2 as any, { className: "w-5 h-5 animate-spin" })}
+                        <span>Setting up your account...</span>
+                     </>
+                  ) : (
+                    <>
+                      <span>Complete Registration</span>
+                      {React.createElement(CheckCircle2 as any, { className: "w-5 h-5" })}
+                    </>
+                  )}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStep(2)}
+                  disabled={loading}
+                  className="w-full py-3 text-sm font-medium text-white/50 hover:text-white/80 transition-colors disabled:opacity-30"
+                >
+                  Go back
                 </button>
               </div>
             </div>

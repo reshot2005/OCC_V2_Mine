@@ -19,6 +19,15 @@ export default async function DashboardLayout({
   const user = await requireUser();
   const path = headers().get("next-url") ?? "/dashboard";
 
+  // Strict Phone Audit: Force redirect if no legit phone number exists
+  const hasLegitPhone = user.phoneNumber && user.phoneNumber.replace(/\D/g, "").length === 10;
+  
+  // Everyone must have a legit phone number, including Admins and Club Headers
+  if (!hasLegitPhone) {
+    const { redirect } = await import("next/navigation");
+    redirect("/onboarding");
+  }
+
   return (
     <div className="dashboard-page-zoom flex min-h-screen bg-[#F6F7FA] font-sans tracking-normal text-black overflow-hidden select-none antialiased [font-family:system-ui,-apple-system,BlinkMacSystemFont,Roboto,Arial,sans-serif]">
       {/* Unified Navigation - Handles Sidebar & Bottom Nav */}

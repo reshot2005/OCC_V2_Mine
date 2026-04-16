@@ -89,10 +89,29 @@ export async function resolveClubHeaderByReferralCode(
     return null;
   }
 
-  const club = await resolveClubForHeader(header);
+  // 2. Ensure the header has an active club they are leading
+  let club = await resolveClubForHeader(header);
 
+  // AUTO-FIX: If an approved header is missing a club link, create one on the fly.
+  // This ensures that "whenever a clubheader is approved, their referral works."
   if (!club) {
-    return null;
+    console.log(`[Referral-Resolve] Global Repair: Linking header ${header.email} to a club.`);
+    const slug = `${header.fullName.toLowerCase().replace(/\s+/g, "-")}-${Math.random().toString(36).substring(7)}`.slice(0, 30);
+    club = await prisma.club.create({
+      data: {
+        name: header.collegeName ? `${header.collegeName} Club` : `${header.fullName}'s Club`,
+        slug: slug,
+        description: `Official club for members referred by ${header.fullName}.`,
+        theme: "blue",
+        icon: "🏢",
+        headerId: header.id,
+      },
+    });
+
+    await prisma.user.update({
+      where: { id: header.id },
+      data: { clubManagedId: club.id },
+    });
   }
 
   return { header, club };

@@ -31,10 +31,11 @@ export async function POST(req: NextRequest) {
         });
       }
     }
-    const { referralSource, referralCode } = body as {
+    const { referralSource, referralCode, phoneNumber } = body as {
       referralSource?: string;
       collegeName?: string;
       referralCode?: string;
+      phoneNumber?: string;
     };
     const collegeName = typeof (body as { collegeName?: unknown })?.collegeName === "string"
       ? (body as { collegeName: string }).collegeName.trim()
@@ -45,6 +46,23 @@ export async function POST(req: NextRequest) {
     }
     if (collegeName.length < 2) {
       return NextResponse.json({ error: "collegeName is required" }, { status: 400 });
+    }
+
+    const cleanPhone = typeof phoneNumber === "string" ? phoneNumber.replace(/\D/g, "") : "";
+    if (cleanPhone.length !== 10) {
+      return NextResponse.json({ error: "A valid 10-digit phone number is required" }, { status: 400 });
+    }
+
+    // Check if phone number is already taken
+    const existing = await prisma.user.findFirst({
+      where: { 
+        phoneNumber: cleanPhone,
+        id: { not: user.id }
+      }
+    });
+
+    if (existing) {
+       return NextResponse.json({ error: "This phone number is already registered with another account" }, { status: 400 });
     }
 
     const codeNormalized =
@@ -59,6 +77,7 @@ export async function POST(req: NextRequest) {
         onboardingComplete: true,
         referralSource,
         collegeName,
+        phoneNumber: cleanPhone,
       },
     });
 

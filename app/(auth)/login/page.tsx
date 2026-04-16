@@ -1,10 +1,36 @@
 "use client";
 
-import React, { Suspense, useState } from "react";
+import React, { Suspense, useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "motion/react";
 import { STAFF_PUBLIC_PREFIX } from "@/lib/staff-paths";
 import { Interactive3DModel } from "@/app/components/auth/Interactive3DModel";
+
+function Particles() {
+  const [dots, setDots] = useState<any[]>([]);
+  useEffect(() => {
+    setDots([...Array(50)].map((_, i) => ({
+      left: `${Math.random() * 100}%`,
+      top: `${Math.random() * 100}%`,
+      duration: 2 + Math.random() * 2,
+      delay: Math.random() * 2,
+    })));
+  }, []);
+
+  return (
+    <>
+      {dots.map((dot, i) => (
+        <motion.div
+          key={i}
+          className="absolute w-1 h-1 bg-white rounded-full"
+          style={{ left: dot.left, top: dot.top }}
+          animate={{ opacity: [0.2, 0.8, 0.2], scale: [1, 1.5, 1] }}
+          transition={{ duration: dot.duration, repeat: Infinity, delay: dot.delay }}
+        />
+      ))}
+    </>
+  );
+}
 
 function LoginPageInner() {
   const router = useRouter();
@@ -517,25 +543,7 @@ function LoginPageInner() {
       >
         {/* Particle Background */}
         <div className="absolute inset-0">
-          {[...Array(50)].map((_, i) => (
-            <motion.div
-              key={i}
-              className="absolute w-1 h-1 bg-white rounded-full"
-              style={{
-                left: `${Math.random() * 100}%`,
-                top: `${Math.random() * 100}%`,
-              }}
-              animate={{
-                opacity: [0.2, 0.8, 0.2],
-                scale: [1, 1.5, 1],
-              }}
-              transition={{
-                duration: 2 + Math.random() * 2,
-                repeat: Infinity,
-                delay: Math.random() * 2,
-              }}
-            />
-          ))}
+          <Particles />
         </div>
 
         {/* Top Right Buttons */}

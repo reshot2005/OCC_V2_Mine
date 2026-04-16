@@ -24,6 +24,11 @@ export async function GET(req: NextRequest) {
         : {}),
       ...(role ? { role } : {}),
       ...(status ? { approvalStatus: status } : {}),
+      phoneNumber: { not: null }, // Strictly hide any user without a mobile number
+      OR: [
+        { role: "STUDENT", onboardingComplete: true },
+        { role: { in: ["ADMIN", "CLUB_HEADER"] } }
+      ]
     },
     select: {
       id: true,

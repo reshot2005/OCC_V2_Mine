@@ -9,7 +9,13 @@ export async function GET() {
   }
 
   const members = await prisma.referralStat.findMany({
-    where: { clubHeaderId: user.id },
+    where: { 
+      clubHeaderId: user.id,
+      student: { 
+        onboardingComplete: true,
+        phoneNumber: { not: null }
+      }
+    },
     include: {
       student: {
         select: {

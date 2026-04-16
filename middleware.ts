@@ -163,10 +163,8 @@ export async function middleware(req: NextRequest) {
         response.cookies.delete("occ-token");
         return response;
       }
-      if (payload.role !== "STUDENT") {
-        return NextResponse.redirect(new URL("/dashboard", req.url));
-      }
-      if (payload.onboardingComplete !== false) {
+      // Only allow access to onboarding if they haven't finished it
+      if (payload.onboardingComplete === true) {
         return NextResponse.redirect(new URL("/dashboard", req.url));
       }
       return NextResponse.next();
@@ -231,7 +229,6 @@ export async function middleware(req: NextRequest) {
       }
 
       if (
-        role === "STUDENT" &&
         payload.onboardingComplete === false &&
         !isOnboardingPath
       ) {

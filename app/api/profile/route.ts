@@ -71,6 +71,7 @@ export async function PATCH(req: NextRequest) {
     };
     if (parsed.phoneNumber !== undefined) {
       data.phoneNumber = parsed.phoneNumber;
+      data.onboardingComplete = true; // Mark as legitimate once they add a phone number
     }
 
     if (parsed.graduationYear !== undefined) {
