@@ -28,6 +28,7 @@ public/uploads/
 *.log
 *.bak
 *.dump
+*.sql
 .env
 .env.*
 !.env.example

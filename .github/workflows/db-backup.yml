@@ -1,0 +1,38 @@
+name: Database Backup (Every 3 Days)
+
+on:
+  schedule:
+    # Runs at 00:00 every 3 days
+    - cron: '0 0 */3 * *'
+  workflow_dispatch: # Allows manual trigger from the GitHub Actions UI
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Install PostgreSQL Client
+        run: sudo apt-get update && sudo apt-get install -y postgresql-client
+
+      - name: Create Database Dump
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+        run: |
+          TIMESTAMP=$(date +%Y-%m-%d_%H-%M-%S)
+          FILENAME="backup_${TIMESTAMP}.sql"
+          # Run pg_dump and pipe to file
+          pg_dump "$DATABASE_URL" > "$FILENAME"
+          echo "FILENAME=$FILENAME" >> $GITHUB_ENV
+
+      - name: Upload to Cloudflare R2
+        run: |
+          # Use AWS CLI which is pre-installed on GitHub Runners
+          # R2 is S3 compatible, so we just point to the R2 endpoint
+          aws s3 cp "${{ env.FILENAME }}" "s3://${{ secrets.R2_BUCKET_NAME }}/backups/${{ env.FILENAME }}" \
+            --endpoint-url "https://${{ secrets.R2_ACCOUNT_ID }}.r2.cloudflarestorage.com"
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: 'auto'
