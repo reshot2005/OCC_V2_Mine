@@ -70,7 +70,7 @@ const nextConfig = {
   experimental: {
     instrumentationHook: true,
     typedRoutes: false,
-    optimizePackageImports: ["framer-motion", "lucide-react", "date-fns"],
+    optimizePackageImports: ["framer-motion", "motion/react", "lucide-react", "date-fns"],
   },
 
   async headers() {

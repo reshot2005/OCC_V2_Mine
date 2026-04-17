@@ -7,7 +7,7 @@ export function ShowcaseCards() {
   return (
     <section
       id="landing-showcase"
-      className="min-h-0 w-full max-w-[100vw] overflow-x-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 py-16 md:min-h-screen md:py-20"
+      className="min-h-0 w-full max-w-[100vw] overflow-x-hidden bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 py-12 md:py-16"
     >
       <div className="mx-auto max-w-[1400px] px-4 sm:px-6 lg:px-8">
         <div className="relative z-20 mb-12 flex flex-col items-center gap-4 text-center md:mb-16 md:gap-5">

@@ -34,9 +34,8 @@ export async function POST(req: NextRequest) {
         ? (body as { referralCode: string }).referralCode.trim().toUpperCase()
         : "";
 
-    if (!referralCode) {
-      return NextResponse.json({ error: "Club referral code is strictly required to register." }, { status: 400 });
-    }
+    // Referral code is now optional as requested by the user.
+    // If provided, we will validate and attach later in the flow.
 
     const otpEmail = validated.email;
     const otpPurpose = "REGISTER" as const;
@@ -96,6 +95,7 @@ export async function POST(req: NextRequest) {
         password: hashedPassword,
         role: "STUDENT",
         onboardingComplete: true,
+        emailVerified: new Date(),
         referralSource: "Email registration",
       },
       select: {

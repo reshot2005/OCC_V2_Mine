@@ -90,9 +90,7 @@ export default function HomePage({ userId }: { userId?: string }) {
             <ShowcaseCards />
           </MovableSection>
         </main>
-        <MovableSection id="footer">
-          <Footer theme={theme} />
-        </MovableSection>
+        <Footer theme={theme} />
       </div>
     </LayoutEditorProvider>
   );

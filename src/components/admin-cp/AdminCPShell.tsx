@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import { adminCpHref, ADMIN_CP_PREFIX } from "@/lib/staff-paths";
 import { type AdminLevel, can, type AdminModule, type EffectiveAdminAccess } from "@/lib/admin-permissions";
-import { motion, AnimatePresence } from "motion/react";
+import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState, useRef } from "react";
 import { useLogout } from "@/hooks/useLogout";
 import { OCC_BRAND_ICON } from "@/lib/brand";

@@ -1,53 +1,58 @@
-
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "motion/react";
-import { Download, Users, Grid3X3, UserCog, ShieldCheck, Mail, Lock, X, Loader2 } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Download, Users, Settings, ShieldCheck, Mail, Lock, X, Loader2, Calendar, ChevronRight } from "lucide-react";
 import { toast } from "sonner";
 
 const exportCategories = [
   { type: "users", label: "Users Details", desc: "Full directory including phone, email, college, and referral history", icon: Users, color: "#5227FF" },
-  { type: "headers", label: "Club Headers", desc: "List of all club headers, their assigned clubs, and active referral codes", icon: UserCog, color: "#00E87A" },
-  { type: "clubs", label: "Club Overview", desc: "Summary of all active clubs, member counts, and header assignments", icon: Grid3X3, color: "#8C6DFD" },
+  { type: "headers", label: "Club Headers", desc: "List of all club headers, their assigned clubs, and active referral codes", icon: Settings, color: "#00E87A" },
+  { type: "clubs", label: "Club Overview", desc: "Summary of all active clubs, member counts, and header assignments", icon: Settings, color: "#8C6DFD" },
+];
+
+const datePresets = [
+  { id: "all", label: "All Time", value: null },
+  { id: "1w", label: "1 Week", days: 7 },
+  { id: "1m", label: "1 Month", days: 30 },
+  { id: "3m", label: "3 Months", days: 90 },
+  { id: "6m", label: "6 Months", days: 180 },
 ];
 
 export default function ExportPage() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [step, setStep] = useState<"email" | "otp">("email");
+  const [selected, setSelected] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
+  const [step, setStep] = useState<"SELECT" | "VERIFY_EMAIL" | "VERIFY_OTP">("SELECT");
   const [loading, setLoading] = useState(false);
-  const [exportToken, setExportToken] = useState<string | null>(null);
-  const [pendingType, setPendingType] = useState<string | null>(null);
-  const [datePreset, setDatePreset] = useState<string>("all");
-  const [customRange, setCustomRange] = useState<{ from: string; to: string }>({ from: "", to: "" });
+  const [token, setToken] = useState<string | null>(null);
 
-  const getEffectiveRange = () => {
-    if (datePreset === "custom") return customRange;
-    if (datePreset === "all") return { from: "", to: "" };
-    
-    const now = new Date();
-    const from = new Date();
-    if (datePreset === "1w") from.setDate(now.getDate() - 7);
-    else if (datePreset === "1m") from.setMonth(now.getMonth() - 1);
-    else if (datePreset === "3m") from.setMonth(now.getMonth() - 3);
-    else if (datePreset === "6m") from.setMonth(now.getMonth() - 6);
-    
-    return { from: from.toISOString().split("T")[0], to: now.toISOString().split("T")[0] };
-  };
+  // Date Filtering State
+  const [activePreset, setActivePreset] = useState("all");
+  const [customRange, setCustomRange] = useState({ from: "", to: "" });
 
-  const startExport = (type: string) => {
-    if (exportToken) {
-      executeDownload(type, exportToken);
-    } else {
-      setPendingType(type);
-      setIsModalOpen(true);
+  const getEffectiveDates = () => {
+    if (activePreset === "custom") {
+      return customRange;
     }
+    const preset = datePresets.find(p => p.id === activePreset);
+    if (!preset || preset.id === "all") return { from: null, to: null };
+    
+    const to = new Date().toISOString().split('T')[0];
+    const fromDate = new Date();
+    fromDate.setDate(fromDate.getDate() - (preset.days || 0));
+    const from = fromDate.toISOString().split('T')[0];
+    
+    return { from, to };
   };
 
-  const requestOtp = async () => {
-    if (!email) { toast.error("Please enter your admin email"); return; }
+  const handleStartExport = (type: string) => {
+    setSelected(type);
+    setStep("VERIFY_EMAIL");
+  };
+
+  const handleRequestOtp = async () => {
+    if (!email) return toast.error("Please enter an email");
     setLoading(true);
     try {
       const res = await fetch("/api/admin-cp/export/request-otp", {
@@ -57,8 +62,8 @@ export default function ExportPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Failed to send OTP");
-      toast.success("6-digit verification code sent to your email");
-      setStep("otp");
+      toast.success("Verification code sent to your email");
+      setStep("VERIFY_OTP");
     } catch (err: any) {
       toast.error(err.message);
     } finally {
@@ -66,8 +71,8 @@ export default function ExportPage() {
     }
   };
 
-  const verifyOtp = async () => {
-    if (otp.length !== 6) { toast.error("Enter valid 6-digit OTP"); return; }
+  const handleVerifyOtp = async () => {
+    if (!otp) return toast.error("Please enter the 6-digit code");
     setLoading(true);
     try {
       const res = await fetch("/api/admin-cp/export/verify-otp", {
@@ -77,13 +82,11 @@ export default function ExportPage() {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || "Verification failed");
+      setToken(data.exportToken);
+      toast.success("Identity verified");
       
-      setExportToken(data.exportToken);
-      setIsModalOpen(false);
-      toast.success("Identity verified. Starting download...");
-      if (pendingType) {
-        executeDownload(pendingType, data.exportToken);
-      }
+      // Auto-trigger download
+      triggerDownload(data.exportToken);
     } catch (err: any) {
       toast.error(err.message);
     } finally {
@@ -91,190 +94,204 @@ export default function ExportPage() {
     }
   };
 
-  const executeDownload = async (type: string, token: string) => {
-    const { from, to } = getEffectiveRange();
-    const q = new URLSearchParams();
-    if (from) q.append("from", from);
-    if (to) q.append("to", to);
-    
-    toast.info(`Generating ${type} Excel report...`);
+  const triggerDownload = async (exportToken: string) => {
+    if (!selected) return;
+    setLoading(true);
     try {
-      const res = await fetch(`/api/admin-cp/export/${type}?${q.toString()}`, {
-        headers: { "Authorization": `Bearer ${token}` }
+      const { from, to } = getEffectiveDates();
+      let url = `/api/admin-cp/export/${selected}?t=${Date.now()}`;
+      if (from) url += `&from=${from}`;
+      if (to) url += `&to=${to}`;
+
+      const res = await fetch(url, {
+        headers: { "Authorization": `Bearer ${exportToken}` }
       });
       if (!res.ok) {
-        const errData = await res.json();
-        if (res.status === 401) setExportToken(null);
-        throw new Error(errData.error || "Export failed");
+        const data = await res.json();
+        throw new Error(data.error || "Download failed");
       }
       
       const blob = await res.blob();
-      const url = window.URL.createObjectURL(blob);
+      const objUrl = window.URL.createObjectURL(blob);
       const a = document.createElement("a");
-      a.href = url;
-      a.download = `occ-${type}-${new Date().toISOString().split("T")[0]}.xlsx`;
+      a.href = objUrl;
+      const dateStr = from && to ? `${from}-to-${to}` : "all-time";
+      a.download = `occ-${selected}-export-${dateStr}.xlsx`;
       document.body.appendChild(a);
       a.click();
-      window.URL.revokeObjectURL(url);
-      document.body.removeChild(a);
-      toast.success(`${type} report downloaded successfully`);
+      window.URL.revokeObjectURL(objUrl);
+      a.remove();
+      
+      toast.success("Export completed successfully");
+      setStep("SELECT");
+      setSelected(null);
     } catch (err: any) {
       toast.error(err.message);
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="space-y-8">
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+    <div className="max-w-4xl mx-auto py-8">
+      <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-white/5 pb-10">
         <div>
-          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#5227FF]">Maintenance & Records</p>
-          <h1 className="mt-1 text-3xl font-bold text-white flex items-center gap-3">
-            <Download className="h-8 w-8 text-[#5227FF]" /> Advanced Export
-          </h1>
-          <p className="text-sm text-white/40 mt-1">Download secure Excel reports (Requires Email/OTP Verification)</p>
+          <h1 className="text-4xl font-black text-white mb-3 tracking-tight">Data Export</h1>
+          <p className="text-white/40 text-lg">Securely export campus data for audit and reporting purposes.</p>
         </div>
-
-        <div className="flex flex-col gap-3">
-           <label className="text-[10px] font-black uppercase tracking-widest text-[#5227FF]">Filter by Date Range</label>
-           <div className="flex flex-wrap items-center gap-2">
-              {["all", "1w", "1m", "3m", "6m", "custom"].map((p) => (
-                <button
-                  key={p}
-                  onClick={() => setDatePreset(p)}
-                  className={`px-3 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all border ${
-                    datePreset === p 
-                      ? "bg-[#5227FF] border-[#5227FF] text-white shadow-[0_5px_15px_rgba(82,39,255,0.3)]" 
-                      : "bg-white/[0.03] border-white/10 text-white/40 hover:text-white/60 hover:bg-white/[0.05]"
-                  }`}
-                >
-                  {p === "all" ? "All Time" : p === "1w" ? "1 Week" : p === "1m" ? "1 Month" : p === "3m" ? "3 Months" : p === "6m" ? "6 Months" : "Custom"}
-                </button>
-              ))}
-           </div>
+        
+        {/* Date Presets UI */}
+        <div className="flex flex-wrap gap-2 p-1.5 bg-white/[0.03] rounded-2xl border border-white/5">
+          {datePresets.map((preset) => (
+            <button
+              key={preset.id}
+              onClick={() => setActivePreset(preset.id)}
+              className={`px-4 py-2 rounded-xl text-sm font-bold transition-all ${
+                activePreset === preset.id 
+                ? "bg-white/10 text-white shadow-lg" 
+                : "text-white/40 hover:text-white/60 hover:bg-white/[0.02]"
+              }`}
+            >
+              {preset.label}
+            </button>
+          ))}
+          <button
+            onClick={() => setActivePreset("custom")}
+            className={`px-4 py-2 rounded-xl text-sm font-bold transition-all flex items-center gap-2 ${
+              activePreset === "custom" 
+              ? "bg-indigo-500/20 text-indigo-400" 
+              : "text-white/40 hover:text-white/60 hover:bg-white/[0.02]"
+            }`}
+          >
+            <Calendar size={14} /> Custom
+          </button>
         </div>
       </div>
 
-      {datePreset === "custom" && (
-        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-wrap items-center gap-4 p-5 rounded-2xl bg-white/[0.02] border border-white/[0.05]">
-          <div className="space-y-1.5">
-            <label className="text-[9px] font-bold uppercase text-white/30 ml-1">Start Date</label>
-            <input 
-              type="date" 
-              value={customRange.from} 
-              onChange={(e) => setCustomRange(p => ({ ...p, from: e.target.value }))}
-              className="bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-sm text-white outline-none focus:border-[#5227FF]/50 [color-scheme:dark]"
-            />
-          </div>
-          <div className="self-end pb-3 text-white/20 hidden sm:block">to</div>
-          <div className="space-y-1.5">
-            <label className="text-[9px] font-bold uppercase text-white/30 ml-1">End Date</label>
-            <input 
-              type="date" 
-              value={customRange.to} 
-              onChange={(e) => setCustomRange(p => ({ ...p, to: e.target.value }))}
-              className="bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-sm text-white outline-none focus:border-[#5227FF]/50 [color-scheme:dark]"
-            />
-          </div>
-          <p className="text-[10px] text-white/30 mt-auto pb-3 ml-2 italic">Select range for targeted data extraction.</p>
-        </motion.div>
-      )}
-
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {exportCategories.map((ex, i) => (
-          <motion.button
-            key={ex.type}
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.05 }}
-            onClick={() => startExport(ex.type)}
-            className="group flex flex-col items-start gap-4 p-6 rounded-2xl border border-white/[0.06] bg-white/[0.02] hover:border-[#5227FF]/20 text-left transition-all hover:bg-white/[0.04] relative overflow-hidden"
+      {/* Custom Date Range Inputs */}
+      <AnimatePresence>
+        {activePreset === "custom" && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden mb-10"
           >
-            <div className="p-3 rounded-xl" style={{ background: `${ex.color}15` }}>
-              <ex.icon className="h-6 w-6" style={{ color: ex.color }} />
+            <div className="flex flex-wrap items-center gap-4 p-6 rounded-3xl bg-indigo-500/5 border border-indigo-500/10">
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-indigo-400/60 uppercase ml-1">From Date</label>
+                <input 
+                  type="date" 
+                  value={customRange.from}
+                  onChange={(e) => setCustomRange(prev => ({ ...prev, from: e.target.value }))}
+                  className="bg-black/20 border border-white/5 rounded-xl px-4 py-2 text-white text-sm focus:border-indigo-500/50 outline-none" 
+                />
+              </div>
+              <ChevronRight className="text-white/20 mt-4 hidden md:block" size={20} />
+              <div className="flex flex-col gap-1.5">
+                <label className="text-xs font-bold text-indigo-400/60 uppercase ml-1">To Date</label>
+                <input 
+                  type="date" 
+                  value={customRange.to}
+                  onChange={(e) => setCustomRange(prev => ({ ...prev, to: e.target.value }))}
+                  className="bg-black/20 border border-white/5 rounded-xl px-4 py-2 text-white text-sm focus:border-indigo-500/50 outline-none" 
+                />
+              </div>
+              <div className="ml-auto text-xs text-white/30 max-w-[200px] leading-relaxed">
+                Filter data based on creation date. Leave blank for no limit.
+              </div>
             </div>
-            <div>
-              <p className="font-bold text-white text-lg">{ex.label}</p>
-              <p className="text-xs text-white/35 mt-2 leading-relaxed">{ex.desc}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        {exportCategories.map((cat) => (
+          <motion.div
+            key={cat.type}
+            whileHover={{ y: -6, scale: 1.02 }}
+            className="group relative overflow-hidden rounded-[2.5rem] border border-white/10 bg-white/[0.03] p-8 transition-all hover:bg-white/[0.05] hover:border-white/20"
+          >
+            <div 
+              className="mb-6 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-opacity-10 shadow-inner"
+              style={{ backgroundColor: `${cat.color}20` }}
+            >
+              <cat.icon className="h-7 w-7" style={{ color: cat.color }} />
             </div>
-            <div className="mt-4 flex items-center gap-2 text-[10px] font-bold uppercase tracking-widest text-[#5227FF] group-hover:text-white transition-colors">
-              <Download className="h-3.5 w-3.5" /> Start Download
-            </div>
-          </motion.button>
+            <h3 className="mb-3 text-2xl font-bold text-white tracking-tight">{cat.label}</h3>
+            <p className="mb-8 text-sm leading-relaxed text-white/40 font-medium">{cat.desc}</p>
+            <button
+              onClick={() => handleStartExport(cat.type)}
+              className="group/btn relative flex w-full items-center justify-center gap-3 overflow-hidden rounded-2xl bg-white/5 py-4 text-sm font-black text-white transition-all hover:bg-white/10 active:scale-95"
+            >
+              <Download size={18} className="transition-transform group-hover/btn:-translate-y-0.5" /> 
+              Export XLSX
+              <div className="absolute inset-x-0 bottom-0 h-1 bg-white/10 transform scale-x-0 transition-transform group-hover/btn:scale-x-100" />
+            </button>
+          </motion.div>
         ))}
       </div>
 
+      {/* Security Verification Modal */}
       <AnimatePresence>
-        {isModalOpen && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm">
-            <motion.div
-              initial={{ scale: 0.95, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.95, opacity: 0 }}
-              className="w-full max-w-md bg-[#0F111A] border border-white/[0.08] rounded-3xl p-8 relative shadow-2xl"
+        {step !== "SELECT" && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 backdrop-blur-xl bg-black/80">
+            <motion.div 
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: 20, scale: 0.95 }}
+              className="w-full max-w-md rounded-[2.5rem] border border-white/10 bg-[#0F111A] p-10 shadow-[0_0_50px_-12px_rgba(0,0,0,0.5)]"
             >
-              <button onClick={() => setIsModalOpen(false)} className="absolute top-6 right-6 p-2 text-white/20 hover:text-white">
-                <X className="h-5 w-5" />
-              </button>
-
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#5227FF]/20 mb-6">
-                <ShieldCheck className="h-6 w-6 text-[#5227FF]" />
+              <div className="mb-8 flex items-center justify-between">
+                <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
+                  <ShieldCheck size={28} />
+                </div>
+                <button onClick={() => setStep("SELECT")} className="h-10 w-10 flex items-center justify-center rounded-full bg-white/5 text-white/20 hover:text-white transition-colors">
+                  <X size={20} />
+                </button>
               </div>
 
-              <h2 className="text-xl font-bold text-white">Security Verification</h2>
-              <p className="text-sm text-white/40 mt-1 mb-6">
-                {step === "email" 
-                  ? "Enter your personal email address to receive a one-time verification code for this export." 
-                  : `Please enter the 6-digit code sent to ${email}`}
+              <h2 className="text-3xl font-black text-white mb-3 tracking-tight">Security Check</h2>
+              <p className="text-base text-white/40 mb-10 leading-relaxed font-medium">
+                {step === "VERIFY_EMAIL" 
+                  ? "Enter your registered personal email to receive a secure verification code." 
+                  : `Enter the security code sent to your inbox.`}
               </p>
 
-              {step === "email" ? (
-                <div className="space-y-4">
-                  <div className="relative">
-                    <Mail className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/20" />
+              <div className="space-y-6">
+                {step === "VERIFY_EMAIL" ? (
+                  <div className="relative group">
+                    <Mail className="absolute left-5 top-1/2 -translate-y-1/2 text-white/20 transition-colors group-focus-within:text-indigo-400" size={20} />
                     <input
                       type="email"
-                      placeholder="Personal Email Address"
+                      placeholder="Admin personal email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      className="w-full h-12 bg-white/[0.03] border border-white/10 rounded-xl pl-12 pr-4 text-white outline-none focus:border-[#5227FF]/50"
+                      className="w-full rounded-2xl border border-white/5 bg-white/[0.02] py-5 pl-14 pr-6 text-white text-lg focus:border-indigo-500/50 focus:bg-white/[0.04] focus:outline-none transition-all placeholder:text-white/10"
                     />
                   </div>
-                  <button
-                    disabled={loading}
-                    onClick={requestOtp}
-                    className="w-full h-12 bg-[#5227FF] hover:bg-[#4316FF] text-white font-bold rounded-xl transition-all flex items-center justify-center gap-2"
-                  >
-                    {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Send Authorization Code"}
-                  </button>
-                </div>
-              ) : (
-                <div className="space-y-4">
-                  <div className="relative">
-                    <Lock className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-white/20" />
+                ) : (
+                  <div className="relative group">
+                    <Lock className="absolute left-5 top-1/2 -translate-y-1/2 text-white/20 transition-colors group-focus-within:text-indigo-400" size={20} />
                     <input
                       type="text"
+                      placeholder="······"
                       maxLength={6}
-                      placeholder="Enter 6-digit OTP"
                       value={otp}
-                      onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                      className="w-full h-12 bg-white/[0.03] border border-white/10 rounded-xl pl-12 pr-4 text-white font-mono tracking-[0.5em] text-center outline-none focus:border-[#5227FF]/50"
+                      onChange={(e) => setOtp(e.target.value)}
+                      className="w-full rounded-2xl border border-white/5 bg-white/[0.02] py-5 pl-14 pr-6 text-white tracking-[0.8em] text-center font-mono text-2xl focus:border-indigo-500/50 focus:bg-white/[0.04] focus:outline-none transition-all placeholder:text-white/10"
                     />
                   </div>
-                  <button
-                    disabled={loading}
-                    onClick={verifyOtp}
-                    className="w-full h-12 bg-[#00E87A] hover:bg-[#00D16E] text-[#070914] font-black rounded-xl transition-all flex items-center justify-center gap-2"
-                  >
-                    {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : "Verify & Download"}
-                  </button>
-                  <button 
-                    onClick={() => setStep("email")}
-                    className="w-full text-center text-xs text-white/20 hover:text-white"
-                  >
-                    Use a different email address
-                  </button>
-                </div>
-              )}
+                )}
+
+                <button
+                  disabled={loading}
+                  onClick={step === "VERIFY_EMAIL" ? handleRequestOtp : handleVerifyOtp}
+                  className="flex w-full items-center justify-center gap-3 rounded-[1.25rem] bg-[#5227FF] py-5 text-lg font-black text-white shadow-[0_10px_20px_-10px_rgba(82,39,255,0.4)] transition-all hover:translate-y-[-2px] hover:shadow-[0_15px_30px_-10px_rgba(82,39,255,0.5)] active:translate-y-0 disabled:opacity-50"
+                >
+                  {loading ? <Loader2 className="animate-spin" size={24} /> : (step === "VERIFY_EMAIL" ? "Request Access" : "Verify & Download")}
+                </button>
+              </div>
             </motion.div>
           </div>
         )}

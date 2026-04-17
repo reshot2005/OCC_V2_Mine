@@ -2,7 +2,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { requireAdmin } from "@/lib/auth";
+import { requireAdminApi } from "@/lib/auth";
 import { sha256Hex } from "@/lib/otp";
 import { signAuthToken } from "@/lib/jwt";
 import { ACTIVITY_CATEGORIES, extractRequestIp, logActivityEvent } from "@/lib/activity-events";
@@ -14,43 +14,41 @@ const verifySchema = z.object({
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await requireAdmin();
-    const { email, otp } = verifySchema.parse(await req.json());
+    const session = await requireAdminApi();
+    if (session instanceof NextResponse) return session;
 
+    const { email, otp } = verifySchema.parse(await req.json());
     const purpose = "EXPORT";
     
-    // Using raw query to fetch the record to bypass client-side enum validation
-    const records: any[] = await prisma.$queryRaw`
-      SELECT * FROM email_otp_tokens 
-      WHERE email = ${email} 
-      AND purpose = ${purpose}::"OtpPurpose" 
-      AND "usedAt" IS NULL 
-      AND "expiresAt" > NOW() 
-      LIMIT 1
-    `;
-
-    const record = records[0];
+    // Find valid token
+    const record = await prisma.emailOtpToken.findFirst({
+      where: {
+        email,
+        purpose: "EXPORT" as any,
+        usedAt: null,
+        expiresAt: { gt: new Date() }
+      },
+      orderBy: { createdAt: "desc" }
+    });
 
     if (!record) {
-      return NextResponse.json({ error: "OTP expired or not found" }, { status: 400 });
+      return NextResponse.json({ error: "No active verification code found or code expired." }, { status: 400 });
     }
 
     const expectedHash = sha256Hex(`${purpose}:${email}:${otp}`);
     if (record.codeHash !== expectedHash) {
-      await prisma.$executeRaw`
-        UPDATE email_otp_tokens 
-        SET "attemptsLeft" = "attemptsLeft" - 1 
-        WHERE id = ${record.id}
-      `;
-      return NextResponse.json({ error: "Invalid OTP code" }, { status: 400 });
+      await prisma.emailOtpToken.update({
+        where: { id: record.id },
+        data: { attemptsLeft: { decrement: 1 } }
+      });
+      return NextResponse.json({ error: "Invalid verification code." }, { status: 400 });
     }
 
     // Mark as used
-    await prisma.$executeRaw`
-      UPDATE email_otp_tokens 
-      SET "usedAt" = NOW() 
-      WHERE id = ${record.id}
-    `;
+    await prisma.emailOtpToken.update({
+      where: { id: record.id },
+      data: { usedAt: new Date() }
+    });
 
     // Create a temporary export token (valid for 10 minutes)
     const exportToken = await signAuthToken(
@@ -76,6 +74,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ success: true, exportToken });
   } catch (err: any) {
     console.error("Export OTP Verification Error:", err);
-    return NextResponse.json({ error: err.message || "Failed" }, { status: 500 });
+    return NextResponse.json({ error: "Verification failed." }, { status: 500 });
   }
 }

@@ -395,10 +395,9 @@ function RegisterPageInner() {
           <div>
             <input
               type="text"
-              placeholder="CLUB REFERRAL CODE"
+              placeholder="CLUB REFERRAL CODE (OPTIONAL)"
               value={referralCode}
               onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-              required
               className={`w-full px-5 py-4 bg-white border-2 rounded-2xl text-sm font-bold text-gray-900 placeholder:text-gray-500 placeholder:uppercase placeholder:font-black placeholder:tracking-widest focus:outline-none focus:border-gray-900 focus:ring-4 transition-all ${referralMeta?.valid ? "border-emerald-500 focus:ring-emerald-500/5 focus:border-emerald-500" : "border-gray-400 focus:ring-gray-900/5"
                 }`}
             />

@@ -7,7 +7,7 @@ import React, {
   useEffect,
   useMemo,
 } from "react";
-import { motion, useDragControls, useMotionValue } from "motion/react";
+import { motion, useDragControls, useMotionValue } from "framer-motion";
 
 const STORAGE_PREFIX = "layout-editor-pos-";
 const STORAGE_PREFIX_BLOCK = "layout-editor-block-";
@@ -21,7 +21,6 @@ export const LAYOUT_SECTION_IDS = [
   "featured-work",
   "experiences",
   "showcase-cards",
-  "footer",
 ] as const;
 
 type LayoutEditorContextValue = {
