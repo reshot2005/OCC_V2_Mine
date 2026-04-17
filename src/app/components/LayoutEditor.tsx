@@ -21,6 +21,7 @@ export const LAYOUT_SECTION_IDS = [
   "featured-work",
   "experiences",
   "showcase-cards",
+  "footer",
 ] as const;
 
 type LayoutEditorContextValue = {

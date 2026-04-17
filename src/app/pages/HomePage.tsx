@@ -9,6 +9,7 @@ import { Approach } from "../components/Approach";
 import { FeaturedWork } from "../components/FeaturedWork";
 import { Experiences } from "../components/Experiences";
 import { ShowcaseCards } from "../components/ShowcaseCards";
+import { Footer } from "../components/Footer";
 import { LayoutEditorProvider, MovableSection } from "../components/LayoutEditor";
 
 export default function HomePage({ userId }: { userId?: string }) {
@@ -89,6 +90,9 @@ export default function HomePage({ userId }: { userId?: string }) {
             <ShowcaseCards />
           </MovableSection>
         </main>
+        <MovableSection id="footer">
+          <Footer theme={theme} />
+        </MovableSection>
       </div>
     </LayoutEditorProvider>
   );
