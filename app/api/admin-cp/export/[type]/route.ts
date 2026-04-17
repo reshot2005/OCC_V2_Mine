@@ -25,11 +25,26 @@ export async function GET(req: NextRequest, { params }: { params: { type: string
     return NextResponse.json({ error: "Invalid or expired session. Please re-verify." }, { status: 401 });
   }
 
+  const from = req.nextUrl.searchParams.get("from");
+  const to = req.nextUrl.searchParams.get("to");
+
+  const dateFilter: any = {};
+  if (from || to) {
+    dateFilter.createdAt = {};
+    if (from) dateFilter.createdAt.gte = new Date(from);
+    if (to) {
+      const toDate = new Date(to);
+      toDate.setHours(23, 59, 59, 999);
+      dateFilter.createdAt.lte = toDate;
+    }
+  }
+
   let data: any[] = [];
   let name = `occ-${type}`;
 
   if (type === "users") {
     const users = await prisma.user.findMany({
+      where: dateFilter,
       select: {
         fullName: true,
         phoneNumber: true,
@@ -52,7 +67,7 @@ export async function GET(req: NextRequest, { params }: { params: { type: string
     }));
   } else if (type === "headers") {
     const headers = await prisma.user.findMany({
-      where: { role: "CLUB_HEADER" },
+      where: { role: "CLUB_HEADER", ...dateFilter },
       select: {
         fullName: true,
         email: true,
@@ -71,6 +86,7 @@ export async function GET(req: NextRequest, { params }: { params: { type: string
     }));
   } else if (type === "clubs") {
     const clubs = await prisma.club.findMany({
+      where: dateFilter,
       include: { header: { select: { fullName: true } }, _count: { select: { members: true } } }
     });
     data = clubs.map(c => ({

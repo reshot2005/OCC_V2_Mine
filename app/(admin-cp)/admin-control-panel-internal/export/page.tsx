@@ -20,6 +20,22 @@ export default function ExportPage() {
   const [loading, setLoading] = useState(false);
   const [exportToken, setExportToken] = useState<string | null>(null);
   const [pendingType, setPendingType] = useState<string | null>(null);
+  const [datePreset, setDatePreset] = useState<string>("all");
+  const [customRange, setCustomRange] = useState<{ from: string; to: string }>({ from: "", to: "" });
+
+  const getEffectiveRange = () => {
+    if (datePreset === "custom") return customRange;
+    if (datePreset === "all") return { from: "", to: "" };
+    
+    const now = new Date();
+    const from = new Date();
+    if (datePreset === "1w") from.setDate(now.getDate() - 7);
+    else if (datePreset === "1m") from.setMonth(now.getMonth() - 1);
+    else if (datePreset === "3m") from.setMonth(now.getMonth() - 3);
+    else if (datePreset === "6m") from.setMonth(now.getMonth() - 6);
+    
+    return { from: from.toISOString().split("T")[0], to: now.toISOString().split("T")[0] };
+  };
 
   const startExport = (type: string) => {
     if (exportToken) {
@@ -76,9 +92,14 @@ export default function ExportPage() {
   };
 
   const executeDownload = async (type: string, token: string) => {
+    const { from, to } = getEffectiveRange();
+    const q = new URLSearchParams();
+    if (from) q.append("from", from);
+    if (to) q.append("to", to);
+    
     toast.info(`Generating ${type} Excel report...`);
     try {
-      const res = await fetch(`/api/admin-cp/export/${type}`, {
+      const res = await fetch(`/api/admin-cp/export/${type}?${q.toString()}`, {
         headers: { "Authorization": `Bearer ${token}` }
       });
       if (!res.ok) {
@@ -103,14 +124,60 @@ export default function ExportPage() {
   };
 
   return (
-    <div className="space-y-6">
-      <div>
-        <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#5227FF]">Maintenance & Records</p>
-        <h1 className="mt-1 text-2xl font-bold text-white flex items-center gap-3">
-          <Download className="h-6 w-6 text-[#5227FF]" /> Advanced Export
-        </h1>
-        <p className="text-sm text-white/40 mt-1">Download secure Excel reports (Requires Email/OTP Verification)</p>
+    <div className="space-y-8">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-[#5227FF]">Maintenance & Records</p>
+          <h1 className="mt-1 text-3xl font-bold text-white flex items-center gap-3">
+            <Download className="h-8 w-8 text-[#5227FF]" /> Advanced Export
+          </h1>
+          <p className="text-sm text-white/40 mt-1">Download secure Excel reports (Requires Email/OTP Verification)</p>
+        </div>
+
+        <div className="flex flex-col gap-3">
+           <label className="text-[10px] font-black uppercase tracking-widest text-[#5227FF]">Filter by Date Range</label>
+           <div className="flex flex-wrap items-center gap-2">
+              {["all", "1w", "1m", "3m", "6m", "custom"].map((p) => (
+                <button
+                  key={p}
+                  onClick={() => setDatePreset(p)}
+                  className={`px-3 py-1.5 rounded-lg text-[11px] font-bold uppercase tracking-wider transition-all border ${
+                    datePreset === p 
+                      ? "bg-[#5227FF] border-[#5227FF] text-white shadow-[0_5px_15px_rgba(82,39,255,0.3)]" 
+                      : "bg-white/[0.03] border-white/10 text-white/40 hover:text-white/60 hover:bg-white/[0.05]"
+                  }`}
+                >
+                  {p === "all" ? "All Time" : p === "1w" ? "1 Week" : p === "1m" ? "1 Month" : p === "3m" ? "3 Months" : p === "6m" ? "6 Months" : "Custom"}
+                </button>
+              ))}
+           </div>
+        </div>
       </div>
+
+      {datePreset === "custom" && (
+        <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="flex flex-wrap items-center gap-4 p-5 rounded-2xl bg-white/[0.02] border border-white/[0.05]">
+          <div className="space-y-1.5">
+            <label className="text-[9px] font-bold uppercase text-white/30 ml-1">Start Date</label>
+            <input 
+              type="date" 
+              value={customRange.from} 
+              onChange={(e) => setCustomRange(p => ({ ...p, from: e.target.value }))}
+              className="bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-sm text-white outline-none focus:border-[#5227FF]/50 [color-scheme:dark]"
+            />
+          </div>
+          <div className="self-end pb-3 text-white/20 hidden sm:block">to</div>
+          <div className="space-y-1.5">
+            <label className="text-[9px] font-bold uppercase text-white/30 ml-1">End Date</label>
+            <input 
+              type="date" 
+              value={customRange.to} 
+              onChange={(e) => setCustomRange(p => ({ ...p, to: e.target.value }))}
+              className="bg-black/40 border border-white/10 rounded-xl px-4 py-2 text-sm text-white outline-none focus:border-[#5227FF]/50 [color-scheme:dark]"
+            />
+          </div>
+          <p className="text-[10px] text-white/30 mt-auto pb-3 ml-2 italic">Select range for targeted data extraction.</p>
+        </motion.div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {exportCategories.map((ex, i) => (
