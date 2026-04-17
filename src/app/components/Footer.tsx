@@ -3,7 +3,6 @@
 import React from "react";
 import { Mail, Phone, MapPin, Globe, Share2, MessageSquare, ExternalLink } from "lucide-react";
 import { OCC_BRAND_ICON } from "@/lib/brand";
-import { MovableSection } from "./LayoutEditor";
 
 export function Footer({ theme }: { theme: "dark" | "light" }) {
   const isDark = theme === "dark";

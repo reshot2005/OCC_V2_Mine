@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence } from "motion/react";
 import { Download, Users, Grid3X3, UserCog, ShieldCheck, Mail, Lock, X, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
