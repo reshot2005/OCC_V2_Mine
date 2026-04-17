@@ -98,13 +98,13 @@ export function PostsCRUD({ posts: initial, clubs }: { posts: Post[]; clubs: { i
           />
         </div>
         <select value={clubF} onChange={(e) => setClubF(e.target.value)} className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none">
-          <option value="">All clubs</option>
-          {clubs.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+          <option value="" className="bg-[#0D0F1C] text-white">All clubs</option>
+          {clubs.map((c) => <option key={c.id} value={c.id} className="bg-[#0D0F1C] text-white">{c.name}</option>)}
         </select>
         <select value={hiddenF} onChange={(e) => setHiddenF(e.target.value)} className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none">
-          <option value="">All</option>
-          <option value="visible">Visible</option>
-          <option value="hidden">Hidden</option>
+          <option value="" className="bg-[#0D0F1C] text-white">All</option>
+          <option value="visible" className="bg-[#0D0F1C] text-white">Visible</option>
+          <option value="hidden" className="bg-[#0D0F1C] text-white">Hidden</option>
         </select>
       </div>
 

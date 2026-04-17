@@ -10,8 +10,10 @@ import {
   Lock,
   Mail,
   Phone,
+  Ticket,
   User,
 } from "lucide-react";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/app/components/ui/input-otp";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import * as React from "react";
@@ -64,8 +66,10 @@ export function RegisterForm() {
     defaultValues: {
       fullName: "",
       collegeName: "",
-      phoneNumber: "",
       email: "",
+      phoneNumber: "",
+      referralCode: "",
+      otp: "",
       password: "",
       confirmPassword: "",
       acceptedTerms: false,
@@ -127,7 +131,51 @@ export function RegisterForm() {
       </div>
 
       <form className="space-y-5" onSubmit={form.handleSubmit(onSubmit)}>
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0, ease }}
+          className="space-y-2"
+        >
+          <label className="text-[10px] font-bold uppercase tracking-[0.4em] text-slate-400">
+            Verification Code
+          </label>
+          <div className="flex justify-center py-2">
+            <InputOTP
+              maxLength={6}
+              value={form.watch("otp")}
+              onChange={(value) => form.setValue("otp", value, { shouldValidate: true })}
+            >
+              <InputOTPGroup className="gap-2">
+                {[0, 1, 2, 3, 4, 5].map((index) => (
+                  <InputOTPSlot
+                    key={index}
+                    index={index}
+                    className="h-14 w-12 rounded-xl border-white/10 bg-white/5 text-lg text-[#F5F0E8]"
+                  />
+                ))}
+              </InputOTPGroup>
+            </InputOTP>
+          </div>
+          {form.formState.errors.otp && (
+            <p className="text-xs text-[#FF4D4D]">{form.formState.errors.otp.message}</p>
+          )}
+        </motion.div>
+
         {[
+          {
+            key: "referralCode",
+            render: (
+              <PremiumInput
+                label="Club Referral Code"
+                icon={Ticket}
+                placeholder="Optional referral code"
+                error={form.formState.errors.referralCode?.message}
+                isValid={!!form.getFieldState("referralCode").isDirty && !form.formState.errors.referralCode}
+                {...form.register("referralCode")}
+              />
+            ),
+          },
           {
             key: "fullName",
             render: (
@@ -145,7 +193,7 @@ export function RegisterForm() {
             key: "collegeName",
             render: (
               <PremiumInput
-                label="College Name"
+                label="COLLEGE / UNIVERSITY"
                 icon={Building2}
                 placeholder="Delhi University"
                 value={collegeName}
@@ -173,7 +221,7 @@ export function RegisterForm() {
             key: "phoneNumber",
             render: (
               <PremiumInput
-                label="Phone Number"
+                label="Mobile Number"
                 icon={Phone}
                 placeholder="98765 43210"
                 prefix="+91"
@@ -213,9 +261,10 @@ export function RegisterForm() {
                     <button
                       type="button"
                       onClick={() => setShowPassword((value) => !value)}
-                      className="text-[#8A8478] transition hover:text-[#F5F0E8]"
+                      className="text-[#C9A96E] transition hover:text-[#F5F0E8]"
+                      aria-label={showPassword ? "Hide password" : "Show password"}
                     >
-                      {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                     </button>
                   }
                   {...form.register("password")}
@@ -255,9 +304,10 @@ export function RegisterForm() {
                   <button
                     type="button"
                     onClick={() => setShowConfirmPassword((value) => !value)}
-                    className="text-[#8A8478] transition hover:text-[#F5F0E8]"
+                    className="text-[#C9A96E] transition hover:text-[#F5F0E8]"
+                    aria-label={showConfirmPassword ? "Hide password" : "Show password"}
                   >
-                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                    {showConfirmPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                   </button>
                 }
                 {...form.register("confirmPassword")}

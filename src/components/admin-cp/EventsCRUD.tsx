@@ -226,7 +226,11 @@ export function EventsCRUD({ events: initial, clubs }: { events: Event[]; clubs:
                     <div>
                       <label className="text-[10px] font-black uppercase tracking-widest text-white/40 block mb-1.5">Hosted By *</label>
                       <select value={form.clubId} onChange={(e) => setForm((p) => ({ ...p, clubId: e.target.value }))} className="w-full rounded-xl border border-white/10 bg-black/40 px-4 py-3 text-sm text-white outline-none focus:border-[#5227FF]/40 transition-colors">
-                        {clubs.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+                        {clubs.map((c) => (
+                          <option key={c.id} value={c.id} className="bg-[#0D0F1C] text-white">
+                            {c.name}
+                          </option>
+                        ))}
                       </select>
                     </div>
                     <div>

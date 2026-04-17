@@ -109,7 +109,7 @@ export async function GET(req: NextRequest, { params }: { params: { type: string
       adminName: adminUser?.fullName || "Admin",
       targetEmail: adminSession.targetEmail || "Unknown",
       type: type,
-      ip: extractRequestIp(req),
+      ip: extractRequestIp(req) || "unknown",
     });
   } catch (err) {
     console.error("Failed to send export notification email:", err);

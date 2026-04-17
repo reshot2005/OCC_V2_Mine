@@ -15,6 +15,7 @@ export const registerSchema = z
         return digits.length > 10 ? digits.slice(-10) : digits;
       }),
     email: z.string().email("Enter a valid email"),
+    referralCode: z.string().optional(),
     password: z
       .string()
       .min(8, "Password must be at least 8 characters")

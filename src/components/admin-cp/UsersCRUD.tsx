@@ -198,23 +198,23 @@ export function UsersCRUD({ users: initial }: { users: User[] }) {
           />
         </div>
         <select value={roleF} onChange={(e) => setRoleF(e.target.value)} className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none">
-          <option value="">All roles</option>
-          <option value="STUDENT">Student</option>
-          <option value="CLUB_HEADER">Club Header</option>
-          <option value="ADMIN">Admin</option>
+          <option value="" className="bg-[#0D0F1C] text-white">All roles</option>
+          <option value="STUDENT" className="bg-[#0D0F1C] text-white">Student</option>
+          <option value="CLUB_HEADER" className="bg-[#0D0F1C] text-white">Club Header</option>
+          <option value="ADMIN" className="bg-[#0D0F1C] text-white">Admin</option>
         </select>
         <select value={statusF} onChange={(e) => setStatusF(e.target.value)} className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none">
-          <option value="">All status</option>
-          <option value="PENDING">Pending</option>
-          <option value="APPROVED">Approved</option>
-          <option value="REJECTED">Rejected</option>
-          <option value="SUSPENDED">Suspended</option>
+          <option value="" className="bg-[#0D0F1C] text-white">All status</option>
+          <option value="PENDING" className="bg-[#0D0F1C] text-white">Pending</option>
+          <option value="APPROVED" className="bg-[#0D0F1C] text-white">Approved</option>
+          <option value="REJECTED" className="bg-[#0D0F1C] text-white">Rejected</option>
+          <option value="SUSPENDED" className="bg-[#0D0F1C] text-white">Suspended</option>
         </select>
         <select value={phoneF} onChange={(e) => setPhoneF(e.target.value)} className="rounded-xl border border-white/10 bg-white/[0.03] px-3 py-2.5 text-sm text-white outline-none">
-          <option value="">All Phones</option>
-          <option value="LEGIT">Legit Only</option>
-          <option value="SUSPECT">Suspicious Only</option>
-          <option value="MISSING">Missing Only</option>
+          <option value="" className="bg-[#0D0F1C] text-white">All Phones</option>
+          <option value="LEGIT" className="bg-[#0D0F1C] text-white">Legit Only</option>
+          <option value="SUSPECT" className="bg-[#0D0F1C] text-white">Suspicious Only</option>
+          <option value="MISSING" className="bg-[#0D0F1C] text-white">Missing Only</option>
         </select>
       </div>
 

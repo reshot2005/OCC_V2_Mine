@@ -202,7 +202,11 @@ export function ClubsCRUD({ clubs: initial, headers }: { clubs: Club[]; headers:
                     <select value={form.theme} onChange={(e) => setForm((p) => ({ ...p, theme: e.target.value }))}
                       className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white outline-none"
                     >
-                      {["purple", "blue", "green", "red", "yellow", "pink", "indigo", "teal"].map((t) => <option key={t} value={t}>{t}</option>)}
+                      {["purple", "blue", "green", "red", "yellow", "pink", "indigo", "teal"].map((t) => (
+                        <option key={t} value={t} className="bg-[#0D0F1C] text-white">
+                          {t}
+                        </option>
+                      ))}
                     </select>
                   </div>
                 </div>
@@ -229,8 +233,12 @@ export function ClubsCRUD({ clubs: initial, headers }: { clubs: Club[]; headers:
                   <select value={form.headerId} onChange={(e) => setForm((p) => ({ ...p, headerId: e.target.value }))}
                     className="w-full rounded-xl border border-white/10 bg-white/[0.03] px-4 py-2.5 text-sm text-white outline-none"
                   >
-                    <option value="">None</option>
-                    {headers.map((h) => <option key={h.id} value={h.id}>{h.fullName} ({h.email})</option>)}
+                    <option value="" className="bg-[#0D0F1C] text-white">None</option>
+                    {headers.map((h) => (
+                      <option key={h.id} value={h.id} className="bg-[#0D0F1C] text-white">
+                        {h.fullName} ({h.email})
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
