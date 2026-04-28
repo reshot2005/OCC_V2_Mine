@@ -324,6 +324,20 @@ model EmailOtpToken {
   @@map("email_otp_tokens")
 }
 
+model PhoneOtpToken {
+  id           String     @id @default(cuid())
+  phoneNumber  String
+  purpose      OtpPurpose
+  codeHash     String
+  attemptsLeft Int        @default(5)
+  expiresAt    DateTime
+  usedAt       DateTime?
+  createdAt    DateTime   @default(now())
+
+  @@index([phoneNumber, purpose, expiresAt])
+  @@map("phone_otp_tokens")
+}
+
 model Follow {
   id          String   @id @default(cuid())
   followerId  String

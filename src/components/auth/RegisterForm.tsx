@@ -16,6 +16,7 @@ import {
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/app/components/ui/input-otp";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { toast } from "sonner";
 import * as React from "react";
 import { useForm } from "react-hook-form";
 import { PremiumButton } from "@/components/ui/PremiumButton";
@@ -60,6 +61,7 @@ export function RegisterForm() {
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
   const [serverError, setServerError] = React.useState<string | null>(null);
   const [collegeQuery, setCollegeQuery] = React.useState("");
+  const [isSendingOtp, setIsSendingOtp] = React.useState(false);
 
   const form = useForm<RegisterInput>({
     resolver: zodResolver(registerSchema),
@@ -89,6 +91,37 @@ export function RegisterForm() {
   const strength = passwordStrength(passwordValue ?? "");
   const passwordsMatch =
     !!confirmPasswordValue && !!passwordValue && passwordValue === confirmPasswordValue;
+
+  async function handleSendOtp() {
+    const phone = form.getValues("phoneNumber");
+    
+    // basic fast check
+    if (!phone || phone.replace(/\D/g, "").length < 10) {
+      toast.error("Enter a valid 10-digit mobile number first.");
+      form.trigger("phoneNumber");
+      return;
+    }
+    
+    setIsSendingOtp(true);
+    setServerError(null);
+    try {
+      const response = await fetch("/api/auth/register/send-phone-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phoneNumber: phone }),
+      });
+      const data = await response.json().catch(() => null);
+      if (response.ok) {
+        toast.success("OTP sent to your mobile number!");
+      } else {
+        toast.error(data?.error ?? "Failed to send OTP. Please try again.");
+      }
+    } catch (e) {
+      toast.error("Failed to send OTP");
+    } finally {
+      setIsSendingOtp(false);
+    }
+  }
 
   async function onSubmit(values: RegisterInput) {
     setServerError(null);
@@ -131,36 +164,7 @@ export function RegisterForm() {
       </div>
 
       <form className="space-y-5" onSubmit={form.handleSubmit(onSubmit)}>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0, ease }}
-          className="space-y-2"
-        >
-          <label className="text-[10px] font-bold uppercase tracking-[0.4em] text-slate-400">
-            Verification Code
-          </label>
-          <div className="flex justify-center py-2">
-            <InputOTP
-              maxLength={6}
-              value={form.watch("otp")}
-              onChange={(value) => form.setValue("otp", value, { shouldValidate: true })}
-            >
-              <InputOTPGroup className="gap-2">
-                {[0, 1, 2, 3, 4, 5].map((index) => (
-                  <InputOTPSlot
-                    key={index}
-                    index={index}
-                    className="h-14 w-12 rounded-xl border-white/10 bg-white/5 text-lg text-[#F5F0E8]"
-                  />
-                ))}
-              </InputOTPGroup>
-            </InputOTP>
-          </div>
-          {form.formState.errors.otp && (
-            <p className="text-xs text-[#FF4D4D]">{form.formState.errors.otp.message}</p>
-          )}
-        </motion.div>
+
 
         {[
           {
@@ -220,18 +224,56 @@ export function RegisterForm() {
           {
             key: "phoneNumber",
             render: (
-              <PremiumInput
-                label="Mobile Number"
-                icon={Phone}
-                placeholder="98765 43210"
-                prefix="+91"
-                error={form.formState.errors.phoneNumber?.message}
-                isValid={
-                  !!form.getFieldState("phoneNumber").isDirty &&
-                  !form.formState.errors.phoneNumber
-                }
-                {...form.register("phoneNumber")}
-              />
+              <div className="space-y-4">
+                <PremiumInput
+                  label="Mobile Number"
+                  icon={Phone}
+                  placeholder="98765 43210"
+                  prefix="+91"
+                  error={form.formState.errors.phoneNumber?.message}
+                  isValid={
+                    !!form.getFieldState("phoneNumber").isDirty &&
+                    !form.formState.errors.phoneNumber
+                  }
+                  rightSlot={
+                    <button
+                      type="button"
+                      onClick={handleSendOtp}
+                      disabled={isSendingOtp}
+                      className="text-xs font-semibold uppercase tracking-wider text-[#C9A96E] transition hover:text-[#F5F0E8] disabled:opacity-50"
+                    >
+                      {isSendingOtp ? "Sending..." : "Get OTP"}
+                    </button>
+                  }
+                  {...form.register("phoneNumber")}
+                />
+                
+                <div className="pt-2 space-y-2">
+                  <label className="text-[10px] font-bold uppercase tracking-[0.4em] text-slate-400">
+                    Verification Code
+                  </label>
+                  <div className="flex justify-start py-2">
+                    <InputOTP
+                      maxLength={6}
+                      value={form.watch("otp")}
+                      onChange={(value) => form.setValue("otp", value, { shouldValidate: true })}
+                    >
+                      <InputOTPGroup className="gap-2">
+                        {[0, 1, 2, 3, 4, 5].map((index) => (
+                          <InputOTPSlot
+                            key={index}
+                            index={index}
+                            className="h-11 w-11 rounded-lg border-white/10 bg-white/5 text-lg text-[#F5F0E8]"
+                          />
+                        ))}
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </div>
+                  {form.formState.errors.otp && (
+                    <p className="text-xs text-[#FF4D4D]">{form.formState.errors.otp.message}</p>
+                  )}
+                </div>
+              </div>
             ),
           },
           {

@@ -9,7 +9,6 @@ export type AdminModule =
   | "orbit"
   | "approvals"
   | "audit"
-  | "security"
   | "settings"
   | "export"
   | "analytics"
@@ -48,7 +47,6 @@ const SUPER_ADMIN_PERMISSIONS: Record<AdminModule, AdminAction[]> = {
   orbit: ["read", "create", "update", "delete"],
   approvals: ["read", "approve", "reject"],
   audit: ["read"],
-  security: ["read", "resolve"],
   settings: ["read", "update"],
   export: ["read", "csv_users", "csv_posts", "csv_clubs", "csv_events", "csv_gigs"],
   analytics: ["read"],
@@ -69,7 +67,6 @@ const MODERATOR_PERMISSIONS: Record<AdminModule, AdminAction[]> = {
   orbit: ["read"],
   approvals: ["read", "approve", "reject"],
   audit: [],
-  security: [],
   settings: [],
   export: [],
   analytics: ["read"],
@@ -158,7 +155,6 @@ export const ALL_MODULES: { key: AdminModule; label: string; icon: string }[] = 
   { key: "approvals", label: "Approvals", icon: "CheckCircle2" },
   { key: "analytics", label: "Analytics", icon: "TrendingUp" },
   { key: "audit", label: "Audit Log", icon: "ScrollText" },
-  { key: "security", label: "Security", icon: "ShieldAlert" },
   { key: "settings", label: "Settings", icon: "Settings" },
   { key: "export", label: "Export", icon: "Download" },
   { key: "roles", label: "Roles", icon: "Shield" },

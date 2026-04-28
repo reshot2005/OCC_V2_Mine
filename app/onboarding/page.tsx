@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { Loader2, CheckCircle2, XCircle, ArrowRight, MessageCircle, Globe, Users, GraduationCap } from "lucide-react";
 import { toast } from "sonner";
 import { REFERRAL_CODE_MIN_LEN } from "@/lib/validations";
+import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/app/components/ui/input-otp";
 
 const REFERRAL_SOURCES = [
   { id: "Instagram", icon: Globe },
@@ -60,6 +61,8 @@ export default function OnboardingPage() {
 
   // Step 3
   const [phoneNumber, setPhoneNumber] = useState("");
+  const [otp, setOtp] = useState("");
+  const [isSendingOtp, setIsSendingOtp] = useState(false);
 
   const referralValidateSeq = useRef(0);
 
@@ -150,10 +153,41 @@ export default function OnboardingPage() {
     setStep(3);
   };
 
+  const handleSendOtp = async () => {
+    const cleanPhone = phoneNumber.replace(/\D/g, "");
+    if (cleanPhone.length !== 10) {
+      toast.error("Please enter a valid 10-digit mobile number.");
+      return;
+    }
+
+    setIsSendingOtp(true);
+    try {
+      const res = await fetch("/api/auth/register/send-phone-otp", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ phoneNumber: cleanPhone }),
+      });
+      const data = await res.json().catch(() => null);
+      if (res.ok) {
+        toast.success("OTP sent to your mobile number!");
+      } else {
+        toast.error(data?.error || "Failed to send OTP. Please try again.");
+      }
+    } catch (err) {
+      toast.error("Failed to send OTP");
+    } finally {
+      setIsSendingOtp(false);
+    }
+  };
+
   const handleFinalSubmit = async () => {
     const cleanPhone = phoneNumber.replace(/\D/g, "");
     if (cleanPhone.length !== 10) {
       toast.error("Please enter a valid 10-digit mobile number.");
+      return;
+    }
+    if (otp.replace(/\D/g, "").length !== 6) {
+      toast.error("Please enter a valid 6-digit verification code.");
       return;
     }
 
@@ -164,6 +198,7 @@ export default function OnboardingPage() {
         collegeName: collegeName.trim(),
         referralCode: referralCode.trim().toUpperCase(),
         phoneNumber: cleanPhone,
+        otp: otp.replace(/\D/g, ""),
       };
 
       const res = await fetch("/api/onboarding/complete", {
@@ -410,12 +445,45 @@ export default function OnboardingPage() {
                     value={phoneNumber}
                     onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, "").slice(0, 10))}
                     placeholder="00000 00000"
-                    className="w-full bg-white/[0.03] border border-white/10 rounded-xl pl-16 pr-5 py-4 text-white font-medium text-xl focus:outline-none focus:border-white/30 focus:bg-white/[0.05] transition-all placeholder:text-white/20"
+                    className="w-full bg-white/[0.03] border border-white/10 rounded-xl pl-16 pr-24 py-4 text-white font-medium text-xl focus:outline-none focus:border-white/30 focus:bg-white/[0.05] transition-all placeholder:text-white/20"
                   />
+                  <div className="absolute right-3 top-1/2 -translate-y-1/2">
+                    <button
+                      type="button"
+                      onClick={handleSendOtp}
+                      disabled={isSendingOtp || phoneNumber.length !== 10}
+                      className="px-3 py-1.5 bg-blue-600/20 text-blue-400 hover:bg-blue-600/30 rounded-lg text-sm font-semibold transition disabled:opacity-50"
+                    >
+                      {isSendingOtp ? "Sending..." : "Get OTP"}
+                    </button>
+                  </div>
                 </div>
                 {phoneNumber.length > 0 && phoneNumber.length < 10 && (
                    <p className="text-xs text-amber-500/80">Keep typing... {phoneNumber.length}/10 digits</p>
                 )}
+
+                <div className="pt-4">
+                  <label className="text-sm font-medium text-white/60 uppercase tracking-wider block mb-3">
+                    Verification Code
+                  </label>
+                  <div className="flex justify-start">
+                    <InputOTP
+                      maxLength={6}
+                      value={otp}
+                      onChange={(value) => setOtp(value)}
+                    >
+                      <InputOTPGroup className="gap-2">
+                        {[0, 1, 2, 3, 4, 5].map((index) => (
+                          <InputOTPSlot
+                            key={index}
+                            index={index}
+                            className="h-12 w-12 rounded-xl border-white/10 bg-white/5 text-xl font-medium text-white focus:bg-white/10 focus:border-blue-500/50 transition-all"
+                          />
+                        ))}
+                      </InputOTPGroup>
+                    </InputOTP>
+                  </div>
+                </div>
               </div>
 
               <div className="pt-6">

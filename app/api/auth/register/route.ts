@@ -37,12 +37,12 @@ export async function POST(req: NextRequest) {
     // Referral code is now optional as requested by the user.
     // If provided, we will validate and attach later in the flow.
 
-    const otpEmail = validated.email;
+    const otpPhone = validated.phoneNumber;
     const otpPurpose = "REGISTER" as const;
 
-    const latestOtpToken = await prisma.emailOtpToken.findFirst({
+    const latestOtpToken = await prisma.phoneOtpToken.findFirst({
       where: {
-        email: otpEmail,
+        phoneNumber: otpPhone,
         purpose: otpPurpose,
         usedAt: null,
         expiresAt: { gt: new Date() },
@@ -54,10 +54,10 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid or expired OTP" }, { status: 400 });
     }
 
-    const expectedHash = sha256Hex(`${otpPurpose}:${otpEmail}:${validated.otp}`);
+    const expectedHash = sha256Hex(`${otpPurpose}:${otpPhone}:${validated.otp}`);
     if (expectedHash !== latestOtpToken.codeHash) {
       const nextAttempts = Math.max(0, latestOtpToken.attemptsLeft - 1);
-      await prisma.emailOtpToken.update({
+      await prisma.phoneOtpToken.update({
         where: { id: latestOtpToken.id },
         data: {
           attemptsLeft: nextAttempts,
@@ -106,7 +106,7 @@ export async function POST(req: NextRequest) {
       },
     });
 
-    await prisma.emailOtpToken.update({
+    await prisma.phoneOtpToken.update({
       where: { id: latestOtpToken.id },
       data: { usedAt: new Date() },
     });

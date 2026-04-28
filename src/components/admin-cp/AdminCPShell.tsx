@@ -4,8 +4,8 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   LayoutDashboard, Grid3X3, Users, FileText, Calendar, Orbit, Briefcase,
-  CheckCircle2, TrendingUp, ScrollText, ShieldAlert, Settings, Download,
-  ChevronRight, LogOut, MoreHorizontal, Shield, Flag, ToggleLeft, Radio, Clock, FileKey, Activity,
+  CheckCircle2, TrendingUp, ScrollText, Settings, Download,
+  ChevronRight, LogOut, MoreHorizontal, Shield, Flag, ToggleLeft, Radio, Clock, FileKey,
 } from "lucide-react";
 import { adminCpHref, ADMIN_CP_PREFIX } from "@/lib/staff-paths";
 import { type AdminLevel, can, type AdminModule, type EffectiveAdminAccess } from "@/lib/admin-permissions";
@@ -34,9 +34,8 @@ const nav: NavItem[] = [
   { path: "/moderation", label: "Moderation", icon: Flag, module: "moderation" },
   { path: "/analytics", label: "Analytics", icon: TrendingUp, module: "analytics" },
   { path: "/export", label: "Export", icon: Download, module: "export" },
-  { path: "/activity", label: "Activity", icon: Activity, module: "audit" },
+  { path: "/activity", label: "Activity", icon: ScrollText, module: "audit" },
   { path: "/audit", label: "Audit Log", icon: ScrollText, module: "audit" },
-  { path: "/security", label: "Security", icon: ShieldAlert, badgeKey: "alerts", module: "security" },
   { path: "/roles", label: "Roles", icon: Shield, module: "roles" },
   { path: "/feature-flags", label: "Feature flags", icon: ToggleLeft, module: "feature_flags" },
   { path: "/broadcasts", label: "Broadcasts", icon: Radio, module: "broadcasts" },
@@ -71,21 +70,6 @@ export function AdminCPShell({
   const logout = useLogout();
   const [mounted, setMounted] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
-  const [siem, setSiem] = useState<{
-    loading: boolean;
-    critical: number;
-    high: number;
-    medium: number;
-    low: number;
-    recent: Array<{ id: string; reason: string; severity: string; createdAt: string }>;
-  }>({
-    loading: true,
-    critical: 0,
-    high: 0,
-    medium: 0,
-    low: 0,
-    recent: [],
-  });
   const profileRef = useRef<HTMLDivElement>(null);
   const al = (adminUser.adminLevel ?? "SUPER_ADMIN") as AdminLevel;
   const access = toEffectiveAccess(adminAccess);
@@ -103,40 +87,6 @@ export function AdminCPShell({
     document.addEventListener("mousedown", h);
     return () => document.removeEventListener("mousedown", h);
   }, []);
-
-  useEffect(() => {
-    if (!can(access, "security", "read")) return;
-    let alive = true;
-    const pull = async () => {
-      try {
-        const res = await fetch("/api/admin-cp/security?resolved=false", { cache: "no-store" });
-        if (!res.ok) return;
-        const data = await res.json();
-        const alerts = Array.isArray(data?.alerts) ? data.alerts : [];
-        const next = {
-          critical: alerts.filter((a: any) => String(a?.severity || "").toUpperCase() === "CRITICAL").length,
-          high: alerts.filter((a: any) => String(a?.severity || "").toUpperCase() === "HIGH").length,
-          medium: alerts.filter((a: any) => String(a?.severity || "").toUpperCase() === "MEDIUM").length,
-          low: alerts.filter((a: any) => String(a?.severity || "").toUpperCase() === "LOW").length,
-          recent: alerts.slice(0, 3).map((a: any) => ({
-            id: String(a.id),
-            reason: String(a.reason || "Suspicious activity"),
-            severity: String(a.severity || "MEDIUM").toUpperCase(),
-            createdAt: String(a.createdAt || ""),
-          })),
-        };
-        if (alive) setSiem((prev) => ({ ...prev, loading: false, ...next }));
-      } catch {
-        if (alive) setSiem((prev) => ({ ...prev, loading: false }));
-      }
-    };
-    void pull();
-    const timer = window.setInterval(pull, 12000);
-    return () => {
-      alive = false;
-      window.clearInterval(timer);
-    };
-  }, [access]);
 
   const navWithHref = visibleNav.map((item) => ({ ...item, href: adminCpHref(item.path) }));
 
@@ -219,44 +169,6 @@ export function AdminCPShell({
                 );
               })}
             </nav>
-
-            {can(access, "security", "read") && (
-              <Link href={adminCpHref("/security")} className="mt-4 block">
-                <div className="rounded-xl border border-red-500/25 bg-red-500/5 p-3">
-                  <div className="mb-2 flex items-center justify-between">
-                    <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-red-300">
-                      <Activity className="h-3.5 w-3.5" /> Mini SIEM
-                    </div>
-                    {!siem.loading && (
-                      <span className="text-[10px] text-white/45">
-                        Live
-                      </span>
-                    )}
-                  </div>
-                  {siem.loading ? (
-                    <p className="text-[11px] text-white/40">Loading alerts...</p>
-                  ) : (
-                    <>
-                      <div className="grid grid-cols-4 gap-1.5 text-center text-[10px]">
-                        <div className="rounded-md bg-[#2a0a0a] py-1 text-red-300">C {siem.critical}</div>
-                        <div className="rounded-md bg-[#2a0f0a] py-1 text-orange-300">H {siem.high}</div>
-                        <div className="rounded-md bg-[#1d1a0a] py-1 text-yellow-300">M {siem.medium}</div>
-                        <div className="rounded-md bg-[#111827] py-1 text-blue-300">L {siem.low}</div>
-                      </div>
-                      <div className="mt-2 space-y-1">
-                        {siem.recent.length === 0 ? (
-                          <p className="text-[10px] text-white/35">No unresolved alerts.</p>
-                        ) : siem.recent.map((a) => (
-                          <p key={a.id} className="truncate text-[10px] text-white/50">
-                            [{a.severity}] {a.reason}
-                          </p>
-                        ))}
-                      </div>
-                    </>
-                  )}
-                </div>
-              </Link>
-            )}
           </div>
 
           {/* Profile */}
@@ -313,11 +225,6 @@ export function AdminCPShell({
               </span>
             </div>
             <div className="flex items-center gap-3">
-              {alertCount > 0 && (
-                <Link href={adminCpHref("/security")} className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-500/10 border border-red-500/30 text-xs font-bold text-red-400 hover:bg-red-500/20 transition-all">
-                  <ShieldAlert className="h-3.5 w-3.5" /> {alertCount} Alerts
-                </Link>
-              )}
             </div>
           </motion.header>
 

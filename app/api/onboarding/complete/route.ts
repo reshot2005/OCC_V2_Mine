@@ -4,6 +4,7 @@ import { getSessionUser } from "@/lib/auth";
 import { attachStudentToReferralCode } from "@/lib/attach-referral";
 import { authCookieOptions, signAuthToken } from "@/lib/jwt";
 import { logSuspiciousAccess } from "@/lib/security";
+import { sha256Hex } from "@/lib/otp";
 
 export async function POST(req: NextRequest) {
   try {
@@ -31,11 +32,12 @@ export async function POST(req: NextRequest) {
         });
       }
     }
-    const { referralSource, referralCode, phoneNumber } = body as {
+    const { referralSource, referralCode, phoneNumber, otp } = body as {
       referralSource?: string;
       collegeName?: string;
       referralCode?: string;
       phoneNumber?: string;
+      otp?: string;
     };
     const collegeName = typeof (body as { collegeName?: unknown })?.collegeName === "string"
       ? (body as { collegeName: string }).collegeName.trim()
@@ -64,6 +66,44 @@ export async function POST(req: NextRequest) {
     if (existing) {
        return NextResponse.json({ error: "This phone number is already registered with another account" }, { status: 400 });
     }
+
+    if (!otp || typeof otp !== "string" || otp.replace(/\D/g, "").length !== 6) {
+      return NextResponse.json({ error: "A valid 6-digit OTP is required" }, { status: 400 });
+    }
+
+    const otpPurpose = "REGISTER" as const;
+
+    const latestOtpToken = await prisma.phoneOtpToken.findFirst({
+      where: {
+        phoneNumber: cleanPhone,
+        purpose: otpPurpose,
+        usedAt: null,
+        expiresAt: { gt: new Date() },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    if (!latestOtpToken || latestOtpToken.attemptsLeft <= 0) {
+      return NextResponse.json({ error: "Invalid or expired OTP" }, { status: 400 });
+    }
+
+    const expectedHash = sha256Hex(`${otpPurpose}:${cleanPhone}:${otp}`);
+    if (expectedHash !== latestOtpToken.codeHash) {
+      const nextAttempts = Math.max(0, latestOtpToken.attemptsLeft - 1);
+      await prisma.phoneOtpToken.update({
+        where: { id: latestOtpToken.id },
+        data: {
+          attemptsLeft: nextAttempts,
+          usedAt: nextAttempts === 0 ? new Date() : null,
+        },
+      });
+      return NextResponse.json({ error: "Invalid or expired OTP" }, { status: 400 });
+    }
+
+    await prisma.phoneOtpToken.update({
+      where: { id: latestOtpToken.id },
+      data: { usedAt: new Date() },
+    });
 
     const codeNormalized =
       typeof referralCode === "string" && referralCode.trim().length > 0

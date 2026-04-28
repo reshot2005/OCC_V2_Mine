@@ -5,6 +5,33 @@ import { prisma } from "@/lib/prisma";
 import { verifyAuthToken } from "@/lib/jwt";
 import { staffGateHref } from "@/lib/staff-paths";
 
+export async function getLightSessionUser() {
+  const token = cookies().get("occ-token")?.value;
+  if (!token) return null;
+  try {
+    const payload = await verifyAuthToken(token);
+    // LIGHTWEIGHT FETCH: only core fields, no relations.
+    const user = await prisma.user.findUnique({
+      where: { id: payload.userId },
+      select: {
+        id: true,
+        email: true,
+        fullName: true,
+        role: true,
+        suspended: true,
+        emailVerified: true,
+        adminLevel: true,
+        adminRoleTemplateId: true,
+      },
+    });
+    if (!user || user.suspended) return null;
+    if (user.role === "STUDENT" && !user.emailVerified) return null;
+    return user;
+  } catch {
+    return null;
+  }
+}
+
 export async function getSessionUser() {
   const token = cookies().get("occ-token")?.value;
 
@@ -71,10 +98,20 @@ export async function requireAdmin() {
 }
 
 type SessionUser = NonNullable<Awaited<ReturnType<typeof getSessionUser>>>;
+type LightSessionUser = NonNullable<Awaited<ReturnType<typeof getLightSessionUser>>>;
 
 /** API routes: returns 401 Response or the admin user */
 export async function requireAdminApi(): Promise<SessionUser | NextResponse> {
   const user = await getSessionUser();
+  if (!user || user.role !== "ADMIN") {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+  return user;
+}
+
+/** API routes (Light): returns 401 Response or the light admin user */
+export async function requireLightAdminApi(): Promise<LightSessionUser | NextResponse> {
+  const user = await getLightSessionUser();
   if (!user || user.role !== "ADMIN") {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }

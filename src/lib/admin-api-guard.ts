@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireAdminApi } from "@/lib/auth";
+import { requireAdminApi, requireLightAdminApi } from "@/lib/auth";
 import { logPrivilegedMutation } from "@/lib/mutation-audit";
 import { checkAdminMutationRateLimit } from "@/lib/admin-rate-limit";
 import {
@@ -27,8 +27,12 @@ export async function getAdminEffectiveAccess(adminId: string): Promise<Effectiv
 export async function requireAdminPermission(
   module: AdminModule,
   action: AdminAction,
+  req?: Request,
 ): Promise<{ id: string; email: string; fullName: string; access: EffectiveAdminAccess } | NextResponse> {
-  const admin = await requireAdminApi();
+  // Optimization: use light session check for READ (GET) requests to save RAM.
+  const isRead = req?.method === "GET" || action === "read";
+  const admin = isRead ? await requireLightAdminApi() : await requireAdminApi();
+  
   if (admin instanceof NextResponse) return admin;
 
   const access = await getAdminEffectiveAccess(admin.id);
@@ -40,14 +44,19 @@ export async function requireAdminPermission(
   }
 
   // Centralized audit trail for privileged API permission checks.
-  await logPrivilegedMutation({
-    actor: { id: admin.id, email: admin.email, role: "ADMIN" },
-    method: "MUTATION_OR_READ",
-    path: "admin-api-guard",
-    module,
-    action,
-    details: { source: "requireAdminPermission" },
-  });
+  // Optimization: skip logging for READ actions in high-traffic modules to prevent DB bloat.
+  const skipAudit = isRead && module === "audit";
+
+  if (!skipAudit) {
+    await logPrivilegedMutation({
+      actor: { id: admin.id, email: admin.email, role: "ADMIN" },
+      method: req?.method || "MUTATION_OR_READ",
+      path: "admin-api-guard",
+      module,
+      action,
+      details: { source: "requireAdminPermission" },
+    });
+  }
 
   return {
     id: admin.id,
