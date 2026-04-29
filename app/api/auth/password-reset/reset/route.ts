@@ -4,7 +4,6 @@ import { ZodError } from "zod";
 import { prisma } from "@/lib/prisma";
 import { resetPasswordSchema } from "@/lib/validations";
 import { authCookieOptions, signAuthToken } from "@/lib/jwt";
-import { sha256Hex } from "@/lib/otp";
 import { ACTIVITY_CATEGORIES, extractRequestIp, logActivityEvent } from "@/lib/activity-events";
 
 export async function POST(req: NextRequest) {
@@ -15,45 +14,10 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const validated = resetPasswordSchema.parse(body);
 
-    const otpEmail = validated.email;
-    const otpPurpose = "RESET_PASSWORD" as const;
-
-    const latestOtpToken = await prisma.emailOtpToken.findFirst({
-      where: {
-        email: otpEmail,
-        purpose: otpPurpose,
-        usedAt: null,
-        expiresAt: { gt: new Date() },
-      },
-      orderBy: { createdAt: "desc" },
-    });
-
-    if (!latestOtpToken || latestOtpToken.attemptsLeft <= 0) {
-      return NextResponse.json({ error: "Invalid or expired OTP" }, { status: 400 });
-    }
-
-    const expectedHash = sha256Hex(`${otpPurpose}:${otpEmail}:${validated.otp}`);
-    if (expectedHash !== latestOtpToken.codeHash) {
-      const nextAttempts = Math.max(0, latestOtpToken.attemptsLeft - 1);
-      await prisma.emailOtpToken.update({
-        where: { id: latestOtpToken.id },
-        data: {
-          attemptsLeft: nextAttempts,
-          usedAt: nextAttempts === 0 ? new Date() : null,
-        },
-      });
-      return NextResponse.json({ error: "Invalid or expired OTP" }, { status: 400 });
-    }
-
-    await prisma.emailOtpToken.update({
-      where: { id: latestOtpToken.id },
-      data: { usedAt: new Date() },
-    });
-
-    // Reset password for the user.
-    const user = await prisma.user.findUnique({ where: { email: otpEmail } });
+    // Find user by email.
+    const user = await prisma.user.findUnique({ where: { email: validated.email } });
     if (!user) {
-      // Generic response to avoid enumeration.
+      // Generic response to avoid user enumeration.
       return NextResponse.json({ error: "Password reset failed" }, { status: 400 });
     }
 
@@ -62,6 +26,7 @@ export async function POST(req: NextRequest) {
       where: { id: user.id },
       data: { password: hashedPassword },
     });
+
     await logActivityEvent({
       actor: { userId: user.id, name: user.fullName, role: user.role },
       category: ACTIVITY_CATEGORIES.auth,
@@ -94,4 +59,3 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Password reset failed" }, { status: 500 });
   }
 }
-

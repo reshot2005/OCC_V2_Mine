@@ -2,8 +2,7 @@
 
 import React, { Suspense, useEffect, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { motion, AnimatePresence } from "motion/react";
-import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/app/components/ui/input-otp";
+import { motion } from "motion/react";
 import { Interactive3DModel } from "@/app/components/auth/Interactive3DModel";
 import { REFERRAL_CODE_MIN_LEN } from "@/lib/validations";
 
@@ -18,10 +17,7 @@ function RegisterPageInner() {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [otp, setOtp] = useState("");
   const [loading, setLoading] = useState(false);
-  const [sendingOtp, setSendingOtp] = useState(false);
-  const [otpHint, setOtpHint] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [referralCode, setReferralCode] = useState("");
@@ -49,7 +45,6 @@ function RegisterPageInner() {
       setReferralChecking(false);
       return;
     }
-    // Don’t call the API until the code can be valid — short inputs were returning { valid: false } and looked like “invalid code”.
     if (trimmed.length < REFERRAL_CODE_MIN_LEN) {
       setReferralMeta(null);
       setReferralChecking(false);
@@ -104,33 +99,6 @@ function RegisterPageInner() {
     };
   }, [referralCode]);
 
-  const sendVerificationCode = async () => {
-    setError("");
-    setSuccess("");
-    setOtpHint(null);
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-      setError("Enter a valid email before requesting a code.");
-      return;
-    }
-    setSendingOtp(true);
-    try {
-      const res = await fetch("/api/auth/register/send-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: email.trim() }),
-      });
-      if (!res.ok) {
-        setError("Could not send verification email. Check SMTP settings or try again.");
-        return;
-      }
-      setOtpHint("Check your inbox for a 6-digit code (valid ~10 minutes).");
-    } catch {
-      setError("Could not send verification email. Try again.");
-    } finally {
-      setSendingOtp(false);
-    }
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -167,11 +135,6 @@ function RegisterPageInner() {
       return;
     }
 
-    if (!/^\d{6}$/.test(otp)) {
-      setError('Enter the 6-digit code from your email (tap "Send verification code" first).');
-      return;
-    }
-
     setLoading(true);
 
     try {
@@ -186,7 +149,6 @@ function RegisterPageInner() {
           phoneNumber: phone.trim(),
           password,
           confirmPassword,
-          otp,
           referralCode: referralCode.trim() || undefined,
         }),
       });
@@ -333,7 +295,7 @@ function RegisterPageInner() {
           </div>
 
           {/* Email Input */}
-          <div className="space-y-2">
+          <div>
             <input
               type="email"
               placeholder="Your email"
@@ -342,56 +304,9 @@ function RegisterPageInner() {
               required
               className="w-full px-5 py-4 bg-white border-2 border-gray-400 rounded-2xl text-sm font-bold text-gray-900 placeholder:text-gray-500 focus:outline-none focus:border-gray-900 focus:ring-4 focus:ring-gray-900/5 transition-all"
             />
-            <button
-              type="button"
-              onClick={() => void sendVerificationCode()}
-              disabled={sendingOtp}
-              className="flex w-full items-center justify-center gap-2 rounded-xl border border-gray-300 bg-gray-50 py-3 text-sm font-semibold text-gray-800 transition hover:bg-gray-100 disabled:opacity-50"
-            >
-              {sendingOtp ? (
-                <span
-                  className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-gray-600 border-t-transparent"
-                  aria-hidden
-                />
-              ) : (
-                <svg
-                  className="h-4 w-4 shrink-0"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden
-                >
-                  <rect width="20" height="16" x="2" y="4" rx="2" />
-                  <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
-                </svg>
-              )}
-              Send verification code
-            </button>
-            {otpHint ? <p className="text-xs text-green-700">{otpHint}</p> : null}
           </div>
 
-          <div className="space-y-4">
-            <label className="text-xs font-black ml-1 uppercase tracking-widest text-[12px] text-gray-900">Verification Code</label>
-            <div className="flex justify-center">
-              <InputOTP
-                maxLength={6}
-                value={otp}
-                onChange={(v) => setOtp(v.replace(/\D/g, ""))}
-                containerClassName="gap-2"
-              >
-                <InputOTPGroup className="gap-2">
-                  {Array.from({ length: 6 }, (_, i) => (
-                    <InputOTPSlot key={i} index={i} className="h-16 w-14 rounded-2xl border-2 border-gray-400 bg-white text-lg font-black text-gray-900 shadow-sm transition-all focus:ring-4 focus:ring-gray-900/5 focus:border-gray-900" />
-                  ))}
-                </InputOTPGroup>
-              </InputOTP>
-            </div>
-          </div>
-
+          {/* Referral Code */}
           <div>
             <input
               type="text"
@@ -475,8 +390,6 @@ function RegisterPageInner() {
               className="w-full px-5 py-4 bg-white border-2 border-gray-400 rounded-2xl text-sm font-medium text-gray-900 placeholder:text-gray-500 placeholder:uppercase placeholder:font-semibold placeholder:tracking-[0.12em] focus:outline-none focus:border-gray-900 focus:ring-4 focus:ring-gray-900/5 transition-all"
             />
           </div>
-
-
 
           {/* Password Input */}
           <div>

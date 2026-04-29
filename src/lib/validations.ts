@@ -24,7 +24,6 @@ export const registerSchema = z
       .regex(/\d/, "Password must include a number"),
     confirmPassword: z.string(),
     acceptedTerms: z.boolean().optional(),
-    otp: z.string().regex(/^\d{6}$/, "OTP must be a 6-digit number"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
@@ -34,7 +33,6 @@ export const registerSchema = z
 export const resetPasswordSchema = z
   .object({
     email: z.string().email("Enter a valid email"),
-    otp: z.string().regex(/^\d{6}$/, "OTP must be a 6-digit number"),
     newPassword: z
       .string()
       .min(8, "Password must be at least 8 characters")

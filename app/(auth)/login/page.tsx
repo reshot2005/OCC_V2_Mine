@@ -46,15 +46,12 @@ function LoginPageInner() {
   const [error, setError] = useState("");
   const [forgotOpen, setForgotOpen] = useState(false);
   const [resetEmail, setResetEmail] = useState("");
-  const [resetOtp, setResetOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmNewPassword, setConfirmNewPassword] = useState("");
-  const [sendingResetOtp, setSendingResetOtp] = useState(false);
-  const [verifyingResetOtp, setVerifyingResetOtp] = useState(false);
-  const [resetOtpVerified, setResetOtpVerified] = useState(false);
   const [resetting, setResetting] = useState(false);
-  const [resetHint, setResetHint] = useState("");
+  const [resetSuccess, setResetSuccess] = useState("");
   const [resetError, setResetError] = useState("");
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
@@ -104,46 +101,19 @@ function LoginPageInner() {
   const openForgot = () => {
     setForgotOpen(true);
     setResetEmail(email || "");
-    setResetOtp("");
     setNewPassword("");
     setConfirmNewPassword("");
-    setResetHint("");
+    setResetSuccess("");
     setResetError("");
-    setResetOtpVerified(false);
-  };
-
-  const sendResetOtp = async () => {
-    setResetError("");
-    setResetHint("");
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(resetEmail.trim())) {
-      setResetError("Enter a valid email.");
-      return;
-    }
-    setSendingResetOtp(true);
-    try {
-      const res = await fetch("/api/auth/password-reset/send-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: resetEmail.trim() }),
-      });
-      if (!res.ok) {
-        setResetError("Could not send OTP. Try again.");
-        return;
-      }
-      setResetOtpVerified(false);
-      setResetHint("If this email is registered, a 6-digit OTP was sent.");
-    } catch {
-      setResetError("Could not send OTP. Try again.");
-    } finally {
-      setSendingResetOtp(false);
-    }
   };
 
   const resetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setResetError("");
-    if (!resetOtpVerified) {
-      setResetError("Verify OTP first.");
+    setResetSuccess("");
+
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(resetEmail.trim())) {
+      setResetError("Enter a valid email.");
       return;
     }
     if (newPassword.length < 8) {
@@ -158,6 +128,7 @@ function LoginPageInner() {
       setResetError("Passwords do not match.");
       return;
     }
+
     setResetting(true);
     try {
       const res = await fetch("/api/auth/password-reset/reset", {
@@ -166,14 +137,13 @@ function LoginPageInner() {
         credentials: "include",
         body: JSON.stringify({
           email: resetEmail.trim(),
-          otp: resetOtp,
           newPassword,
           confirmNewPassword,
         }),
       });
       const data = (await res.json().catch(() => null)) as { error?: string } | null;
       if (!res.ok) {
-        setResetError(data?.error || "Password reset failed.");
+        setResetError(data?.error || "Password reset failed. Make sure the email is registered.");
         return;
       }
       setForgotOpen(false);
@@ -183,40 +153,6 @@ function LoginPageInner() {
       setResetError("Password reset failed.");
     } finally {
       setResetting(false);
-    }
-  };
-
-  const verifyResetOtp = async () => {
-    setResetError("");
-    setResetHint("");
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(resetEmail.trim())) {
-      setResetError("Enter a valid email.");
-      return;
-    }
-    if (!/^\d{6}$/.test(resetOtp)) {
-      setResetError("Enter the 6-digit OTP.");
-      return;
-    }
-    setVerifyingResetOtp(true);
-    try {
-      const res = await fetch("/api/auth/password-reset/verify-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: resetEmail.trim(), otp: resetOtp }),
-      });
-      const data = (await res.json().catch(() => null)) as { error?: string } | null;
-      if (!res.ok) {
-        setResetOtpVerified(false);
-        setResetError(data?.error || "OTP verification failed.");
-        return;
-      }
-      setResetOtpVerified(true);
-      setResetHint("OTP verified. Now set your new password.");
-    } catch {
-      setResetOtpVerified(false);
-      setResetError("OTP verification failed.");
-    } finally {
-      setVerifyingResetOtp(false);
     }
   };
 
@@ -384,7 +320,7 @@ function LoginPageInner() {
             </label>
             <button
               type="button"
-              onClick={() => setForgotOpen(true)}
+              onClick={openForgot}
               className="text-sm text-blue-600 hover:text-blue-700 font-medium"
             >
               Forgot password?
@@ -450,81 +386,39 @@ function LoginPageInner() {
                   type="email"
                   required
                   value={resetEmail}
-                  onChange={(e) => {
-                    setResetEmail(e.target.value);
-                    setResetOtpVerified(false);
-                  }}
+                  onChange={(e) => setResetEmail(e.target.value)}
                   className="mt-1 h-11 w-full rounded-xl border border-gray-300 px-3 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-gray-900"
                 />
               </div>
-
-              <button
-                type="button"
-                onClick={sendResetOtp}
-                disabled={sendingResetOtp}
-                className="w-full rounded-xl border border-gray-300 bg-white py-2.5 text-sm font-semibold text-gray-800 disabled:opacity-60"
-              >
-                {sendingResetOtp ? "Sending OTP..." : "Send 6-digit OTP"}
-              </button>
 
               <div>
-                <label className="text-xs font-semibold uppercase tracking-wide text-gray-500">OTP</label>
+                <label className="text-xs font-semibold uppercase tracking-wide text-gray-500">New password</label>
                 <input
-                  type="text"
-                  inputMode="numeric"
-                  pattern="\d*"
-                  maxLength={6}
+                  type="password"
                   required
-                  value={resetOtp}
-                  onChange={(e) => {
-                    setResetOtp(e.target.value.replace(/\D/g, "").slice(0, 6));
-                    setResetOtpVerified(false);
-                  }}
-                  placeholder="Enter 6-digit code"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
                   className="mt-1 h-11 w-full rounded-xl border border-gray-300 px-3 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-gray-900"
                 />
               </div>
 
-              <button
-                type="button"
-                onClick={verifyResetOtp}
-                disabled={verifyingResetOtp || !/^\d{6}$/.test(resetOtp)}
-                className="w-full rounded-xl border border-gray-300 bg-white py-2.5 text-sm font-semibold text-gray-800 disabled:opacity-60"
-              >
-                {verifyingResetOtp ? "Verifying OTP..." : resetOtpVerified ? "OTP verified" : "Verify OTP"}
-              </button>
+              <div>
+                <label className="text-xs font-semibold uppercase tracking-wide text-gray-500">Confirm password</label>
+                <input
+                  type="password"
+                  required
+                  value={confirmNewPassword}
+                  onChange={(e) => setConfirmNewPassword(e.target.value)}
+                  className="mt-1 h-11 w-full rounded-xl border border-gray-300 px-3 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-gray-900"
+                />
+              </div>
 
-              {resetOtpVerified ? (
-                <>
-                  <div>
-                    <label className="text-xs font-semibold uppercase tracking-wide text-gray-500">New password</label>
-                    <input
-                      type="password"
-                      required
-                      value={newPassword}
-                      onChange={(e) => setNewPassword(e.target.value)}
-                      className="mt-1 h-11 w-full rounded-xl border border-gray-300 px-3 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-gray-900"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-xs font-semibold uppercase tracking-wide text-gray-500">Confirm password</label>
-                    <input
-                      type="password"
-                      required
-                      value={confirmNewPassword}
-                      onChange={(e) => setConfirmNewPassword(e.target.value)}
-                      className="mt-1 h-11 w-full rounded-xl border border-gray-300 px-3 text-sm text-gray-900 placeholder:text-gray-400 outline-none focus:border-gray-900"
-                    />
-                  </div>
-                </>
-              ) : null}
-
-              {resetHint ? <p className="text-xs text-emerald-700">{resetHint}</p> : null}
+              {resetSuccess ? <p className="text-xs text-emerald-700">{resetSuccess}</p> : null}
               {resetError ? <p className="text-xs text-red-600">{resetError}</p> : null}
 
               <button
                 type="submit"
-                disabled={resetting || !resetOtpVerified}
+                disabled={resetting}
                 className="w-full rounded-full bg-gray-900 py-3 text-sm font-semibold text-white disabled:opacity-60"
               >
                 {resetting ? "Resetting..." : "Reset password"}

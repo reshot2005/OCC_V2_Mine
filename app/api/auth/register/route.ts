@@ -5,7 +5,6 @@ import { ZodError } from "zod";
 import { prisma } from "@/lib/prisma";
 import { registerSchema } from "@/lib/validations";
 import { authCookieOptions, signAuthToken } from "@/lib/jwt";
-import { sha256Hex } from "@/lib/otp";
 import { attachStudentToReferralCode } from "@/lib/attach-referral";
 
 
@@ -34,41 +33,7 @@ export async function POST(req: NextRequest) {
         ? (body as { referralCode: string }).referralCode.trim().toUpperCase()
         : "";
 
-    // Referral code is now optional as requested by the user.
-    // If provided, we will validate and attach later in the flow.
-
-    const otpPhone = validated.phoneNumber;
-    const otpPurpose = "REGISTER" as const;
-
-    const latestOtpToken = await prisma.phoneOtpToken.findFirst({
-      where: {
-        phoneNumber: otpPhone,
-        purpose: otpPurpose,
-        usedAt: null,
-        expiresAt: { gt: new Date() },
-      },
-      orderBy: { createdAt: "desc" },
-    });
-
-    if (!latestOtpToken || latestOtpToken.attemptsLeft <= 0) {
-      return NextResponse.json({ error: "Invalid or expired OTP" }, { status: 400 });
-    }
-
-    const expectedHash = sha256Hex(`${otpPurpose}:${otpPhone}:${validated.otp}`);
-    if (expectedHash !== latestOtpToken.codeHash) {
-      const nextAttempts = Math.max(0, latestOtpToken.attemptsLeft - 1);
-      await prisma.phoneOtpToken.update({
-        where: { id: latestOtpToken.id },
-        data: {
-          attemptsLeft: nextAttempts,
-          usedAt: nextAttempts === 0 ? new Date() : null,
-        },
-      });
-      return NextResponse.json({ error: "Invalid or expired OTP" }, { status: 400 });
-    }
-
     const collegeName = validated.collegeName ?? "Unknown College";
-
     const phoneNumber = validated.phoneNumber;
 
     const existingUser = await prisma.user.findFirst({
@@ -104,11 +69,6 @@ export async function POST(req: NextRequest) {
         email: true,
         collegeName: true,
       },
-    });
-
-    await prisma.phoneOtpToken.update({
-      where: { id: latestOtpToken.id },
-      data: { usedAt: new Date() },
     });
 
     if (referralCode) {
