@@ -12,7 +12,7 @@ export default async function AdminCPUsersPage() {
       referrer: { select: { fullName: true, referralCode: true } },
       memberships: { select: { club: { select: { name: true } } } },
     },
-    orderBy: { createdAt: "desc" },
+    orderBy: { updatedAt: "desc" },
   });
 
   return (

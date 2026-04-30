@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
-import { Search, Ban, Key, Trash2, UserCheck } from "lucide-react";
+import { Search, Ban, Key, Trash2, UserCheck, Flag } from "lucide-react";
 import { pusherClient } from "@/lib/pusher";
 
 type User = {
@@ -241,31 +241,36 @@ export function UsersCRUD({ users: initial }: { users: User[] }) {
                   <td className="px-4 py-3">
                     <p className="font-semibold text-white text-[13px]">{u.fullName}</p>
                     <p className="text-[11px] text-white/40 font-mono">{u.email}</p>
-                    {u.phoneNumber && (
-                      <div className="flex flex-col gap-1 mt-0.5">
-                        <div className="flex items-center gap-1.5">
-                          <p className={`text-[10px] font-mono italic ${isNewUser && u.isPhoneLegit ? "text-[#00E87A]" : !u.isPhoneLegit ? "text-red-400/80" : "text-white/40"}`}>
-                            {u.phoneNumber}
-                          </p>
-                          {u.isPhoneLegit ? (
-                            isNewUser ? (
-                              <div className="flex h-3 w-3 items-center justify-center rounded-full bg-[#00E87A]/20" title="Verified New User">
-                                <div className="h-1.5 w-1.5 rounded-full bg-[#00E87A]" />
-                              </div>
-                            ) : null
-                          ) : (
-                            <div className="flex h-3 w-3 items-center justify-center rounded-full bg-red-500/20" title="Suspicious / Dummy Pattern">
-                              <div className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                    <div className="flex flex-col gap-1 mt-0.5">
+                      <div className="flex items-center gap-1.5">
+                        <p className={`text-[10px] font-mono italic ${u.isPhoneLegit ? "text-[#00E87A]" : "text-red-400/80"}`}>
+                          {u.phoneNumber}
+                        </p>
+                        {u.isPhoneLegit && (
+                          <div className="flex items-center gap-1">
+                            <div className="flex h-3 w-3 items-center justify-center rounded-full bg-[#00E87A]/20" title="Verified Phone">
+                              <div className="h-1.5 w-1.5 rounded-full bg-[#00E87A]" />
                             </div>
-                          )}
-                        </div>
-                        {(!u.isPhoneLegit || (isNewUser && u.isPhoneLegit)) && (
-                          <span className={`text-[8px] font-black tracking-widest uppercase w-fit px-1 rounded ${u.isPhoneLegit ? "bg-[#00E87A]/10 text-[#00E87A]/70" : "bg-red-500/10 text-red-500/60"}`}>
-                            {u.isPhoneLegit ? "Verified" : "Suspect"}
-                          </span>
+                            {new Date().getTime() - new Date(u.updatedAt).getTime() < 120 * 60 * 1000 && (
+                              <div className="flex items-center gap-1 bg-[#00E87A]/10 px-1.5 py-0.5 rounded border border-[#00E87A]/20 animate-pulse">
+                                <Flag className="h-2 w-2 text-[#00E87A]" fill="currentColor" />
+                                <span className="text-[8px] font-black text-[#00E87A] tracking-tighter">JUST UPDATED</span>
+                              </div>
+                            )}
+                          </div>
+                        )}
+                        {!u.isPhoneLegit && u.phoneNumber && (
+                          <div className="flex h-3 w-3 items-center justify-center rounded-full bg-red-500/20" title="Suspicious Pattern">
+                            <div className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                          </div>
                         )}
                       </div>
-                    )}
+                      {u.phoneNumber && (
+                        <span className={`text-[8px] font-black tracking-widest uppercase w-fit px-1 rounded ${u.isPhoneLegit ? "bg-[#00E87A]/10 text-[#00E87A]/70" : "bg-red-500/10 text-red-500/60"}`}>
+                          {u.isPhoneLegit ? "VERIFIED" : "SUSPECT"}
+                        </span>
+                      )}
+                    </div>
                     <p className="text-[10px] text-white/25 mt-0.5">{u.collegeName}</p>
                   </td>
                   <td className="px-4 py-3">
