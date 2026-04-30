@@ -30,11 +30,9 @@ export default function OnboardingPage() {
         const res = await fetch("/api/profile");
         if (res.ok) {
           const profile = await res.json();
-          // If they have a college name but no real phone, jump to Step 3
+          // If they have a college name, jump straight to Step 3 to force phone confirmation
           const hasCollege = profile.collegeName && profile.collegeName !== "Not specified";
-          const hasPhone = isLegitIndianMobile(profile.phoneNumber);
-          
-          if (hasCollege && !hasPhone) {
+          if (hasCollege) {
             setCollegeName(profile.collegeName);
             setReferralSource(profile.referralSource || "Other");
             setStep(3);

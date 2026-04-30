@@ -19,12 +19,13 @@ export default async function DashboardLayout({
   const user = await requireUser();
   const path = headers().get("next-url") ?? "/dashboard";
 
-  // Strict Phone Audit: Force redirect if no legit phone number exists
-  const { isLegitIndianMobile } = await import("@/lib/phone-utils");
-  const hasLegitPhone = isLegitIndianMobile(user.phoneNumber);
-  
-  // Everyone must have a legit phone number, including Admins and Club Headers
-  if (!hasLegitPhone) {
+  // Strict Phone Audit: Everyone must have a confirmed phone number in this session
+  const { verifyAuthToken } = await import("@/lib/jwt");
+  const cookieStore = (await import("next/headers")).cookies();
+  const token = cookieStore.get("occ-token")?.value;
+  const payload = token ? await verifyAuthToken(token).catch(() => null) : null;
+
+  if (!payload || !payload.phoneConfirmed) {
     const { redirect } = await import("next/navigation");
     redirect("/onboarding");
   }
