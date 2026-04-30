@@ -5,6 +5,7 @@ import { authCookieOptionsForDays, signAuthToken } from "@/lib/jwt";
 import { prisma } from "@/lib/prisma";
 import { loginSchema } from "@/lib/validations";
 import { ACTIVITY_CATEGORIES, extractRequestIp, logActivityEvent } from "@/lib/activity-events";
+import { isLegitIndianMobile } from "@/lib/phone-utils";
 
 const loginRateMap =
   (globalThis as unknown as { __occLoginRateMap?: Map<string, { count: number; resetAt: number }> })
@@ -100,7 +101,7 @@ export async function POST(req: NextRequest) {
         approvalStatus: user.approvalStatus as "PENDING" | "APPROVED" | "REJECTED",
         suspended: user.suspended,
         onboardingComplete: user.onboardingComplete,
-        hasPhone: !!(user.phoneNumber && user.phoneNumber.replace(/\D/g, "").length === 10),
+        hasPhone: isLegitIndianMobile(user.phoneNumber),
       },
       { expiresIn: `${sessionDays}d` },
     );

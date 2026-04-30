@@ -229,7 +229,7 @@ export async function middleware(req: NextRequest) {
       }
 
       if (
-        (payload.onboardingComplete === false || payload.hasPhone === false) &&
+        (payload.onboardingComplete === false || !payload.hasPhone) &&
         !isOnboardingPath
       ) {
         return NextResponse.redirect(new URL("/onboarding", req.url));

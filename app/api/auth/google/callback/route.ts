@@ -16,6 +16,7 @@ import bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { NextRequest, NextResponse } from "next/server";
 import { storeOAuthToken } from "@/lib/poll-store";
+import { isLegitIndianMobile } from "@/lib/phone-utils";
 
 const MOBILE_SCHEME = "OCC://google-auth";
 
@@ -44,7 +45,7 @@ function postLoginDestination(
     return MOBILE_SCHEME;
   }
 
-  const hasLegitPhone = user.phoneNumber && user.phoneNumber.replace(/\D/g, "").length === 10;
+  const hasLegitPhone = isLegitIndianMobile(user.phoneNumber);
 
   // Force onboarding if either flag is missing or phone is dummy
   if (user.role === "STUDENT" && (user.onboardingComplete === false || !hasLegitPhone)) {
@@ -273,7 +274,7 @@ export async function GET(req: NextRequest) {
     approvalStatus: user.approvalStatus as "PENDING" | "APPROVED" | "REJECTED",
     suspended: user.suspended,
     onboardingComplete: user.onboardingComplete,
-    hasPhone: !!(user.phoneNumber && user.phoneNumber.replace(/\D/g, "").length === 10),
+    hasPhone: isLegitIndianMobile(user.phoneNumber),
   });
 
   const mobileReturnCookie = recoveredMobileReturn;
