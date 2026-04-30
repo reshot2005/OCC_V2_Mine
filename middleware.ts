@@ -163,8 +163,8 @@ export async function middleware(req: NextRequest) {
         response.cookies.delete("occ-token");
         return response;
       }
-      // Only allow access to onboarding if they haven't finished it or lack a phone
-      if (payload.onboardingComplete === true && payload.hasPhone === true) {
+      // Only allow access to onboarding if they haven't confirmed their phone for this session
+      if (payload.onboardingComplete === true && payload.phoneConfirmed === true) {
         return NextResponse.redirect(new URL("/dashboard", req.url));
       }
       return NextResponse.next();
