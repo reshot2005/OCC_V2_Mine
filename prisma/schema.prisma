@@ -29,6 +29,7 @@ model User {
   suspended              Boolean             @default(false)
   pendingLeadClubId      String?
   onboardingComplete     Boolean             @default(false)
+  phoneVerified          Boolean             @default(false)
   referralSource         String?
   adminLevel             String?
   adminRoleTemplateId    String?

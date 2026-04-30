@@ -47,8 +47,8 @@ function postLoginDestination(
 
   const hasLegitPhone = isLegitIndianMobile(user.phoneNumber);
 
-  // Force onboarding if either flag is missing or phone is dummy
-  if (user.role === "STUDENT" && (user.onboardingComplete === false || !hasLegitPhone)) {
+  // Force onboarding if either flag is missing or phone is dummy or not verified in DB
+  if (user.role === "STUDENT" && (user.onboardingComplete === false || !hasLegitPhone || !user.phoneVerified)) {
     return "/onboarding";
   }
 
@@ -274,6 +274,7 @@ export async function GET(req: NextRequest) {
     approvalStatus: user.approvalStatus as "PENDING" | "APPROVED" | "REJECTED",
     suspended: user.suspended,
     onboardingComplete: user.onboardingComplete,
+    phoneVerified: user.phoneVerified,
     hasPhone: isLegitIndianMobile(user.phoneNumber),
   });
 

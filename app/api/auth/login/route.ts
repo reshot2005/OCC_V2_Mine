@@ -101,6 +101,7 @@ export async function POST(req: NextRequest) {
         approvalStatus: user.approvalStatus as "PENDING" | "APPROVED" | "REJECTED",
         suspended: user.suspended,
         onboardingComplete: user.onboardingComplete,
+        phoneVerified: user.phoneVerified,
         hasPhone: isLegitIndianMobile(user.phoneNumber),
       },
       { expiresIn: `${sessionDays}d` },

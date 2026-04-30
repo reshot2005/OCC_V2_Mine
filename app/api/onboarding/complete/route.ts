@@ -83,6 +83,7 @@ export async function POST(req: NextRequest) {
       where: { id: user.id },
       data: {
         onboardingComplete: true,
+        phoneVerified: true,
         referralSource,
         collegeName,
         phoneNumber: cleanPhone,
@@ -114,7 +115,7 @@ export async function POST(req: NextRequest) {
       suspended: refreshed.suspended,
       onboardingComplete: refreshed.onboardingComplete,
       hasPhone: true,
-      phoneConfirmed: true,
+      phoneVerified: true,
     });
 
     const res = NextResponse.json({ success: true });
