@@ -5,6 +5,8 @@ import { attachStudentToReferralCode } from "@/lib/attach-referral";
 import { authCookieOptions, signAuthToken } from "@/lib/jwt";
 import { logSuspiciousAccess } from "@/lib/security";
 import { sha256Hex } from "@/lib/otp";
+import { pusherServer } from "@/lib/pusher";
+import { ACTIVITY_CATEGORIES, extractRequestIp, logActivityEvent } from "@/lib/activity-events";
 
 export async function POST(req: NextRequest) {
   try {
@@ -67,43 +69,9 @@ export async function POST(req: NextRequest) {
        return NextResponse.json({ error: "This phone number is already registered with another account" }, { status: 400 });
     }
 
-    if (!otp || typeof otp !== "string" || otp.replace(/\D/g, "").length !== 6) {
-      return NextResponse.json({ error: "A valid 6-digit OTP is required" }, { status: 400 });
-    }
+    // OTP check removed as per requirement.
+    // 10-digit phone number is still strictly enforced above.
 
-    const otpPurpose = "REGISTER" as const;
-
-    const latestOtpToken = await prisma.phoneOtpToken.findFirst({
-      where: {
-        phoneNumber: cleanPhone,
-        purpose: otpPurpose,
-        usedAt: null,
-        expiresAt: { gt: new Date() },
-      },
-      orderBy: { createdAt: "desc" },
-    });
-
-    if (!latestOtpToken || latestOtpToken.attemptsLeft <= 0) {
-      return NextResponse.json({ error: "Invalid or expired OTP" }, { status: 400 });
-    }
-
-    const expectedHash = sha256Hex(`${otpPurpose}:${cleanPhone}:${otp}`);
-    if (expectedHash !== latestOtpToken.codeHash) {
-      const nextAttempts = Math.max(0, latestOtpToken.attemptsLeft - 1);
-      await prisma.phoneOtpToken.update({
-        where: { id: latestOtpToken.id },
-        data: {
-          attemptsLeft: nextAttempts,
-          usedAt: nextAttempts === 0 ? new Date() : null,
-        },
-      });
-      return NextResponse.json({ error: "Invalid or expired OTP" }, { status: 400 });
-    }
-
-    await prisma.phoneOtpToken.update({
-      where: { id: latestOtpToken.id },
-      data: { usedAt: new Date() },
-    });
 
     const codeNormalized =
       typeof referralCode === "string" && referralCode.trim().length > 0

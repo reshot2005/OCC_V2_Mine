@@ -1,0 +1,7 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep -rn \"phoneNumber.*replace.*\\\\\\\\\\\\\\\\D.*length\\\\|\\\\.length === 10.*phone\\\\|phone.*\\\\.length === 10\" --include=\"*.ts\" --include=\"*.tsx\")"
+    ]
+  }
+}
