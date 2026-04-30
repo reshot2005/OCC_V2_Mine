@@ -25,7 +25,6 @@ export async function getLightSessionUser() {
       },
     });
     if (!user || user.suspended) return null;
-    if (user.role === "STUDENT" && !user.emailVerified) return null;
     return user;
   } catch {
     return null;
@@ -69,8 +68,6 @@ export async function getSessionUser() {
       },
     });
     if (user?.suspended) return null;
-    // Security policy: students must complete OTP verification before any authenticated access.
-    if (user?.role === "STUDENT" && !user.emailVerified) return null;
     return user;
   } catch {
     return null;

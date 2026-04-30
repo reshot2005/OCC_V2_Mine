@@ -91,12 +91,6 @@ export async function POST(req: NextRequest) {
     if (user.suspended) {
       return NextResponse.json({ error: "Account suspended" }, { status: 403 });
     }
-    if (user.role === "STUDENT" && !user.emailVerified) {
-      return NextResponse.json(
-        { error: "Please complete OTP verification during registration before logging in." },
-        { status: 403 },
-      );
-    }
 
     const token = await signAuthToken(
       {

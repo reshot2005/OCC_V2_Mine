@@ -6,6 +6,7 @@ import { Loader2, CheckCircle2, XCircle, ArrowRight, MessageCircle, Globe, Users
 import { toast } from "sonner";
 import { REFERRAL_CODE_MIN_LEN } from "@/lib/validations";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/app/components/ui/input-otp";
+import { isLegitIndianMobile } from "@/lib/phone-utils";
 
 const REFERRAL_SOURCES = [
   { id: "Instagram", icon: Globe },
@@ -31,13 +32,15 @@ export default function OnboardingPage() {
           const profile = await res.json();
           // If they have a college name but no real phone, jump to Step 3
           const hasCollege = profile.collegeName && profile.collegeName !== "Not specified";
-          const hasPhone = profile.phoneNumber && profile.phoneNumber.replace(/\D/g, "").length === 10;
+          const hasPhone = isLegitIndianMobile(profile.phoneNumber);
           
           if (hasCollege && !hasPhone) {
             setCollegeName(profile.collegeName);
             setReferralSource(profile.referralSource || "Other");
             setStep(3);
           }
+        } else if (res.status === 401) {
+          window.location.href = "/login?reauth=1";
         }
       } catch (e) {
         console.error("Failed to check profile status", e);

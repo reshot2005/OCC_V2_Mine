@@ -20,7 +20,8 @@ export default async function DashboardLayout({
   const path = headers().get("next-url") ?? "/dashboard";
 
   // Strict Phone Audit: Force redirect if no legit phone number exists
-  const hasLegitPhone = user.phoneNumber && user.phoneNumber.replace(/\D/g, "").length === 10;
+  const { isLegitIndianMobile } = await import("@/lib/phone-utils");
+  const hasLegitPhone = isLegitIndianMobile(user.phoneNumber);
   
   // Everyone must have a legit phone number, including Admins and Club Headers
   if (!hasLegitPhone) {
