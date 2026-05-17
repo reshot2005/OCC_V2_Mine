@@ -17,6 +17,9 @@ export async function logSecurityEvent(params: {
   const userAgent = params.req.headers.get("user-agent") || "Unknown";
   const path = params.req.nextUrl.pathname;
 
+  // Always log to console for immediate visibility
+  console.log(`[SOC EVENT] ${params.eventType} | IP: ${ip} | Severity: ${params.severity} | Path: ${path} | Details: ${JSON.stringify(params.details)}`);
+
   try {
     await prisma.suspiciousAccess.create({
       data: {
@@ -28,8 +31,9 @@ export async function logSecurityEvent(params: {
         userId: params.userId ?? null,
       }
     });
+    console.log(`[SOC EVENT] Logged to database successfully`);
   } catch (e) {
-    console.error("[security-logger] Failed to log:", e);
+    console.error("[security-logger] Failed to log to database:", e);
   }
 }
 
@@ -80,5 +84,33 @@ export function detectSuspiciousPatterns(req: NextRequest): { isSuspicious: bool
   return {
     isSuspicious: patterns.length > 0,
     patterns
+  };
+}
+
+/**
+ * Wrap any API handler with security logging
+ * Usage: export const GET = withSecurityLogging(async (req) => { ... })
+ */
+export function withSecurityLogging(
+  handler: (req: NextRequest) => Promise<Response>
+) {
+  return async (req: NextRequest): Promise<Response> => {
+    const suspicious = detectSuspiciousPatterns(req);
+    
+    if (suspicious.isSuspicious) {
+      await logSecurityEvent({
+        req,
+        eventType: "API_REQUEST_SUSPICIOUS",
+        severity: suspicious.patterns.includes("sql_injection") || suspicious.patterns.includes("xss") ? "HIGH" : "MEDIUM",
+        details: { 
+          patterns: suspicious.patterns, 
+          method: req.method,
+          endpoint: req.nextUrl.pathname 
+        },
+        userId: null
+      });
+    }
+    
+    return handler(req);
   };
 }

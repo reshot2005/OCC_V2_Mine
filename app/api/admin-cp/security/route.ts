@@ -143,7 +143,28 @@ export async function GET(req: NextRequest) {
     severity: r._count.id > 20 ? "CRITICAL" : r._count.id > 10 ? "HIGH" : "MEDIUM"
   }));
 
+  // Format events for the dashboard page
+  const events = suspiciousAccess.map(s => ({
+    id: s.id,
+    ipAddress: s.ipAddress,
+    userAgent: s.userAgent,
+    path: s.path,
+    reason: s.reason,
+    severity: s.severity as "LOW" | "MEDIUM" | "HIGH" | "CRITICAL",
+    userId: s.userId,
+    createdAt: s.createdAt.toISOString()
+  }));
+
+  // Calculate stats
+  const total = events.length;
+  const high = events.filter(e => e.severity === "HIGH").length;
+  const critical = events.filter(e => e.severity === "CRITICAL").length;
+  const uniqueEventIps = new Set(events.map(e => e.ipAddress)).size;
+
   return NextResponse.json({
+    events,
+    totalPages: Math.ceil(total / 20) || 1,
+    stats: { total, high, critical, uniqueIps: uniqueEventIps },
     summary: {
       timeRange,
       since: since.toISOString(),
@@ -156,16 +177,7 @@ export async function GET(req: NextRequest) {
       criticalAlerts,
       attackDetection: attackPatterns
     },
-    suspiciousAccess: suspiciousAccess.map(s => ({
-      id: s.id,
-      ipAddress: s.ipAddress,
-      userAgent: s.userAgent,
-      path: s.path,
-      reason: s.reason,
-      severity: s.severity,
-      resolved: s.resolved,
-      createdAt: s.createdAt
-    })),
+    suspiciousAccess: events,
     activityEvents: activityEvents.map(e => ({
       id: e.id,
       actorName: e.actorName,

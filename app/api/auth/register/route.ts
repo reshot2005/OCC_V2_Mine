@@ -6,9 +6,21 @@ import { prisma } from "@/lib/prisma";
 import { registerSchema } from "@/lib/validations";
 import { authCookieOptions, signAuthToken } from "@/lib/jwt";
 import { attachStudentToReferralCode } from "@/lib/attach-referral";
+import { logSecurityEvent, detectSuspiciousPatterns } from "@/lib/security-logger";
 
 
 export async function POST(req: NextRequest) {
+  // ── SOC SECURITY: Check for suspicious patterns ──
+  const suspicious = detectSuspiciousPatterns(req);
+  if (suspicious.isSuspicious) {
+    await logSecurityEvent({
+      req,
+      eventType: "REGISTER_ATTEMPT_SUSPICIOUS",
+      severity: suspicious.patterns.includes("sql_injection") || suspicious.patterns.includes("xss") ? "HIGH" : "MEDIUM",
+      details: { patterns: suspicious.patterns },
+      userId: null
+    });
+  }
   try {
     if (!process.env.DATABASE_URL) {
       return NextResponse.json({ error: "Server is not configured" }, { status: 503 });
