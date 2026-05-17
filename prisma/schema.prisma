@@ -507,6 +507,53 @@ model SuspiciousAccess {
   @@map("suspicious_access")
 }
 
+model SecurityEvent {
+  id                 String   @id @default(cuid())
+  eventType          String
+  severity           String   @default("MEDIUM")
+  ipAddress          String
+  userAgent          String
+  acceptLanguage     String
+  acceptEncoding     String
+  userId             String?
+  path               String
+  method             String
+  queryString        String?
+  headers            String
+  automationScore    Int      @default(0)
+  isKnownBot         Boolean  @default(false)
+  isScriptTool       Boolean  @default(false)
+  isHeadlessBrowser  Boolean  @default(false)
+  suspiciousHeaders   String[]
+  detectedAttacks     String[]
+  details            Json?
+  metadata           Json?
+  blocked            Boolean  @default(false)
+  createdAt          DateTime @default(now())
+
+  @@index([severity, createdAt])
+  @@index([ipAddress, createdAt])
+  @@index([eventType, createdAt])
+  @@index([automationScore])
+  @@map("security_events")
+}
+
+model SecurityAlert {
+  id         String   @id @default(cuid())
+  type       String
+  severity   String   @default("MEDIUM")
+  ipAddress  String
+  userAgent  String
+  path       String
+  details    Json?
+  resolved   Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  @@index([severity, resolved, createdAt])
+  @@index([ipAddress, createdAt])
+  @@map("security_alerts")
+}
+
 enum UserRole {
   STUDENT
   CLUB_HEADER

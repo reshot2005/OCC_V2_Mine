@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyAuthToken } from "@/lib/jwt";
 import { staffGateHref, STAFF_PUBLIC_PREFIX, ADMIN_CP_PREFIX } from "@/lib/staff-paths";
+import { performSecurityCheck } from "@/lib/security-middleware";
 
 // ── Security: sensitive file patterns that must NEVER be served ──
 const BLOCKED_FILES = /(\.env|\.git|\.git\/|package\.json|package-lock\.json|pnpm-lock\.yaml)$/i;
@@ -97,6 +98,32 @@ export async function middleware(req: NextRequest) {
   const token = req.cookies.get("occ-token")?.value;
   const { pathname, search } = req.nextUrl;
   const reauthRequested = req.nextUrl.searchParams.get("reauth") === "1";
+
+  // ── SOC SECURITY MONITORING: Analyze all requests for attacks ──
+  let userId: string | null = null;
+  if (token) {
+    try {
+      const payload = await verifyAuthToken(token);
+      userId = payload.userId;
+    } catch {
+      /* invalid token, continue with userId = null */
+    }
+  }
+  
+  const securityCheck = await performSecurityCheck(req, userId);
+  if (securityCheck.shouldBlock) {
+    console.warn(
+      `[SOC BLOCKED] IP: ${securityCheck.fingerprint.ip} | ` +
+      `Score: ${securityCheck.fingerprint.automationScore} | ` +
+      `Reason: ${securityCheck.reason}`
+    );
+    return new NextResponse("Access Denied", {
+      status: 403,
+      headers: {
+        'X-Security-Reason': securityCheck.reason || 'Security policy violation'
+      }
+    });
+  }
 
   // ── P1 FIX: Block _buildManifest.js to prevent internal route leaking ──
   if (BUILD_MANIFEST_PATTERN.test(pathname)) {
