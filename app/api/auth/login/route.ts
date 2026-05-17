@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { loginSchema } from "@/lib/validations";
 import { ACTIVITY_CATEGORIES, extractRequestIp, logActivityEvent } from "@/lib/activity-events";
 import { isLegitIndianMobile } from "@/lib/phone-utils";
+import { logSecurityEvent, detectSuspiciousPatterns } from "@/lib/security-logger";
 
 const loginRateMap =
   (globalThis as unknown as { __occLoginRateMap?: Map<string, { count: number; resetAt: number }> })
@@ -21,6 +22,18 @@ function getRateKey(req: NextRequest, email: string) {
 
 export async function POST(req: NextRequest) {
   try {
+    // ── SOC SECURITY: Check for suspicious patterns ──
+    const suspicious = detectSuspiciousPatterns(req);
+    if (suspicious.isSuspicious) {
+      await logSecurityEvent({
+        req,
+        eventType: "LOGIN_ATTEMPT_SUSPICIOUS",
+        severity: suspicious.patterns.includes("sql_injection") || suspicious.patterns.includes("xss") ? "HIGH" : "MEDIUM",
+        details: { patterns: suspicious.patterns, email: "unknown" },
+        userId: null
+      });
+    }
+
     if (!process.env.DATABASE_URL) {
       throw new Error("DATABASE_URL is not configured");
     }

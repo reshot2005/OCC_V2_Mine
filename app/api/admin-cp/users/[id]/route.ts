@@ -1,10 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
+import { requireAdminPermission } from "@/lib/admin-api-guard";
 import { prisma } from "@/lib/prisma";
 import { logAudit } from "@/lib/audit";
-import { z } from "zod";
-import bcrypt from "bcryptjs";
-import { requireAdminPermission } from "@/lib/admin-api-guard";
 import { checkAdminMutationRateLimit } from "@/lib/admin-rate-limit";
+import { logSecurityEvent, detectSuspiciousPatterns } from "@/lib/security-logger";
+import bcrypt from "bcryptjs";
+import { z } from "zod";
 
 const patchSchema = z.object({
   suspended: z.boolean().optional(),
@@ -12,6 +13,18 @@ const patchSchema = z.object({
 });
 
 export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+  // ── SOC SECURITY: Check for suspicious patterns ──
+  const suspicious = detectSuspiciousPatterns(req);
+  if (suspicious.isSuspicious) {
+    await logSecurityEvent({
+      req,
+      eventType: "ADMIN_API_SUSPICIOUS",
+      severity: suspicious.patterns.includes("sql_injection") || suspicious.patterns.includes("xss") ? "HIGH" : "MEDIUM",
+      details: { patterns: suspicious.patterns, endpoint: "admin-cp/users/[id]" },
+      userId: null
+    });
+  }
+
   const base = await requireAdminPermission("users", "update");
   if (base instanceof NextResponse) return base;
   const rl = checkAdminMutationRateLimit({ req, adminId: base.id, action: "admin-cp-user-patch", limit: 40 });
